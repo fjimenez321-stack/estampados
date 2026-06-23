@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taller de Tazas · Diseña la tuya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bone:#F6F1E7;
+    --bone-2:#EFE8D9;
+    --clay:#E7DCC8;
+    --ink:#20304F;          /* cobalto */
+    --ink-soft:#3C4D6E;
+    --ember:#D85A2A;        /* brasa, acento de acción */
+    --ember-dk:#BC4719;
+    --espresso:#17120E;     /* escenario */
+    --espresso-2:#241B14;
+    --glaze:#FBF8F2;
+    --teal:#2E7D72;         /* selección */
+    --line:rgba(32,48,79,.16);
+    --radius:14px;
+    --shadow:0 18px 40px -22px rgba(23,18,14,.55);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--bone);color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.02}
+  .mono{font-family:"Space Mono",monospace}
+  button{font-family:inherit;cursor:pointer}
+  :focus-visible{outline:3px solid var(--ember);outline-offset:2px;border-radius:4px}
+
+  /* ---------- top bar ---------- */
+  header{
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    padding:1rem clamp(1rem,4vw,2.5rem);border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:rgba(246,241,231,.86);backdrop-filter:blur(8px);z-index:30;
+  }
+  .brand{display:flex;align-items:center;gap:.7rem}
+  .brand .glyph{
+    width:38px;height:38px;border-radius:50% 50% 46% 46%/46% 46% 54% 54%;
+    background:linear-gradient(160deg,var(--glaze),var(--clay));
+    border:2px solid var(--ink);position:relative;flex:none;
+  }
+  .brand .glyph::after{content:"";position:absolute;right:-8px;top:8px;width:14px;height:18px;border:3px solid var(--ink);border-left:none;border-radius:0 12px 12px 0}
+  .brand b{font-family:"Bricolage Grotesque";font-weight:800;font-size:1.15rem;letter-spacing:-.02em}
+  .brand small{display:block;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+  .head-note{font-size:.8rem;color:var(--ink-soft);max-width:30ch;text-align:right}
+  @media(max-width:680px){.head-note{display:none}}
+
+  /* ---------- hero strip ---------- */
+  .hero{
+    padding:clamp(1.6rem,5vw,3rem) clamp(1rem,4vw,2.5rem) 1rem;
+    display:grid;gap:.4rem;max-width:1320px;margin:0 auto;
+  }
+  .eyebrow{font-family:"Space Mono";font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ember-dk)}
+  .hero h1{font-size:clamp(2.1rem,6vw,3.7rem);max-width:18ch}
+  .hero h1 em{font-style:normal;color:var(--ember)}
+  .hero p{max-width:54ch;color:var(--ink-soft);font-size:1.02rem}
+
+  /* ---------- workspace ---------- */
+  .workspace{
+    max-width:1320px;margin:0 auto;padding:1rem clamp(1rem,4vw,2.5rem) 3rem;
+    display:grid;grid-template-columns:300px minmax(0,1fr) 320px;gap:1.25rem;align-items:start;
+  }
+  @media(max-width:1080px){.workspace{grid-template-columns:1fr 1fr}.col-stage{grid-column:1/-1;order:-1}}
+  @media(max-width:720px){.workspace{grid-template-columns:1fr}}
+
+  .panel{background:var(--bone-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem}
+  .panel + .panel{margin-top:1rem}
+  .panel h3{font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-family:"Space Mono";font-weight:700;margin:0 0 .85rem}
+
+  label.field{display:block;font-size:.82rem;font-weight:500;margin:.7rem 0 .3rem;color:var(--ink)}
+  .ctrl{
+    width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:9px;
+    background:var(--bone);color:var(--ink);font-size:.92rem;font-family:inherit;
+  }
+  select.ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2320304F' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:2rem}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;
+    padding:.7rem .9rem;border-radius:10px;border:1px solid var(--ink);
+    background:var(--ink);color:var(--glaze);font-weight:600;font-size:.92rem;transition:transform .08s ease,background .15s;
+  }
+  .btn:hover{background:var(--ink-soft)}
+  .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.ghost:hover{background:rgba(32,48,79,.07)}
+  .btn.ember{background:var(--ember);border-color:var(--ember-dk);color:#fff}
+  .btn.ember:hover{background:var(--ember-dk)}
+  .btn-row{display:flex;gap:.5rem;margin-top:.6rem}
+  .btn-row .btn{flex:1}
+  .upload{position:relative;overflow:hidden}
+  .upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+  /* color swatches */
+  .swatches{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.3rem}
+  .sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;position:relative}
+  .sw[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bone-2),0 0 0 4px var(--ink)}
+
+  /* range */
+  input[type=range]{width:100%;accent-color:var(--ember)}
+
+  /* model cards */
+  .models{display:grid;gap:.5rem}
+  .model{
+    display:flex;gap:.7rem;align-items:center;padding:.6rem;border:1px solid var(--line);
+    border-radius:11px;background:var(--bone);cursor:pointer;text-align:left;width:100%;color:inherit;
+  }
+  .model[aria-pressed="true"]{border-color:var(--ember);background:#fff;box-shadow:inset 0 0 0 1px var(--ember)}
+  .model .mug-ic{width:34px;height:34px;border-radius:7px 7px 9px 9px;border:2px solid var(--ink);flex:none}
+  .model .m-name{font-weight:600;font-size:.9rem;display:block}
+  .model .m-price{font-family:"Space Mono";font-size:.8rem;color:var(--ink-soft)}
+
+  /* ---------- stage ---------- */
+  .stage{
+    background:radial-gradient(120% 120% at 50% 0%,var(--espresso-2),var(--espresso));
+    border-radius:var(--radius);padding:clamp(1.2rem,4vw,2.4rem);box-shadow:var(--shadow);
+    display:grid;gap:1.4rem;place-items:center;
+  }
+  .mug-preview{position:relative;width:min(360px,72vw);aspect-ratio:1.18/1;display:grid;place-items:center}
+  .mug-body{
+    position:relative;width:74%;height:80%;border-radius:14px 14px 22px 22px;overflow:hidden;
+    background:var(--glaze);box-shadow:0 24px 40px -18px rgba(0,0,0,.7);
+  }
+  .mug-print{position:absolute;inset:0;background-size:contain;background-repeat:no-repeat;background-position:center}
+  /* curved ceramic sheen overlay */
+  .mug-body::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(0,0,0,0) 22%,rgba(255,255,255,.5) 48%,rgba(255,255,255,0) 60%,rgba(0,0,0,.22));
+    mix-blend-mode:soft-light;z-index:2}
+  .mug-body::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+    box-shadow:inset 0 0 22px rgba(0,0,0,.18);z-index:3}
+  .mug-handle{position:absolute;right:calc(13% - 30px);top:30%;width:54px;height:46%;
+    border:11px solid var(--glaze);border-left:none;border-radius:0 30px 30px 0;box-shadow:0 10px 18px -10px rgba(0,0,0,.7)}
+  .mug-shadow{position:absolute;bottom:6%;width:62%;height:18px;background:rgba(0,0,0,.45);filter:blur(11px);border-radius:50%}
+  .stage-cap{color:var(--clay);font-size:.78rem;letter-spacing:.06em;text-align:center;font-family:"Space Mono"}
+  .stage-cap b{color:var(--glaze)}
+
+  /* editable print area */
+  .editor-wrap{width:100%;max-width:680px;margin:0 auto}
+  .editor-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 .5rem}
+  .editor-head h2{font-size:1.05rem;color:var(--ink)}
+  .editor-head span{font-family:"Space Mono";font-size:.72rem;color:var(--ink-soft)}
+  .canvas-shell{
+    position:relative;width:100%;aspect-ratio:2.35/1;border:2px dashed var(--line);border-radius:12px;
+    background:
+      linear-gradient(45deg,#ece5d6 25%,transparent 25%,transparent 75%,#ece5d6 75%) 0 0/22px 22px,
+      linear-gradient(45deg,#ece5d6 25%,#f3ede0 25%,#f3ede0 75%,#ece5d6 75%) 11px 11px/22px 22px;
+    overflow:hidden;touch-action:none;
+  }
+  #design{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+  #design.dragging{cursor:grabbing}
+  .editor-hint{font-size:.78rem;color:var(--ink-soft);margin:.55rem 0 0;text-align:center}
+
+  /* selected element toolbar */
+  .seltools{margin-top:.7rem;display:none;background:var(--bone-2);border:1px solid var(--line);border-radius:11px;padding:.8rem}
+  .seltools.show{display:block}
+  .seltools .row{display:flex;gap:.5rem;align-items:center;margin-top:.55rem}
+  .seltools .row:first-child{margin-top:0}
+  .seltools .row > label{flex:none;width:62px;font-size:.78rem;color:var(--ink-soft)}
+  .pill{padding:.45rem .6rem;border:1px solid var(--line);border-radius:8px;background:var(--bone);font-size:.82rem}
+
+  /* ---------- order docket ---------- */
+  .docket{
+    background:var(--glaze);border:1px solid var(--line);border-radius:var(--radius);
+    position:relative;box-shadow:var(--shadow);overflow:hidden;
+  }
+  .docket::before,.docket::after{content:"";position:absolute;left:0;right:0;height:14px;
+    background-image:radial-gradient(circle,var(--bone) 5px,transparent 5.5px);background-size:18px 14px;background-position:center}
+  .docket::before{top:-7px}.docket::after{bottom:-7px}
+  .docket-in{padding:1.2rem}
+  .docket h3{font-family:"Space Mono";font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ember-dk);margin:0 0 .2rem}
+  .docket .ticket-no{font-family:"Space Mono";font-size:.72rem;color:var(--ink-soft)}
+  .line{display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px dashed var(--line);font-size:.9rem}
+  .line .k{color:var(--ink-soft)}
+  .line .v{font-weight:600;text-align:right}
+  .qty{display:flex;align-items:center;gap:.4rem}
+  .qty button{width:30px;height:30px;border-radius:8px;border:1px solid var(--ink);background:var(--bone);font-size:1.1rem;line-height:1;color:var(--ink)}
+  .qty input{width:46px;text-align:center;border:1px solid var(--line);border-radius:8px;padding:.35rem;font-family:"Space Mono";font-size:.95rem}
+  .total{display:flex;justify-content:space-between;align-items:baseline;margin:.8rem 0 .2rem}
+  .total .lbl{font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);font-family:"Space Mono"}
+  .total .amt{font-family:"Bricolage Grotesque";font-weight:800;font-size:1.9rem}
+  .save-note{font-size:.74rem;color:var(--teal);font-weight:600;min-height:1em;margin:-.2rem 0 .5rem}
+  .fineprint{font-size:.72rem;color:var(--ink-soft);margin:.7rem 0 0;line-height:1.45}
+
+  footer{border-top:1px solid var(--line);padding:1.4rem clamp(1rem,4vw,2.5rem);font-size:.78rem;color:var(--ink-soft);text-align:center}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="glyph" aria-hidden="true"></span>
+    <span><b>Taller de Tazas</b><small>Sublimación · Villa Alemana</small></span>
+  </div>
+  <p class="head-note">Diseña tu taza, mírala en vivo y pídela al instante.</p>
+</header>
+
+<section class="hero">
+  <span class="eyebrow">Personalizadas a tu pinta</span>
+  <h1>Tu foto, tu frase, tu taza. <em>Lista en minutos.</em></h1>
+  <p>Sube una imagen, escribe un mensaje y acomódalo a tu gusto. Lo que ves en la taza es lo que imprimimos por sublimación: color que se funde con la cerámica y no se despinta al lavar.</p>
+</section>
+
+<main class="workspace">
+
+  <!-- ====== LEFT: controls ====== -->
+  <div class="col-controls">
+    <div class="panel">
+      <h3>1 · Elige la taza</h3>
+      <div class="models" id="models"></div>
+    </div>
+
+    <div class="panel">
+      <h3>2 · Agrega tu contenido</h3>
+      <button class="btn upload" type="button">
+        ⬆ Subir foto o logo
+        <input type="file" id="imgInput" accept="image/*" aria-label="Subir imagen">
+      </button>
+      <div class="btn-row">
+        <button class="btn ghost" id="addText" type="button">＋ Agregar texto</button>
+      </div>
+
+      <label class="field" for="bgColor">Fondo del diseño</label>
+      <div class="swatches" id="bgSwatches"></div>
+    </div>
+  </div>
+
+  <!-- ====== CENTER: stage + editor ====== -->
+  <div class="col-stage">
+    <div class="stage">
+      <div class="mug-preview" aria-label="Vista previa de la taza">
+        <div class="mug-body" id="mugBody">
+          <div class="mug-print" id="mugPrint"></div>
+        </div>
+        <div class="mug-handle" id="mugHandle"></div>
+        <div class="mug-shadow"></div>
+      </div>
+      <p class="stage-cap">Modelo: <b id="capModel">—</b> · Vista previa en vivo</p>
+    </div>
+
+    <div class="editor-wrap">
+      <div class="editor-head">
+        <h2>Área de impresión</h2>
+        <span>20 × 8,5 cm · arrastra para mover</span>
+      </div>
+      <div class="canvas-shell">
+        <canvas id="design" width="1200" height="510"></canvas>
+      </div>
+      <p class="editor-hint">Toca un elemento para seleccionarlo. Arrástralo dentro del recuadro. El cuadriculado no se imprime.</p>
+
+      <!-- selected element toolbar -->
+      <div class="seltools" id="seltools">
+        <div class="row" id="rowText" style="display:none">
+          <label for="txtVal">Texto</label>
+          <input class="ctrl" id="txtVal" type="text" maxlength="40" placeholder="Escribe aquí">
+        </div>
+        <div class="row" id="rowFont" style="display:none">
+          <label for="txtFont">Fuente</label>
+          <select class="ctrl" id="txtFont">
+            <option value="Bricolage Grotesque">Bricolage</option>
+            <option value="Inter">Inter</option>
+            <option value="Space Mono">Mono</option>
+            <option value="Georgia">Georgia</option>
+          </select>
+          <input id="txtColor" type="color" value="#20304f" class="pill" style="padding:0;width:42px;height:38px" aria-label="Color del texto">
+        </div>
+        <div class="row">
+          <label for="szRange">Tamaño</label>
+          <input id="szRange" type="range" min="20" max="220" value="90">
+        </div>
+        <div class="row">
+          <label for="rotRange">Giro</label>
+          <input id="rotRange" type="range" min="-45" max="45" value="0">
+          <button class="btn ghost" id="delSel" type="button" style="width:auto;padding:.5rem .8rem">🗑 Quitar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== RIGHT: order docket ====== -->
+  <div class="col-order">
+    <div class="docket">
+      <div class="docket-in">
+        <h3>Comanda</h3>
+        <p class="ticket-no" id="ticketNo">#TZ-000000</p>
+
+        <div class="line"><span class="k">Modelo</span><span class="v" id="sumModel">—</span></div>
+        <div class="line">
+          <span class="k">Cantidad</span>
+          <span class="v qty">
+            <button id="qMinus" type="button" aria-label="Restar">−</button>
+            <input id="qty" type="text" inputmode="numeric" value="1" aria-label="Cantidad">
+            <button id="qPlus" type="button" aria-label="Sumar">+</button>
+          </span>
+        </div>
+        <div class="line"><span class="k">Precio unitario</span><span class="v mono" id="sumUnit">$0</span></div>
+
+        <p class="save-note" id="saveNote"></p>
+        <div class="total">
+          <span class="lbl">Total</span>
+          <span class="amt mono" id="sumTotal">$0</span>
+        </div>
+
+        <button class="btn ember" id="orderBtn" type="button" style="margin-top:.4rem">Pedir por WhatsApp</button>
+        <div class="btn-row">
+          <button class="btn ghost" id="downloadBtn" type="button">⬇ Descargar diseño</button>
+        </div>
+
+        <p class="fineprint">
+          Al pedir abrimos WhatsApp con tu pedido listo. <b>Importante:</b> descarga primero el diseño y adjúntalo en el chat para que imprimamos exactamente lo que armaste.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Taller de Tazas · Hecho con sublimación en Villa Alemana. Precios y número de contacto editables en el código.
+</footer>
+
+<script>
+"use strict";
+
+/* ============ CONFIG (edita esto) ============ */
+const CONFIG = {
+  whatsapp: "56912345678",          // tu número con código país, sin + ni espacios
+  currency: "CLP",
+  models: [
+    { id:"blanca",  name:"Taza blanca clásica", price:3000, base:"#FBF8F2", handle:"#FBF8F2" },
+    { id:"interior",name:"Taza interior y mágica de color", price:3500, base:"#FBF8F2", handle:"#c0392b", inner:"#c0392b" },
+    { id:"magica",  name:"Taza mágica (cambia con calor)", price:5000, base:"#2a2a2a", handle:"#2a2a2a", magic:true },
+    { id:"glitter", name:"Taza escarchada o empavonada", price:5500, base:"#f3e9ef", handle:"#f3e9ef" },
+  ],
+  tiers: [ {min:12, off:.15}, {min:6, off:.10}, {min:3, off:.05} ], // descuentos por cantidad
+};
+
+/* ============ STATE ============ */
+const canvas = document.getElementById("design");
+const ctx = canvas.getContext("2d");
+let elements = [];      // {type, x,y,scale,rot,...}
+let selected = null;
+let bgColor = "#ffffff";
+let currentModel = CONFIG.models[0];
+let idSeq = 1;
+
+/* ============ HELPERS ============ */
+const CLP = n => "$" + Math.round(n).toLocaleString("es-CL");
+const $ = id => document.getElementById(id);
+
+function bbox(el){
+  if(el.type==="image"){
+    const w = el.naturalW*el.scale, h = el.naturalH*el.scale;
+    return {w,h};
+  } else {
+    ctx.save();
+    ctx.font = `${el.weight} ${el.size}px "${el.font}"`;
+    const w = ctx.measureText(el.text||" ").width;
+    ctx.restore();
+    return {w:Math.max(w,20), h:el.size*1.2};
+  }
+}
+
+/* ============ RENDER ============ */
+function render(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(bgColor!=="transparent"){ ctx.fillStyle=bgColor; ctx.fillRect(0,0,canvas.width,canvas.height); }
+
+  for(const el of elements){
+    ctx.save();
+    ctx.translate(el.x, el.y);
+    ctx.rotate(el.rot||0);
+    if(el.type==="image"){
+      const w=el.naturalW*el.scale, h=el.naturalH*el.scale;
+      ctx.drawImage(el.img, -w/2, -h/2, w, h);
+    } else {
+      ctx.font=`${el.weight} ${el.size}px "${el.font}"`;
+      ctx.fillStyle=el.color; ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillText(el.text||" ", 0, 0);
+    }
+    ctx.restore();
+  }
+
+  // selection outline
+  if(selected){
+    const {w,h}=bbox(selected);
+    ctx.save();
+    ctx.translate(selected.x, selected.y);
+    ctx.rotate(selected.rot||0);
+    ctx.strokeStyle="#2E7D72"; ctx.lineWidth=3; ctx.setLineDash([10,7]);
+    ctx.strokeRect(-w/2-10,-h/2-10,w+20,h+20);
+    ctx.restore();
+  }
+  updateMug();
+}
+
+/* ============ MUG PREVIEW ============ */
+function updateMug(){
+  const url = canvas.toDataURL("image/png");
+  const print = $("mugPrint");
+  print.style.backgroundImage = `url(${url})`;
+  const body = $("mugBody");
+  body.style.background = currentModel.base;
+  $("mugHandle").style.borderColor = currentModel.handle;
+  // inner rim hint for two-tone
+  body.style.boxShadow = currentModel.inner
+    ? `inset 0 6px 0 ${currentModel.inner}, 0 24px 40px -18px rgba(0,0,0,.7)`
+    : `0 24px 40px -18px rgba(0,0,0,.7)`;
+}
+
+/* ============ HIT TESTING ============ */
+function pointInEl(px,py,el){
+  // transform point into element local space
+  const dx=px-el.x, dy=py-el.y, a=-(el.rot||0);
+  const lx=dx*Math.cos(a)-dy*Math.sin(a);
+  const ly=dx*Math.sin(a)+dy*Math.cos(a);
+  const {w,h}=bbox(el);
+  return Math.abs(lx)<=w/2+12 && Math.abs(ly)<=h/2+12;
+}
+function hit(px,py){
+  for(let i=elements.length-1;i>=0;i--){ if(pointInEl(px,py,elements[i])) return elements[i]; }
+  return null;
+}
+
+/* ============ POINTER (mover) ============ */
+let drag=null;
+function toCanvas(e){
+  const r=canvas.getBoundingClientRect();
+  return {
+    x:(e.clientX-r.left)/r.width*canvas.width,
+    y:(e.clientY-r.top)/r.height*canvas.height
+  };
+}
+canvas.addEventListener("pointerdown",e=>{
+  const p=toCanvas(e); const el=hit(p.x,p.y);
+  selectEl(el);
+  if(el){ drag={el,ox:p.x-el.x,oy:p.y-el.y}; canvas.classList.add("dragging"); canvas.setPointerCapture(e.pointerId); }
+});
+canvas.addEventListener("pointermove",e=>{
+  if(!drag) return;
+  const p=toCanvas(e);
+  drag.el.x=Math.max(0,Math.min(canvas.width,p.x-drag.ox));
+  drag.el.y=Math.max(0,Math.min(canvas.height,p.y-drag.oy));
+  render();
+});
+const endDrag=()=>{drag=null;canvas.classList.remove("dragging");};
+canvas.addEventListener("pointerup",endDrag);
+canvas.addEventListener("pointercancel",endDrag);
+
+/* ============ SELECTION + TOOLBAR ============ */
+function selectEl(el){
+  selected=el;
+  const tools=$("seltools");
+  if(!el){ tools.classList.remove("show"); render(); return; }
+  tools.classList.add("show");
+  const isText=el.type==="text";
+  $("rowText").style.display=isText?"flex":"none";
+  $("rowFont").style.display=isText?"flex":"none";
+  if(isText){ $("txtVal").value=el.text; $("txtFont").value=el.font; $("txtColor").value=el.color; }
+  // size slider maps to size(px) for text, or scale*100 for image
+  $("szRange").value = isText ? el.size : Math.round(el.scale*100);
+  $("szRange").min   = isText ? 20 : 5;
+  $("szRange").max   = isText ? 260 : 200;
+  $("rotRange").value = Math.round((el.rot||0)*180/Math.PI);
+  render();
+}
+
+$("szRange").addEventListener("input",e=>{
+  if(!selected) return;
+  const v=+e.target.value;
+  if(selected.type==="text") selected.size=v; else selected.scale=v/100;
+  render();
+});
+$("rotRange").addEventListener("input",e=>{
+  if(!selected) return;
+  selected.rot=(+e.target.value)*Math.PI/180; render();
+});
+$("txtVal").addEventListener("input",e=>{ if(selected&&selected.type==="text"){selected.text=e.target.value;render();} });
+$("txtFont").addEventListener("change",e=>{ if(selected&&selected.type==="text"){selected.font=e.target.value;render();} });
+$("txtColor").addEventListener("input",e=>{ if(selected&&selected.type==="text"){selected.color=e.target.value;render();} });
+$("delSel").addEventListener("click",()=>{
+  if(!selected) return;
+  elements=elements.filter(x=>x!==selected); selectEl(null);
+});
+
+/* ============ ADD ELEMENTS ============ */
+$("addText").addEventListener("click",()=>{
+  const el={type:"text",id:idSeq++,text:"Tu frase",x:canvas.width/2,y:canvas.height/2,
+            scale:1,rot:0,size:90,weight:"800",font:"Bricolage Grotesque",color:"#20304f"};
+  elements.push(el); selectEl(el); $("txtVal").focus(); $("txtVal").select(); render();
+});
+
+$("imgInput").addEventListener("change",e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const maxW=canvas.width*0.6, maxH=canvas.height*0.85;
+      const scale=Math.min(maxW/img.width,maxH/img.height,1);
+      elements.push({type:"image",id:idSeq++,img,naturalW:img.width,naturalH:img.height,
+                     x:canvas.width/2,y:canvas.height/2,scale,rot:0});
+      selectEl(elements[elements.length-1]); render();
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value="";
+});
+
+/* deselect on outside click */
+document.addEventListener("pointerdown",e=>{
+  if(!canvas.contains(e.target) && !$("seltools").contains(e.target)) selectEl(null);
+});
+
+/* ============ BACKGROUND SWATCHES ============ */
+const bgColors=[
+  {c:"#ffffff",label:"Blanco"},{c:"transparent",label:"Sin fondo"},
+  {c:"#20304F",label:"Cobalto"},{c:"#D85A2A",label:"Brasa"},
+  {c:"#2E7D72",label:"Verde"},{c:"#17120E",label:"Negro"},{c:"#E7DCC8",label:"Arena"}
+];
+const bgWrap=$("bgSwatches");
+bgColors.forEach((s,i)=>{
+  const b=document.createElement("button");
+  b.className="sw"; b.title=s.label; b.setAttribute("aria-pressed", i===0);
+  b.style.background = s.c==="transparent"
+    ? "repeating-conic-gradient(#ccc 0 25%,#fff 0 50%) 50%/12px 12px" : s.c;
+  b.addEventListener("click",()=>{
+    bgColor=s.c; document.querySelectorAll("#bgSwatches .sw").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true"); render();
+  });
+  bgWrap.appendChild(b);
+});
+
+/* ============ MODELS ============ */
+const modelsWrap=$("models");
+CONFIG.models.forEach((m,i)=>{
+  const b=document.createElement("button");
+  b.className="model"; b.type="button"; b.setAttribute("aria-pressed", i===0);
+  b.innerHTML=`<span class="mug-ic" style="background:${m.base};border-color:${m.handle}"></span>
+    <span><span class="m-name">${m.name}</span><span class="m-price">${CLP(m.price)} c/u</span></span>`;
+  b.addEventListener("click",()=>{
+    currentModel=m;
+    document.querySelectorAll(".model").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");
+    updateSummary(); updateMug();
+  });
+  modelsWrap.appendChild(b);
+});
+
+/* ============ ORDER SUMMARY ============ */
+const qtyInput=$("qty");
+function getQty(){ let q=parseInt(qtyInput.value,10); if(isNaN(q)||q<1)q=1; if(q>999)q=999; return q; }
+function unitPrice(q){
+  let off=0; for(const t of CONFIG.tiers){ if(q>=t.min){off=t.off;break;} }
+  return {unit:currentModel.price*(1-off), off};
+}
+function updateSummary(){
+  const q=getQty(); const {unit,off}=unitPrice(q);
+  $("sumModel").textContent=currentModel.name;
+  $("capModel").textContent=currentModel.name;
+  $("sumUnit").textContent=CLP(unit);
+  $("sumTotal").textContent=CLP(unit*q);
+  $("saveNote").textContent = off>0 ? `¡Ahorras ${Math.round(off*100)}% por llevar ${q}!` : "";
+}
+$("qPlus").addEventListener("click",()=>{qtyInput.value=getQty()+1;updateSummary();});
+$("qMinus").addEventListener("click",()=>{qtyInput.value=Math.max(1,getQty()-1);updateSummary();});
+qtyInput.addEventListener("input",updateSummary);
+qtyInput.addEventListener("blur",()=>{qtyInput.value=getQty();updateSummary();});
+
+/* ============ DOWNLOAD DESIGN ============ */
+$("downloadBtn").addEventListener("click",()=>{
+  const prev=selected; selectEl(null);            // ocultar guía de selección
+  setTimeout(()=>{
+    const a=document.createElement("a");
+    a.download=`diseno-taza-${Date.now()}.png`;
+    a.href=canvas.toDataURL("image/png");
+    a.click();
+    selected=prev; if(prev) selectEl(prev);
+  },40);
+});
+
+/* ============ WHATSAPP ORDER ============ */
+$("orderBtn").addEventListener("click",()=>{
+  const q=getQty(); const {unit}=unitPrice(q);
+  const msg =
+    `¡Hola Taller de Tazas! Quiero pedir:%0A`+
+    `• Modelo: ${encodeURIComponent(currentModel.name)}%0A`+
+    `• Cantidad: ${q}%0A`+
+    `• Precio unitario: ${CLP(unit)}%0A`+
+    `• Total: ${CLP(unit*q)}%0A`+
+    `• Pedido: ${$("ticketNo").textContent}%0A`+
+    `Adjunto mi diseño 🎨`;
+  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,"_blank");
+});
+
+/* ============ INIT ============ */
+$("ticketNo").textContent = "#TZ-" + String(Date.now()).slice(-6);
+// seed con un texto de ejemplo para que la taza no salga vacía
+elements.push({type:"text",id:idSeq++,text:"Mi taza",x:canvas.width/2,y:canvas.height/2,
+               scale:1,rot:0,size:120,weight:"800",font:"Bricolage Grotesque",color:"#20304f"});
+document.fonts.ready.then(render);
+updateSummary();
+render();
+</script>
+</body>
+</html>
