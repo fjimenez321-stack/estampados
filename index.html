@@ -6,88 +6,58 @@
 <title>Taller de Tazas · Diseña la tuya</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&family=Inter:wght@400;500;600&family=Pacifico&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bone:#F6F1E7;
-    --bone-2:#EFE8D9;
-    --clay:#E7DCC8;
-    --ink:#20304F;          /* cobalto */
-    --ink-soft:#3C4D6E;
-    --ember:#D85A2A;        /* brasa, acento de acción */
-    --ember-dk:#BC4719;
-    --espresso:#17120E;     /* escenario */
-    --espresso-2:#241B14;
-    --glaze:#FBF8F2;
-    --teal:#2E7D72;         /* selección */
+    --bone:#F6F1E7; --bone-2:#EFE8D9; --clay:#E7DCC8;
+    --ink:#20304F; --ink-soft:#3C4D6E;
+    --ember:#D85A2A; --ember-dk:#BC4719;
+    --espresso:#17120E; --espresso-2:#241B14;
+    --glaze:#FBF8F2; --teal:#2E7D72;
     --line:rgba(32,48,79,.16);
-    --radius:14px;
-    --shadow:0 18px 40px -22px rgba(23,18,14,.55);
+    --radius:14px; --shadow:0 18px 40px -22px rgba(23,18,14,.55);
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
-  body{
-    margin:0;background:var(--bone);color:var(--ink);
-    font-family:"Inter",system-ui,sans-serif;line-height:1.5;
-    -webkit-font-smoothing:antialiased;
-  }
+  body{margin:0;background:var(--bone);color:var(--ink);font-family:"Inter",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
   h1,h2,h3,.display{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;letter-spacing:-.02em;line-height:1.02}
   .mono{font-family:"Space Mono",monospace}
   button{font-family:inherit;cursor:pointer}
   :focus-visible{outline:3px solid var(--ember);outline-offset:2px;border-radius:4px}
 
-  /* ---------- top bar ---------- */
-  header{
-    display:flex;align-items:center;justify-content:space-between;gap:1rem;
-    padding:1rem clamp(1rem,4vw,2.5rem);border-bottom:1px solid var(--line);
-    position:sticky;top:0;background:rgba(246,241,231,.86);backdrop-filter:blur(8px);z-index:30;
-  }
+  /* top bar */
+  header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem clamp(1rem,4vw,2.5rem);border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(246,241,231,.86);backdrop-filter:blur(8px);z-index:30}
   .brand{display:flex;align-items:center;gap:.7rem}
-  .brand .glyph{
-    width:38px;height:38px;border-radius:50% 50% 46% 46%/46% 46% 54% 54%;
-    background:linear-gradient(160deg,var(--glaze),var(--clay));
-    border:2px solid var(--ink);position:relative;flex:none;
-  }
+  .brand .glyph{width:38px;height:38px;border-radius:50% 50% 46% 46%/46% 46% 54% 54%;background:linear-gradient(160deg,var(--glaze),var(--clay));border:2px solid var(--ink);position:relative;flex:none}
   .brand .glyph::after{content:"";position:absolute;right:-8px;top:8px;width:14px;height:18px;border:3px solid var(--ink);border-left:none;border-radius:0 12px 12px 0}
   .brand b{font-family:"Bricolage Grotesque";font-weight:800;font-size:1.15rem;letter-spacing:-.02em}
   .brand small{display:block;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
   .head-note{font-size:.8rem;color:var(--ink-soft);max-width:30ch;text-align:right}
   @media(max-width:680px){.head-note{display:none}}
 
-  /* ---------- hero strip ---------- */
-  .hero{
-    padding:clamp(1.6rem,5vw,3rem) clamp(1rem,4vw,2.5rem) 1rem;
-    display:grid;gap:.4rem;max-width:1320px;margin:0 auto;
-  }
+  /* hero */
+  .hero{padding:clamp(1.6rem,5vw,3rem) clamp(1rem,4vw,2.5rem) 1rem;display:grid;gap:.4rem;max-width:1320px;margin:0 auto}
   .eyebrow{font-family:"Space Mono";font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ember-dk)}
   .hero h1{font-size:clamp(2.1rem,6vw,3.7rem);max-width:18ch}
   .hero h1 em{font-style:normal;color:var(--ember)}
   .hero p{max-width:54ch;color:var(--ink-soft);font-size:1.02rem}
 
-  /* ---------- workspace ---------- */
-  .workspace{
-    max-width:1320px;margin:0 auto;padding:1rem clamp(1rem,4vw,2.5rem) 3rem;
-    display:grid;grid-template-columns:300px minmax(0,1fr) 320px;gap:1.25rem;align-items:start;
-  }
+  /* workspace */
+  .workspace{max-width:1320px;margin:0 auto;padding:1rem clamp(1rem,4vw,2.5rem) 3rem;display:grid;grid-template-columns:308px minmax(0,1fr) 320px;gap:1.25rem;align-items:start}
   @media(max-width:1080px){.workspace{grid-template-columns:1fr 1fr}.col-stage{grid-column:1/-1;order:-1}}
   @media(max-width:720px){.workspace{grid-template-columns:1fr}}
 
   .panel{background:var(--bone-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem}
   .panel + .panel{margin-top:1rem}
-  .panel h3{font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-family:"Space Mono";font-weight:700;margin:0 0 .85rem}
+  .panel h3{font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-family:"Space Mono";font-weight:700;margin:0 0 .85rem;display:flex;align-items:center;gap:.5rem}
+  .kit-badge{font-family:"Space Mono";font-size:.6rem;letter-spacing:.1em;background:var(--ink);color:var(--glaze);padding:.12rem .4rem;border-radius:5px;text-transform:none}
+  .kit-badge.adv{background:var(--ember)}
 
   label.field{display:block;font-size:.82rem;font-weight:500;margin:.7rem 0 .3rem;color:var(--ink)}
-  .ctrl{
-    width:100%;padding:.6rem .7rem;border:1px solid var(--line);border-radius:9px;
-    background:var(--bone);color:var(--ink);font-size:.92rem;font-family:inherit;
-  }
-  select.ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2320304F' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:2rem}
+  .ctrl{width:100%;padding:.55rem .65rem;border:1px solid var(--line);border-radius:9px;background:var(--bone);color:var(--ink);font-size:.9rem;font-family:inherit}
+  select.ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2320304F' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .6rem center;padding-right:1.9rem}
 
-  .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;
-    padding:.7rem .9rem;border-radius:10px;border:1px solid var(--ink);
-    background:var(--ink);color:var(--glaze);font-weight:600;font-size:.92rem;transition:transform .08s ease,background .15s;
-  }
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;padding:.7rem .9rem;border-radius:10px;border:1px solid var(--ink);background:var(--ink);color:var(--glaze);font-weight:600;font-size:.92rem;transition:transform .08s,background .15s}
   .btn:hover{background:var(--ink-soft)}
   .btn:active{transform:translateY(1px)}
   .btn.ghost{background:transparent;color:var(--ink)}
@@ -99,80 +69,73 @@
   .upload{position:relative;overflow:hidden}
   .upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
 
-  /* color swatches */
   .swatches{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.3rem}
-  .sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;position:relative}
+  .sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer}
   .sw[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bone-2),0 0 0 4px var(--ink)}
 
-  /* range */
+  /* stickers */
+  .stickers{display:grid;grid-template-columns:repeat(6,1fr);gap:.35rem;margin-top:.2rem}
+  .stickers button{font-size:1.15rem;padding:.3rem 0;border:1px solid var(--line);border-radius:8px;background:var(--bone);line-height:1}
+  .stickers button:hover{background:#fff;border-color:var(--ember)}
+
   input[type=range]{width:100%;accent-color:var(--ember)}
 
-  /* model cards */
+  /* models */
   .models{display:grid;gap:.5rem}
-  .model{
-    display:flex;gap:.7rem;align-items:center;padding:.6rem;border:1px solid var(--line);
-    border-radius:11px;background:var(--bone);cursor:pointer;text-align:left;width:100%;color:inherit;
-  }
+  .model{display:flex;gap:.7rem;align-items:center;padding:.6rem;border:1px solid var(--line);border-radius:11px;background:var(--bone);cursor:pointer;text-align:left;width:100%;color:inherit}
   .model[aria-pressed="true"]{border-color:var(--ember);background:#fff;box-shadow:inset 0 0 0 1px var(--ember)}
   .model .mug-ic{width:34px;height:34px;border-radius:7px 7px 9px 9px;border:2px solid var(--ink);flex:none}
   .model .m-name{font-weight:600;font-size:.9rem;display:block}
   .model .m-price{font-family:"Space Mono";font-size:.8rem;color:var(--ink-soft)}
 
-  /* ---------- stage ---------- */
-  .stage{
-    background:radial-gradient(120% 120% at 50% 0%,var(--espresso-2),var(--espresso));
-    border-radius:var(--radius);padding:clamp(1.2rem,4vw,2.4rem);box-shadow:var(--shadow);
-    display:grid;gap:1.4rem;place-items:center;
-  }
+  /* stage */
+  .stage{background:radial-gradient(120% 120% at 50% 0%,var(--espresso-2),var(--espresso));border-radius:var(--radius);padding:clamp(1.2rem,4vw,2.4rem);box-shadow:var(--shadow);display:grid;gap:1.4rem;place-items:center}
   .mug-preview{position:relative;width:min(360px,72vw);aspect-ratio:1.18/1;display:grid;place-items:center}
-  .mug-body{
-    position:relative;width:74%;height:80%;border-radius:14px 14px 22px 22px;overflow:hidden;
-    background:var(--glaze);box-shadow:0 24px 40px -18px rgba(0,0,0,.7);
-  }
+  .mug-body{position:relative;width:74%;height:80%;border-radius:14px 14px 22px 22px;overflow:hidden;background:var(--glaze);box-shadow:0 24px 40px -18px rgba(0,0,0,.7)}
   .mug-print{position:absolute;inset:0;background-size:contain;background-repeat:no-repeat;background-position:center}
-  /* curved ceramic sheen overlay */
-  .mug-body::before{content:"";position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(0,0,0,0) 22%,rgba(255,255,255,.5) 48%,rgba(255,255,255,0) 60%,rgba(0,0,0,.22));
-    mix-blend-mode:soft-light;z-index:2}
-  .mug-body::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-    box-shadow:inset 0 0 22px rgba(0,0,0,.18);z-index:3}
-  .mug-handle{position:absolute;right:calc(13% - 30px);top:30%;width:54px;height:46%;
-    border:11px solid var(--glaze);border-left:none;border-radius:0 30px 30px 0;box-shadow:0 10px 18px -10px rgba(0,0,0,.7)}
+  .mug-body::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(0,0,0,0) 22%,rgba(255,255,255,.5) 48%,rgba(255,255,255,0) 60%,rgba(0,0,0,.22));mix-blend-mode:soft-light;z-index:2}
+  .mug-body::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 22px rgba(0,0,0,.18);z-index:3}
+  .mug-handle{position:absolute;right:calc(13% - 30px);top:30%;width:54px;height:46%;border:11px solid var(--glaze);border-left:none;border-radius:0 30px 30px 0;box-shadow:0 10px 18px -10px rgba(0,0,0,.7)}
   .mug-shadow{position:absolute;bottom:6%;width:62%;height:18px;background:rgba(0,0,0,.45);filter:blur(11px);border-radius:50%}
   .stage-cap{color:var(--clay);font-size:.78rem;letter-spacing:.06em;text-align:center;font-family:"Space Mono"}
   .stage-cap b{color:var(--glaze)}
 
-  /* editable print area */
+  /* editor */
   .editor-wrap{width:100%;max-width:680px;margin:0 auto}
-  .editor-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 .5rem}
+  .editor-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 .5rem;gap:1rem}
   .editor-head h2{font-size:1.05rem;color:var(--ink)}
-  .editor-head span{font-family:"Space Mono";font-size:.72rem;color:var(--ink-soft)}
-  .canvas-shell{
-    position:relative;width:100%;aspect-ratio:2.35/1;border:2px dashed var(--line);border-radius:12px;
-    background:
-      linear-gradient(45deg,#ece5d6 25%,transparent 25%,transparent 75%,#ece5d6 75%) 0 0/22px 22px,
-      linear-gradient(45deg,#ece5d6 25%,#f3ede0 25%,#f3ede0 75%,#ece5d6 75%) 11px 11px/22px 22px;
-    overflow:hidden;touch-action:none;
-  }
+  .editor-head .undo{display:flex;gap:.35rem}
+  .iconbtn{width:34px;height:34px;display:inline-grid;place-items:center;border:1px solid var(--line);border-radius:9px;background:var(--bone);color:var(--ink);font-size:1rem}
+  .iconbtn:hover{background:#fff;border-color:var(--ink)}
+  .iconbtn:disabled{opacity:.35;cursor:not-allowed}
+  .canvas-shell{position:relative;width:100%;aspect-ratio:2.35/1;border:2px dashed var(--line);border-radius:12px;background:linear-gradient(45deg,#ece5d6 25%,transparent 25%,transparent 75%,#ece5d6 75%) 0 0/22px 22px,linear-gradient(45deg,#ece5d6 25%,#f3ede0 25%,#f3ede0 75%,#ece5d6 75%) 11px 11px/22px 22px;overflow:hidden;touch-action:none}
   #design{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
   #design.dragging{cursor:grabbing}
   .editor-hint{font-size:.78rem;color:var(--ink-soft);margin:.55rem 0 0;text-align:center}
 
   /* selected element toolbar */
-  .seltools{margin-top:.7rem;display:none;background:var(--bone-2);border:1px solid var(--line);border-radius:11px;padding:.8rem}
+  .seltools{margin-top:.7rem;background:var(--bone-2);border:1px solid var(--line);border-radius:11px;padding:.8rem;display:none}
   .seltools.show{display:block}
-  .seltools .row{display:flex;gap:.5rem;align-items:center;margin-top:.55rem}
+  .seltools .row{display:flex;gap:.5rem;align-items:center;margin-top:.55rem;flex-wrap:wrap}
   .seltools .row:first-child{margin-top:0}
-  .seltools .row > label{flex:none;width:62px;font-size:.78rem;color:var(--ink-soft)}
-  .pill{padding:.45rem .6rem;border:1px solid var(--line);border-radius:8px;background:var(--bone);font-size:.82rem}
+  .seltools .row > .lab{flex:none;width:60px;font-size:.78rem;color:var(--ink-soft)}
+  .seltools .row > input[type=range]{flex:1;min-width:90px}
+  .pill{padding:.42rem .55rem;border:1px solid var(--line);border-radius:8px;background:var(--bone);font-size:.82rem;color:var(--ink)}
+  .toggle{border:1px solid var(--line);border-radius:8px;background:var(--bone);padding:.42rem .6rem;font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+  .toggle[aria-pressed="true"]{background:var(--ink);color:var(--glaze);border-color:var(--ink)}
+  .act{display:inline-grid;place-items:center;width:38px;height:36px;border:1px solid var(--line);border-radius:9px;background:var(--bone);font-size:1rem;color:var(--ink)}
+  .act:hover{background:#fff;border-color:var(--ink)}
+  .act.danger:hover{border-color:var(--ember);color:var(--ember)}
+  .seltools details{margin-top:.7rem;border-top:1px dashed var(--line);padding-top:.5rem}
+  .seltools summary{cursor:pointer;font-size:.78rem;font-weight:600;color:var(--ember-dk);list-style:none;font-family:"Space Mono";letter-spacing:.04em}
+  .seltools summary::-webkit-details-marker{display:none}
+  .seltools summary::before{content:"▸ ";}
+  .seltools details[open] summary::before{content:"▾ ";}
+  .colorin{width:40px;height:34px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--bone)}
 
-  /* ---------- order docket ---------- */
-  .docket{
-    background:var(--glaze);border:1px solid var(--line);border-radius:var(--radius);
-    position:relative;box-shadow:var(--shadow);overflow:hidden;
-  }
-  .docket::before,.docket::after{content:"";position:absolute;left:0;right:0;height:14px;
-    background-image:radial-gradient(circle,var(--bone) 5px,transparent 5.5px);background-size:18px 14px;background-position:center}
+  /* docket */
+  .docket{background:var(--glaze);border:1px solid var(--line);border-radius:var(--radius);position:relative;box-shadow:var(--shadow);overflow:hidden}
+  .docket::before,.docket::after{content:"";position:absolute;left:0;right:0;height:14px;background-image:radial-gradient(circle,var(--bone) 5px,transparent 5.5px);background-size:18px 14px;background-position:center}
   .docket::before{top:-7px}.docket::after{bottom:-7px}
   .docket-in{padding:1.2rem}
   .docket h3{font-family:"Space Mono";font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ember-dk);margin:0 0 .2rem}
@@ -190,7 +153,6 @@
   .fineprint{font-size:.72rem;color:var(--ink-soft);margin:.7rem 0 0;line-height:1.45}
 
   footer{border-top:1px solid var(--line);padding:1.4rem clamp(1rem,4vw,2.5rem);font-size:.78rem;color:var(--ink-soft);text-align:center}
-
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -199,7 +161,7 @@
 <header>
   <div class="brand">
     <span class="glyph" aria-hidden="true"></span>
-    <span><b>Taller de Tazas</b><small>Sublimación · Villa Alemana</small></span>
+    <span><b>Taller de Tazas</b><small>Sublimación</small></span>
   </div>
   <p class="head-note">Diseña tu taza, mírala en vivo y pídela al instante.</p>
 </header>
@@ -212,7 +174,7 @@
 
 <main class="workspace">
 
-  <!-- ====== LEFT: controls ====== -->
+  <!-- LEFT: creation kits -->
   <div class="col-controls">
     <div class="panel">
       <h3>1 · Elige la taza</h3>
@@ -220,27 +182,30 @@
     </div>
 
     <div class="panel">
-      <h3>2 · Agrega tu contenido</h3>
-      <button class="btn upload" type="button">
-        ⬆ Subir foto o logo
-        <input type="file" id="imgInput" accept="image/*" aria-label="Subir imagen">
-      </button>
-      <div class="btn-row">
-        <button class="btn ghost" id="addText" type="button">＋ Agregar texto</button>
-      </div>
+      <h3>Kit básico <span class="kit-badge">lo esencial</span></h3>
+      <button class="btn upload" type="button">⬆ Subir foto o logo<input type="file" id="imgInput" accept="image/*" aria-label="Subir imagen"></button>
+      <div class="btn-row"><button class="btn ghost" id="addText" type="button">＋ Agregar texto</button></div>
 
-      <label class="field" for="bgColor">Fondo del diseño</label>
+      <label class="field">Stickers</label>
+      <div class="stickers" id="stickers"></div>
+
+      <label class="field">Fondo del diseño</label>
       <div class="swatches" id="bgSwatches"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Kit avanzado <span class="kit-badge adv">para afinar</span></h3>
+      <p style="font-size:.82rem;color:var(--ink-soft);margin:.1rem 0 0">
+        Selecciona un elemento en el lienzo y abre <b>"Más opciones"</b> bajo la barra de edición para usar filtros de foto, texto curvo, contornos, transparencias y más.
+      </p>
     </div>
   </div>
 
-  <!-- ====== CENTER: stage + editor ====== -->
+  <!-- CENTER: stage + editor -->
   <div class="col-stage">
     <div class="stage">
       <div class="mug-preview" aria-label="Vista previa de la taza">
-        <div class="mug-body" id="mugBody">
-          <div class="mug-print" id="mugPrint"></div>
-        </div>
+        <div class="mug-body" id="mugBody"><div class="mug-print" id="mugPrint"></div></div>
         <div class="mug-handle" id="mugHandle"></div>
         <div class="mug-shadow"></div>
       </div>
@@ -250,49 +215,92 @@
     <div class="editor-wrap">
       <div class="editor-head">
         <h2>Área de impresión</h2>
-        <span>20 × 8,5 cm · arrastra para mover</span>
+        <span class="undo">
+          <button class="iconbtn" id="undoBtn" type="button" title="Deshacer" aria-label="Deshacer">↶</button>
+          <button class="iconbtn" id="redoBtn" type="button" title="Rehacer" aria-label="Rehacer">↷</button>
+        </span>
       </div>
       <div class="canvas-shell">
         <canvas id="design" width="1200" height="510"></canvas>
       </div>
-      <p class="editor-hint">Toca un elemento para seleccionarlo. Arrástralo dentro del recuadro. El cuadriculado no se imprime.</p>
+      <p class="editor-hint">Toca un elemento para seleccionarlo y arrástralo. El cuadriculado no se imprime.</p>
 
       <!-- selected element toolbar -->
       <div class="seltools" id="seltools">
-        <div class="row" id="rowText" style="display:none">
-          <label for="txtVal">Texto</label>
-          <input class="ctrl" id="txtVal" type="text" maxlength="40" placeholder="Escribe aquí">
-        </div>
-        <div class="row" id="rowFont" style="display:none">
-          <label for="txtFont">Fuente</label>
-          <select class="ctrl" id="txtFont">
+        <!-- text-only basic -->
+        <div class="row" data-text><span class="lab">Texto</span><input class="ctrl" id="txtVal" type="text" maxlength="40" placeholder="Escribe aquí" style="flex:1"></div>
+        <div class="row" data-text>
+          <span class="lab">Estilo</span>
+          <select class="ctrl" id="txtFont" style="flex:1;min-width:110px">
             <option value="Bricolage Grotesque">Bricolage</option>
+            <option value="Anton">Anton (impacto)</option>
+            <option value="Pacifico">Pacifico (script)</option>
+            <option value="Caveat">Caveat (mano)</option>
             <option value="Inter">Inter</option>
             <option value="Space Mono">Mono</option>
             <option value="Georgia">Georgia</option>
           </select>
-          <input id="txtColor" type="color" value="#20304f" class="pill" style="padding:0;width:42px;height:38px" aria-label="Color del texto">
+          <input id="txtColor" type="color" value="#20304f" class="colorin" aria-label="Color del texto">
+          <button class="toggle" id="tgBold" type="button" aria-pressed="true" title="Negrita">B</button>
+          <button class="toggle" id="tgItalic" type="button" aria-pressed="false" title="Cursiva" style="font-style:italic">i</button>
         </div>
+        <!-- common basic -->
+        <div class="row"><span class="lab">Tamaño</span><input id="szRange" type="range" min="20" max="260" value="90"></div>
+        <div class="row"><span class="lab">Giro</span><input id="rotRange" type="range" min="-45" max="45" value="0"></div>
         <div class="row">
-          <label for="szRange">Tamaño</label>
-          <input id="szRange" type="range" min="20" max="220" value="90">
+          <span class="lab">Acciones</span>
+          <button class="act" id="aDup" type="button" title="Duplicar">⧉</button>
+          <button class="act" id="aFront" type="button" title="Traer al frente">⬆</button>
+          <button class="act" id="aBack" type="button" title="Enviar atrás">⬇</button>
+          <button class="act" id="aCenterH" type="button" title="Centrar horizontal">↔</button>
+          <button class="act" id="aCenterV" type="button" title="Centrar vertical">↕</button>
+          <button class="act danger" id="aDel" type="button" title="Quitar">🗑</button>
         </div>
-        <div class="row">
-          <label for="rotRange">Giro</label>
-          <input id="rotRange" type="range" min="-45" max="45" value="0">
-          <button class="btn ghost" id="delSel" type="button" style="width:auto;padding:.5rem .8rem">🗑 Quitar</button>
-        </div>
+
+        <!-- advanced -->
+        <details id="advBox">
+          <summary>Más opciones · Kit avanzado</summary>
+          <div class="row"><span class="lab">Opacidad</span><input id="opRange" type="range" min="10" max="100" value="100"></div>
+          <div class="row" data-image>
+            <span class="lab">Voltear</span>
+            <button class="toggle" id="tgFlipH" type="button" aria-pressed="false">Horizontal</button>
+            <button class="toggle" id="tgFlipV" type="button" aria-pressed="false">Vertical</button>
+          </div>
+
+          <!-- text advanced -->
+          <div class="row" data-text><span class="lab">Curvar</span><input id="curveRange" type="range" min="-100" max="100" value="0"></div>
+          <div class="row" data-text>
+            <span class="lab">Contorno</span>
+            <button class="toggle" id="tgStroke" type="button" aria-pressed="false">Activar</button>
+            <input id="strokeColor" type="color" value="#ffffff" class="colorin" aria-label="Color del contorno">
+            <input id="strokeW" type="range" min="2" max="26" value="8" style="flex:1;min-width:70px">
+          </div>
+          <div class="row" data-text>
+            <span class="lab">Sombra</span>
+            <button class="toggle" id="tgShadow" type="button" aria-pressed="false">Activar</button>
+          </div>
+
+          <!-- image advanced -->
+          <div class="row" data-image><span class="lab">B/N</span><input id="fGray" type="range" min="0" max="100" value="0"></div>
+          <div class="row" data-image><span class="lab">Sepia</span><input id="fSepia" type="range" min="0" max="100" value="0"></div>
+          <div class="row" data-image><span class="lab">Brillo</span><input id="fBright" type="range" min="40" max="160" value="100"></div>
+          <div class="row" data-image><span class="lab">Contraste</span><input id="fContrast" type="range" min="40" max="160" value="100"></div>
+          <div class="row" data-image>
+            <span class="lab">Sin fondo</span>
+            <button class="toggle" id="tgWhite" type="button" aria-pressed="false" title="Quitar el blanco de la imagen">Quitar blanco</button>
+            <input id="whiteTol" type="range" min="180" max="255" value="240" style="flex:1;min-width:70px">
+          </div>
+        </details>
       </div>
     </div>
   </div>
 
-  <!-- ====== RIGHT: order docket ====== -->
+  <!-- RIGHT: order docket -->
   <div class="col-order">
     <div class="docket">
       <div class="docket-in">
         <h3>Comanda</h3>
         <p class="ticket-no" id="ticketNo">#TZ-000000</p>
-
         <div class="line"><span class="k">Modelo</span><span class="v" id="sumModel">—</span></div>
         <div class="line">
           <span class="k">Cantidad</span>
@@ -303,218 +311,292 @@
           </span>
         </div>
         <div class="line"><span class="k">Precio unitario</span><span class="v mono" id="sumUnit">$0</span></div>
-
         <p class="save-note" id="saveNote"></p>
-        <div class="total">
-          <span class="lbl">Total</span>
-          <span class="amt mono" id="sumTotal">$0</span>
-        </div>
-
+        <div class="total"><span class="lbl">Total</span><span class="amt mono" id="sumTotal">$0</span></div>
         <button class="btn ember" id="orderBtn" type="button" style="margin-top:.4rem">Pedir por WhatsApp</button>
-        <div class="btn-row">
-          <button class="btn ghost" id="downloadBtn" type="button">⬇ Descargar diseño</button>
-        </div>
-
-        <p class="fineprint">
-          Al pedir abrimos WhatsApp con tu pedido listo. <b>Importante:</b> descarga primero el diseño y adjúntalo en el chat para que imprimamos exactamente lo que armaste.
-        </p>
+        <div class="btn-row"><button class="btn ghost" id="downloadBtn" type="button">⬇ Descargar diseño</button></div>
+        <p class="fineprint">Al pedir abrimos WhatsApp con tu pedido listo. <b>Importante:</b> descarga primero el diseño y adjúntalo en el chat para que imprimamos exactamente lo que armaste.</p>
       </div>
     </div>
   </div>
 
 </main>
 
-<footer>
-  Taller de Tazas · Hecho con sublimación en Villa Alemana. Precios y número de contacto editables en el código.
-</footer>
+<footer>Taller de Tazas · Hecho con sublimación. Precios y número de contacto editables en el código.</footer>
 
 <script>
 "use strict";
 
 /* ============ CONFIG (edita esto) ============ */
 const CONFIG = {
-  whatsapp: "56912345678",          // tu número con código país, sin + ni espacios
-  currency: "CLP",
+  whatsapp: "56966038152",
   models: [
     { id:"blanca",  name:"Taza blanca clásica", price:3000, base:"#FBF8F2", handle:"#FBF8F2" },
     { id:"interior",name:"Taza interior y mágica de color", price:3500, base:"#FBF8F2", handle:"#c0392b", inner:"#c0392b" },
     { id:"magica",  name:"Taza mágica (cambia con calor)", price:5000, base:"#2a2a2a", handle:"#2a2a2a", magic:true },
     { id:"glitter", name:"Taza escarchada o empavonada", price:5500, base:"#f3e9ef", handle:"#f3e9ef" },
   ],
-  tiers: [ {min:12, off:.15}, {min:6, off:.10}, {min:3, off:.05} ], // descuentos por cantidad
+  tiers: [ {min:12, off:.15}, {min:6, off:.10}, {min:3, off:.05} ],
+  stickers: ["❤️","⭐","☕","🎂","🎉","🐱","🌸","✨","👑","🌟","🎈","🍀","🔥","🌈","🦋","⚽"],
 };
 
-/* ============ STATE ============ */
+/* ============ SETUP ============ */
 const canvas = document.getElementById("design");
 const ctx = canvas.getContext("2d");
-let elements = [];      // {type, x,y,scale,rot,...}
+const W = canvas.width, H = canvas.height;
+let elements = [];
 let selected = null;
 let bgColor = "#ffffff";
 let currentModel = CONFIG.models[0];
 let idSeq = 1;
+const imgCache = {};
 
-/* ============ HELPERS ============ */
-const CLP = n => "$" + Math.round(n).toLocaleString("es-CL");
 const $ = id => document.getElementById(id);
+const CLP = n => "$" + Math.round(n).toLocaleString("es-CL");
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
-function bbox(el){
-  if(el.type==="image"){
-    const w = el.naturalW*el.scale, h = el.naturalH*el.scale;
-    return {w,h};
-  } else {
-    ctx.save();
-    ctx.font = `${el.weight} ${el.size}px "${el.font}"`;
-    const w = ctx.measureText(el.text||" ").width;
-    ctx.restore();
-    return {w:Math.max(w,20), h:el.size*1.2};
-  }
+/* ============ ELEMENT FACTORIES ============ */
+function newText(text, opts){
+  return Object.assign({
+    type:"text", id:idSeq++, text, x:W/2, y:H/2, rot:0, opacity:1,
+    size:96, weight:"800", italic:false, font:"Bricolage Grotesque", color:"#20304f",
+    curve:0, stroke:{on:false,color:"#ffffff",width:8}, shadow:false
+  }, opts||{});
+}
+function newImage(img){
+  const scale = Math.min(W*0.6/img.width, H*0.85/img.height, 1);
+  return { type:"image", id:idSeq++, img, naturalW:img.width, naturalH:img.height,
+    x:W/2, y:H/2, rot:0, scale, opacity:1, flipH:false, flipV:false,
+    filter:{gray:0,sepia:0,bright:100,contrast:100}, removeWhite:false, whiteTol:240, processedImg:null };
 }
 
-/* ============ RENDER ============ */
+/* ============ TEXT MEASUREMENT ============ */
+function setFont(el){ ctx.font = `${el.italic?"italic ":""}${el.weight||"400"} ${el.size}px "${el.font}", sans-serif`; }
+function textWidth(el){ setFont(el); return Math.max(ctx.measureText(el.text||" ").width, 12); }
+
+function bbox(el){
+  if(el.type==="image"){ return {w:el.naturalW*el.scale, h:el.naturalH*el.scale}; }
+  const tw = textWidth(el);
+  let w = tw, h = el.size*1.3;
+  if(el.curve && Math.abs(el.curve)>=2){
+    const arc=Math.abs(el.curve/100*Math.PI), R=tw/arc;
+    const sag=R-R*Math.cos(arc/2);
+    w=Math.max(tw, 2*R*Math.sin(arc/2))+el.size*0.4;
+    h=el.size*1.3+sag;
+  }
+  return {w,h};
+}
+
+/* ============ DRAW ============ */
+function drawStraight(el){
+  setFont(el); ctx.textAlign="center"; ctx.textBaseline="middle";
+  if(el.shadow){ctx.shadowColor="rgba(0,0,0,.35)";ctx.shadowBlur=el.size*0.08;ctx.shadowOffsetX=el.size*0.04;ctx.shadowOffsetY=el.size*0.05;}
+  if(el.stroke&&el.stroke.on){ctx.lineWidth=el.stroke.width;ctx.strokeStyle=el.stroke.color;ctx.lineJoin="round";ctx.strokeText(el.text,0,0);}
+  ctx.shadowColor="transparent";
+  ctx.fillStyle=el.color; ctx.fillText(el.text,0,0);
+}
+function drawCurved(el){
+  const chars=[...(el.text||"")];
+  setFont(el); ctx.textAlign="center"; ctx.textBaseline="middle";
+  const widths=chars.map(c=>ctx.measureText(c).width);
+  const total=widths.reduce((a,b)=>a+b,0)||1;
+  const arc=el.curve/100*Math.PI;
+  const R=total/Math.abs(arc);
+  const up = arc>0;
+  let theta=-Math.abs(arc)/2;
+  for(let i=0;i<chars.length;i++){
+    const w=widths[i], step=w/R;
+    theta+=step/2;
+    const cx=R*Math.sin(theta);
+    const cy=up ? -(R-R*Math.cos(theta)) : (R-R*Math.cos(theta));
+    const rot=up ? theta : -theta;
+    ctx.save();
+    ctx.translate(cx,cy); ctx.rotate(rot);
+    if(el.shadow){ctx.shadowColor="rgba(0,0,0,.35)";ctx.shadowBlur=el.size*0.08;ctx.shadowOffsetX=el.size*0.04;ctx.shadowOffsetY=el.size*0.05;}
+    if(el.stroke&&el.stroke.on){ctx.lineWidth=el.stroke.width;ctx.strokeStyle=el.stroke.color;ctx.lineJoin="round";ctx.strokeText(chars[i],0,0);}
+    ctx.shadowColor="transparent";
+    ctx.fillStyle=el.color; ctx.fillText(chars[i],0,0);
+    ctx.restore();
+    theta+=step/2;
+  }
+}
+function drawEl(el){
+  ctx.save();
+  ctx.globalAlpha = el.opacity ?? 1;
+  ctx.translate(el.x, el.y);
+  ctx.rotate(el.rot||0);
+  if(el.type==="image"){
+    if(el.flipH||el.flipV) ctx.scale(el.flipH?-1:1, el.flipV?-1:1);
+    const src=(el.removeWhite&&el.processedImg)?el.processedImg:el.img;
+    const w=el.naturalW*el.scale, h=el.naturalH*el.scale, f=el.filter;
+    ctx.filter=`grayscale(${f.gray}%) sepia(${f.sepia}%) brightness(${f.bright}%) contrast(${f.contrast}%)`;
+    ctx.drawImage(src,-w/2,-h/2,w,h);
+    ctx.filter="none";
+  } else {
+    if(el.curve && Math.abs(el.curve)>=2) drawCurved(el); else drawStraight(el);
+  }
+  ctx.restore();
+}
+function drawSelection(el){
+  const {w,h}=bbox(el);
+  ctx.save();
+  ctx.translate(el.x,el.y); ctx.rotate(el.rot||0);
+  ctx.strokeStyle="#2E7D72"; ctx.lineWidth=3; ctx.setLineDash([10,7]);
+  ctx.strokeRect(-w/2-10,-h/2-10,w+20,h+20);
+  ctx.restore();
+}
 function render(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  if(bgColor!=="transparent"){ ctx.fillStyle=bgColor; ctx.fillRect(0,0,canvas.width,canvas.height); }
-
-  for(const el of elements){
-    ctx.save();
-    ctx.translate(el.x, el.y);
-    ctx.rotate(el.rot||0);
-    if(el.type==="image"){
-      const w=el.naturalW*el.scale, h=el.naturalH*el.scale;
-      ctx.drawImage(el.img, -w/2, -h/2, w, h);
-    } else {
-      ctx.font=`${el.weight} ${el.size}px "${el.font}"`;
-      ctx.fillStyle=el.color; ctx.textAlign="center"; ctx.textBaseline="middle";
-      ctx.fillText(el.text||" ", 0, 0);
-    }
-    ctx.restore();
-  }
-
-  // selection outline
-  if(selected){
-    const {w,h}=bbox(selected);
-    ctx.save();
-    ctx.translate(selected.x, selected.y);
-    ctx.rotate(selected.rot||0);
-    ctx.strokeStyle="#2E7D72"; ctx.lineWidth=3; ctx.setLineDash([10,7]);
-    ctx.strokeRect(-w/2-10,-h/2-10,w+20,h+20);
-    ctx.restore();
-  }
+  ctx.clearRect(0,0,W,H);
+  if(bgColor!=="transparent"){ ctx.fillStyle=bgColor; ctx.fillRect(0,0,W,H); }
+  for(const el of elements) drawEl(el);
+  if(selected) drawSelection(selected);
   updateMug();
 }
 
 /* ============ MUG PREVIEW ============ */
 function updateMug(){
-  const url = canvas.toDataURL("image/png");
-  const print = $("mugPrint");
-  print.style.backgroundImage = `url(${url})`;
-  const body = $("mugBody");
-  body.style.background = currentModel.base;
-  $("mugHandle").style.borderColor = currentModel.handle;
-  // inner rim hint for two-tone
-  body.style.boxShadow = currentModel.inner
+  const url=canvas.toDataURL("image/png");
+  $("mugPrint").style.backgroundImage=`url(${url})`;
+  const body=$("mugBody");
+  body.style.background=currentModel.base;
+  $("mugHandle").style.borderColor=currentModel.handle;
+  body.style.boxShadow=currentModel.inner
     ? `inset 0 6px 0 ${currentModel.inner}, 0 24px 40px -18px rgba(0,0,0,.7)`
     : `0 24px 40px -18px rgba(0,0,0,.7)`;
 }
 
-/* ============ HIT TESTING ============ */
-function pointInEl(px,py,el){
-  // transform point into element local space
-  const dx=px-el.x, dy=py-el.y, a=-(el.rot||0);
-  const lx=dx*Math.cos(a)-dy*Math.sin(a);
-  const ly=dx*Math.sin(a)+dy*Math.cos(a);
-  const {w,h}=bbox(el);
-  return Math.abs(lx)<=w/2+12 && Math.abs(ly)<=h/2+12;
-}
-function hit(px,py){
-  for(let i=elements.length-1;i>=0;i--){ if(pointInEl(px,py,elements[i])) return elements[i]; }
-  return null;
+/* ============ WHITE REMOVAL ============ */
+function buildProcessed(el){
+  const c=document.createElement("canvas"); c.width=el.naturalW; c.height=el.naturalH;
+  const x=c.getContext("2d"); x.drawImage(el.img,0,0);
+  try{
+    const d=x.getImageData(0,0,c.width,c.height), a=d.data, tol=el.whiteTol;
+    for(let i=0;i<a.length;i+=4){ if(a[i]>=tol&&a[i+1]>=tol&&a[i+2]>=tol) a[i+3]=0; }
+    x.putImageData(d,0,0);
+    const img=new Image(); img.onload=()=>{el.processedImg=img;render();}; img.src=c.toDataURL();
+  }catch(e){}
 }
 
-/* ============ POINTER (mover) ============ */
-let drag=null;
-function toCanvas(e){
-  const r=canvas.getBoundingClientRect();
-  return {
-    x:(e.clientX-r.left)/r.width*canvas.width,
-    y:(e.clientY-r.top)/r.height*canvas.height
-  };
+/* ============ HIT TESTING / DRAG ============ */
+function pointInEl(px,py,el){
+  const dx=px-el.x, dy=py-el.y, a=-(el.rot||0);
+  const lx=dx*Math.cos(a)-dy*Math.sin(a), ly=dx*Math.sin(a)+dy*Math.cos(a);
+  const {w,h}=bbox(el);
+  return Math.abs(lx)<=w/2+14 && Math.abs(ly)<=h/2+14;
 }
+function hit(px,py){ for(let i=elements.length-1;i>=0;i--) if(pointInEl(px,py,elements[i])) return elements[i]; return null; }
+function toCanvas(e){ const r=canvas.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*W, y:(e.clientY-r.top)/r.height*H}; }
+
+let drag=null, moved=false;
 canvas.addEventListener("pointerdown",e=>{
-  const p=toCanvas(e); const el=hit(p.x,p.y);
+  const p=toCanvas(e), el=hit(p.x,p.y);
   selectEl(el);
-  if(el){ drag={el,ox:p.x-el.x,oy:p.y-el.y}; canvas.classList.add("dragging"); canvas.setPointerCapture(e.pointerId); }
+  if(el){ drag={el,ox:p.x-el.x,oy:p.y-el.y}; moved=false; canvas.classList.add("dragging"); canvas.setPointerCapture(e.pointerId); }
 });
 canvas.addEventListener("pointermove",e=>{
   if(!drag) return;
   const p=toCanvas(e);
-  drag.el.x=Math.max(0,Math.min(canvas.width,p.x-drag.ox));
-  drag.el.y=Math.max(0,Math.min(canvas.height,p.y-drag.oy));
-  render();
+  drag.el.x=clamp(p.x-drag.ox,0,W); drag.el.y=clamp(p.y-drag.oy,0,H); moved=true; render();
 });
-const endDrag=()=>{drag=null;canvas.classList.remove("dragging");};
+function endDrag(){ if(drag&&moved) commit(); drag=null; canvas.classList.remove("dragging"); }
 canvas.addEventListener("pointerup",endDrag);
 canvas.addEventListener("pointercancel",endDrag);
 
-/* ============ SELECTION + TOOLBAR ============ */
+/* ============ SELECTION + TOOLBAR SYNC ============ */
 function selectEl(el){
   selected=el;
   const tools=$("seltools");
   if(!el){ tools.classList.remove("show"); render(); return; }
   tools.classList.add("show");
-  const isText=el.type==="text";
-  $("rowText").style.display=isText?"flex":"none";
-  $("rowFont").style.display=isText?"flex":"none";
-  if(isText){ $("txtVal").value=el.text; $("txtFont").value=el.font; $("txtColor").value=el.color; }
-  // size slider maps to size(px) for text, or scale*100 for image
-  $("szRange").value = isText ? el.size : Math.round(el.scale*100);
-  $("szRange").min   = isText ? 20 : 5;
-  $("szRange").max   = isText ? 260 : 200;
-  $("rotRange").value = Math.round((el.rot||0)*180/Math.PI);
+  const isText=el.type==="text", isImg=el.type==="image";
+  tools.querySelectorAll("[data-text]").forEach(r=>r.style.display=isText?"flex":"none");
+  tools.querySelectorAll("[data-image]").forEach(r=>r.style.display=isImg?"flex":"none");
+
+  if(isText){
+    $("txtVal").value=el.text;
+    $("txtFont").value=el.font;
+    $("txtColor").value=el.color;
+    $("tgBold").setAttribute("aria-pressed", el.weight==="800");
+    $("tgItalic").setAttribute("aria-pressed", !!el.italic);
+    $("curveRange").value=el.curve;
+    $("tgStroke").setAttribute("aria-pressed", el.stroke.on);
+    $("strokeColor").value=el.stroke.color;
+    $("strokeW").value=el.stroke.width;
+    $("tgShadow").setAttribute("aria-pressed", el.shadow);
+    $("szRange").min=20; $("szRange").max=300; $("szRange").value=el.size;
+  } else {
+    $("szRange").min=5; $("szRange").max=200; $("szRange").value=Math.round(el.scale*100);
+    $("tgFlipH").setAttribute("aria-pressed", el.flipH);
+    $("tgFlipV").setAttribute("aria-pressed", el.flipV);
+    $("fGray").value=el.filter.gray; $("fSepia").value=el.filter.sepia;
+    $("fBright").value=el.filter.bright; $("fContrast").value=el.filter.contrast;
+    $("tgWhite").setAttribute("aria-pressed", el.removeWhite);
+    $("whiteTol").value=el.whiteTol;
+  }
+  $("opRange").value=Math.round((el.opacity??1)*100);
+  $("rotRange").value=Math.round((el.rot||0)*180/Math.PI);
   render();
 }
 
-$("szRange").addEventListener("input",e=>{
-  if(!selected) return;
-  const v=+e.target.value;
-  if(selected.type==="text") selected.size=v; else selected.scale=v/100;
-  render();
+/* basic edit controls */
+$("szRange").addEventListener("input",e=>{ if(!selected)return; const v=+e.target.value;
+  if(selected.type==="text") selected.size=v; else selected.scale=v/100; render(); });
+$("szRange").addEventListener("change",commit);
+$("rotRange").addEventListener("input",e=>{ if(selected){selected.rot=(+e.target.value)*Math.PI/180;render();} });
+$("rotRange").addEventListener("change",commit);
+$("opRange").addEventListener("input",e=>{ if(selected){selected.opacity=(+e.target.value)/100;render();} });
+$("opRange").addEventListener("change",commit);
+
+$("txtVal").addEventListener("input",e=>{ if(selected){selected.text=e.target.value;render();} });
+$("txtVal").addEventListener("change",commit);
+$("txtFont").addEventListener("change",e=>{ if(selected){selected.font=e.target.value;render();commit();} });
+$("txtColor").addEventListener("input",e=>{ if(selected){selected.color=e.target.value;render();} });
+$("txtColor").addEventListener("change",commit);
+
+function toggle(btn){ const v=btn.getAttribute("aria-pressed")!=="true"; btn.setAttribute("aria-pressed",v); return v; }
+$("tgBold").addEventListener("click",e=>{ if(selected){selected.weight=toggle(e.currentTarget)?"800":"400";render();commit();} });
+$("tgItalic").addEventListener("click",e=>{ if(selected){selected.italic=toggle(e.currentTarget);render();commit();} });
+
+/* advanced: text */
+$("curveRange").addEventListener("input",e=>{ if(selected){selected.curve=+e.target.value;render();} });
+$("curveRange").addEventListener("change",commit);
+$("tgStroke").addEventListener("click",e=>{ if(selected){selected.stroke.on=toggle(e.currentTarget);render();commit();} });
+$("strokeColor").addEventListener("input",e=>{ if(selected){selected.stroke.color=e.target.value;render();} });
+$("strokeColor").addEventListener("change",commit);
+$("strokeW").addEventListener("input",e=>{ if(selected){selected.stroke.width=+e.target.value;render();} });
+$("strokeW").addEventListener("change",commit);
+$("tgShadow").addEventListener("click",e=>{ if(selected){selected.shadow=toggle(e.currentTarget);render();commit();} });
+
+/* advanced: image */
+$("tgFlipH").addEventListener("click",e=>{ if(selected){selected.flipH=toggle(e.currentTarget);render();commit();} });
+$("tgFlipV").addEventListener("click",e=>{ if(selected){selected.flipV=toggle(e.currentTarget);render();commit();} });
+function filterInput(key,id){ $(id).addEventListener("input",e=>{ if(selected){selected.filter[key]=+e.target.value;render();} }); $(id).addEventListener("change",commit); }
+filterInput("gray","fGray"); filterInput("sepia","fSepia"); filterInput("bright","fBright"); filterInput("contrast","fContrast");
+$("tgWhite").addEventListener("click",e=>{ if(selected){selected.removeWhite=toggle(e.currentTarget); if(selected.removeWhite)buildProcessed(selected); else render(); commit();} });
+$("whiteTol").addEventListener("input",e=>{ if(selected){selected.whiteTol=+e.target.value; if(selected.removeWhite)buildProcessed(selected);} });
+$("whiteTol").addEventListener("change",commit);
+
+/* actions */
+$("aDel").addEventListener("click",()=>{ if(!selected)return; elements=elements.filter(x=>x!==selected); selectEl(null); commit(); });
+$("aDup").addEventListener("click",()=>{
+  if(!selected)return;
+  const c=JSON.parse(JSON.stringify({...selected,img:undefined,processedImg:undefined}));
+  c.id=idSeq++; c.x=clamp(selected.x+50,0,W); c.y=clamp(selected.y+50,0,H);
+  if(selected.type==="image"){ c.img=selected.img; c.processedImg=null; if(c.removeWhite)buildProcessed(c); }
+  elements.push(c); selectEl(c); commit();
 });
-$("rotRange").addEventListener("input",e=>{
-  if(!selected) return;
-  selected.rot=(+e.target.value)*Math.PI/180; render();
-});
-$("txtVal").addEventListener("input",e=>{ if(selected&&selected.type==="text"){selected.text=e.target.value;render();} });
-$("txtFont").addEventListener("change",e=>{ if(selected&&selected.type==="text"){selected.font=e.target.value;render();} });
-$("txtColor").addEventListener("input",e=>{ if(selected&&selected.type==="text"){selected.color=e.target.value;render();} });
-$("delSel").addEventListener("click",()=>{
-  if(!selected) return;
-  elements=elements.filter(x=>x!==selected); selectEl(null);
-});
+$("aFront").addEventListener("click",()=>{ if(!selected)return; const s=selected; elements=elements.filter(x=>x!==s); elements.push(s); render(); commit(); });
+$("aBack").addEventListener("click",()=>{ if(!selected)return; const s=selected; elements=elements.filter(x=>x!==s); elements.unshift(s); render(); commit(); });
+$("aCenterH").addEventListener("click",()=>{ if(selected){selected.x=W/2;render();commit();} });
+$("aCenterV").addEventListener("click",()=>{ if(selected){selected.y=H/2;render();commit();} });
 
 /* ============ ADD ELEMENTS ============ */
-$("addText").addEventListener("click",()=>{
-  const el={type:"text",id:idSeq++,text:"Tu frase",x:canvas.width/2,y:canvas.height/2,
-            scale:1,rot:0,size:90,weight:"800",font:"Bricolage Grotesque",color:"#20304f"};
-  elements.push(el); selectEl(el); $("txtVal").focus(); $("txtVal").select(); render();
-});
-
+$("addText").addEventListener("click",()=>{ const el=newText("Tu frase"); elements.push(el); selectEl(el); $("txtVal").focus(); $("txtVal").select(); commit(); });
 $("imgInput").addEventListener("change",e=>{
-  const file=e.target.files[0]; if(!file) return;
+  const file=e.target.files[0]; if(!file)return;
   const reader=new FileReader();
-  reader.onload=ev=>{
-    const img=new Image();
-    img.onload=()=>{
-      const maxW=canvas.width*0.6, maxH=canvas.height*0.85;
-      const scale=Math.min(maxW/img.width,maxH/img.height,1);
-      elements.push({type:"image",id:idSeq++,img,naturalW:img.width,naturalH:img.height,
-                     x:canvas.width/2,y:canvas.height/2,scale,rot:0});
-      selectEl(elements[elements.length-1]); render();
-    };
-    img.src=ev.target.result;
-  };
-  reader.readAsDataURL(file);
-  e.target.value="";
+  reader.onload=ev=>{ const img=new Image(); img.onload=()=>{ imgCache[img.src]=img; const el=newImage(img); elements.push(el); selectEl(el); commit(); }; img.src=ev.target.result; };
+  reader.readAsDataURL(file); e.target.value="";
 });
 
 /* deselect on outside click */
@@ -522,7 +604,15 @@ document.addEventListener("pointerdown",e=>{
   if(!canvas.contains(e.target) && !$("seltools").contains(e.target)) selectEl(null);
 });
 
-/* ============ BACKGROUND SWATCHES ============ */
+/* ============ STICKERS ============ */
+const stWrap=$("stickers");
+CONFIG.stickers.forEach(s=>{
+  const b=document.createElement("button"); b.type="button"; b.textContent=s; b.title="Agregar "+s;
+  b.addEventListener("click",()=>{ const el=newText(s,{font:"Inter",weight:"400",size:120}); elements.push(el); selectEl(el); commit(); });
+  stWrap.appendChild(b);
+});
+
+/* ============ BACKGROUND ============ */
 const bgColors=[
   {c:"#ffffff",label:"Blanco"},{c:"transparent",label:"Sin fondo"},
   {c:"#20304F",label:"Cobalto"},{c:"#D85A2A",label:"Brasa"},
@@ -530,87 +620,86 @@ const bgColors=[
 ];
 const bgWrap=$("bgSwatches");
 bgColors.forEach((s,i)=>{
-  const b=document.createElement("button");
-  b.className="sw"; b.title=s.label; b.setAttribute("aria-pressed", i===0);
-  b.style.background = s.c==="transparent"
-    ? "repeating-conic-gradient(#ccc 0 25%,#fff 0 50%) 50%/12px 12px" : s.c;
-  b.addEventListener("click",()=>{
-    bgColor=s.c; document.querySelectorAll("#bgSwatches .sw").forEach(x=>x.setAttribute("aria-pressed","false"));
-    b.setAttribute("aria-pressed","true"); render();
-  });
+  const b=document.createElement("button"); b.className="sw"; b.title=s.label; b.setAttribute("aria-pressed", i===0);
+  b.style.background = s.c==="transparent" ? "repeating-conic-gradient(#ccc 0 25%,#fff 0 50%) 50%/12px 12px" : s.c;
+  b.dataset.c=s.c;
+  b.addEventListener("click",()=>{ bgColor=s.c; document.querySelectorAll("#bgSwatches .sw").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); render(); commit(); });
   bgWrap.appendChild(b);
 });
+function syncBgSwatch(){ document.querySelectorAll("#bgSwatches .sw").forEach(x=>x.setAttribute("aria-pressed", x.dataset.c===bgColor)); }
 
 /* ============ MODELS ============ */
 const modelsWrap=$("models");
 CONFIG.models.forEach((m,i)=>{
-  const b=document.createElement("button");
-  b.className="model"; b.type="button"; b.setAttribute("aria-pressed", i===0);
-  b.innerHTML=`<span class="mug-ic" style="background:${m.base};border-color:${m.handle}"></span>
-    <span><span class="m-name">${m.name}</span><span class="m-price">${CLP(m.price)} c/u</span></span>`;
-  b.addEventListener("click",()=>{
-    currentModel=m;
-    document.querySelectorAll(".model").forEach(x=>x.setAttribute("aria-pressed","false"));
-    b.setAttribute("aria-pressed","true");
-    updateSummary(); updateMug();
-  });
+  const b=document.createElement("button"); b.className="model"; b.type="button"; b.setAttribute("aria-pressed", i===0);
+  b.innerHTML=`<span class="mug-ic" style="background:${m.base};border-color:${m.handle}"></span><span><span class="m-name">${m.name}</span><span class="m-price">${CLP(m.price)} c/u</span></span>`;
+  b.addEventListener("click",()=>{ currentModel=m; document.querySelectorAll(".model").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); updateSummary(); updateMug(); });
   modelsWrap.appendChild(b);
 });
 
 /* ============ ORDER SUMMARY ============ */
 const qtyInput=$("qty");
 function getQty(){ let q=parseInt(qtyInput.value,10); if(isNaN(q)||q<1)q=1; if(q>999)q=999; return q; }
-function unitPrice(q){
-  let off=0; for(const t of CONFIG.tiers){ if(q>=t.min){off=t.off;break;} }
-  return {unit:currentModel.price*(1-off), off};
-}
+function unitPrice(q){ let off=0; for(const t of CONFIG.tiers){ if(q>=t.min){off=t.off;break;} } return {unit:currentModel.price*(1-off), off}; }
 function updateSummary(){
-  const q=getQty(); const {unit,off}=unitPrice(q);
-  $("sumModel").textContent=currentModel.name;
-  $("capModel").textContent=currentModel.name;
-  $("sumUnit").textContent=CLP(unit);
-  $("sumTotal").textContent=CLP(unit*q);
-  $("saveNote").textContent = off>0 ? `¡Ahorras ${Math.round(off*100)}% por llevar ${q}!` : "";
+  const q=getQty(), p=unitPrice(q);
+  $("sumModel").textContent=currentModel.name; $("capModel").textContent=currentModel.name;
+  $("sumUnit").textContent=CLP(p.unit); $("sumTotal").textContent=CLP(p.unit*q);
+  $("saveNote").textContent = p.off>0 ? `¡Ahorras ${Math.round(p.off*100)}% por llevar ${q}!` : "";
 }
 $("qPlus").addEventListener("click",()=>{qtyInput.value=getQty()+1;updateSummary();});
 $("qMinus").addEventListener("click",()=>{qtyInput.value=Math.max(1,getQty()-1);updateSummary();});
 qtyInput.addEventListener("input",updateSummary);
 qtyInput.addEventListener("blur",()=>{qtyInput.value=getQty();updateSummary();});
 
-/* ============ DOWNLOAD DESIGN ============ */
+/* ============ DOWNLOAD ============ */
 $("downloadBtn").addEventListener("click",()=>{
-  const prev=selected; selectEl(null);            // ocultar guía de selección
-  setTimeout(()=>{
-    const a=document.createElement("a");
-    a.download=`diseno-taza-${Date.now()}.png`;
-    a.href=canvas.toDataURL("image/png");
-    a.click();
-    selected=prev; if(prev) selectEl(prev);
-  },40);
+  const prev=selected; selectEl(null);
+  setTimeout(()=>{ const a=document.createElement("a"); a.download=`diseno-taza-${Date.now()}.png`; a.href=canvas.toDataURL("image/png"); a.click(); if(prev)selectEl(prev); },40);
 });
 
-/* ============ WHATSAPP ORDER ============ */
+/* ============ WHATSAPP ============ */
 $("orderBtn").addEventListener("click",()=>{
-  const q=getQty(); const {unit}=unitPrice(q);
-  const msg =
-    `¡Hola Taller de Tazas! Quiero pedir:%0A`+
+  const q=getQty(), p=unitPrice(q);
+  const msg=`¡Hola Taller de Tazas! Quiero pedir:%0A`+
     `• Modelo: ${encodeURIComponent(currentModel.name)}%0A`+
-    `• Cantidad: ${q}%0A`+
-    `• Precio unitario: ${CLP(unit)}%0A`+
-    `• Total: ${CLP(unit*q)}%0A`+
-    `• Pedido: ${$("ticketNo").textContent}%0A`+
-    `Adjunto mi diseño 🎨`;
+    `• Cantidad: ${q}%0A`+`• Precio unitario: ${CLP(p.unit)}%0A`+
+    `• Total: ${CLP(p.unit*q)}%0A`+`• Pedido: ${$("ticketNo").textContent}%0A`+`Adjunto mi diseño 🎨`;
   window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`,"_blank");
+});
+
+/* ============ UNDO / REDO ============ */
+let history=[], future=[];
+function serialize(){
+  return JSON.stringify({
+    bg:bgColor,
+    els:elements.map(e=>{ const o={...e}; delete o.img; delete o.processedImg; if(e.img)o._src=e.img.src; return o; })
+  });
+}
+function apply(state){
+  const s=JSON.parse(state); bgColor=s.bg;
+  elements=s.els.map(o=>{ const e={...o}; if(e._src){ e.img=imgCache[e._src]; e.processedImg=null; delete e._src; if(e.removeWhite&&e.img)buildProcessed(e); } return e; });
+  const selId=selected&&selected.id;
+  selected = selId!=null ? (elements.find(e=>e.id===selId)||null) : null;
+  selectEl(selected);
+  syncBgSwatch(); updUndo(); render();
+}
+function commit(){ history.push(serialize()); if(history.length>60)history.shift(); future.length=0; updUndo(); }
+function undo(){ if(history.length<2)return; future.push(history.pop()); apply(history[history.length-1]); }
+function redo(){ if(!future.length)return; const s=future.pop(); history.push(s); apply(s); }
+function updUndo(){ $("undoBtn").disabled=history.length<2; $("redoBtn").disabled=future.length===0; }
+$("undoBtn").addEventListener("click",undo);
+$("redoBtn").addEventListener("click",redo);
+document.addEventListener("keydown",e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){ e.preventDefault(); e.shiftKey?redo():undo(); }
+  if(selected && (e.key==="Delete"||e.key==="Backspace") && e.target===document.body){ e.preventDefault(); elements=elements.filter(x=>x!==selected); selectEl(null); commit(); }
 });
 
 /* ============ INIT ============ */
 $("ticketNo").textContent = "#TZ-" + String(Date.now()).slice(-6);
-// seed con un texto de ejemplo para que la taza no salga vacía
-elements.push({type:"text",id:idSeq++,text:"Mi taza",x:canvas.width/2,y:canvas.height/2,
-               scale:1,rot:0,size:120,weight:"800",font:"Bricolage Grotesque",color:"#20304f"});
+elements.push(newText("Mi taza",{size:130}));
 document.fonts.ready.then(render);
-updateSummary();
-render();
+updateSummary(); render(); commit();
 </script>
 </body>
 </html>
