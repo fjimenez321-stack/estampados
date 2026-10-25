@@ -6,7 +6,13 @@
 <title>Té-tazas</title>
 <meta name="description" content="Tazones personalizados desde $3.500. Entrega en estaciones o retiro en Recreo, Viña del Mar.">
 <link rel="icon" href="img/icono.png">
-<link rel="apple-touch-icon" href="img/icono.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f6f1e8">
+<link rel="apple-touch-icon" href="img/apple-touch.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Té-tazas">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:image" content="img/logo.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -236,6 +242,18 @@ footer img.foot-logo{width:120px;height:auto}
 
 .vhint{font-size:.8rem;color:var(--muted);background:var(--cobalt-soft);border-radius:8px;padding:6px 9px;margin-top:6px;line-height:1.35}
 
+/* Instalación como app */
+.top-actions{display:flex;align-items:center;gap:8px}
+.install-btn{padding:9px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:600;font-size:.88rem}
+.ios-tip{position:fixed;left:12px;right:12px;bottom:14px;z-index:45;background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow);padding:12px;display:flex;align-items:center;gap:12px}
+.ios-tip[hidden]{display:none}
+.ios-tip img{width:44px;height:44px;border-radius:10px}
+.ios-tip p{flex:1;font-size:.88rem;line-height:1.35}
+.ios-tip p>b:first-child{display:block}
+.ios-tip .share{font-family:var(--mono);font-size:.8rem;background:var(--cobalt-soft);color:var(--cobalt);padding:1px 5px;border-radius:5px}
+@media(display-mode:standalone){.install-btn,.ios-tip{display:none!important}}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -244,7 +262,10 @@ footer img.foot-logo{width:120px;height:auto}
 <header class="top">
   <div class="top-in">
     <a class="brand" href="#" aria-label="Té-tazas, inicio"><img src="img/logo.webp" alt="Té-tazas" id="storeName"></a>
+    <div class="top-actions">
+    <button class="install-btn" id="installBtn" hidden>⬇ Instalar</button>
     <button class="cart-btn" id="openCart" aria-label="Abrir carrito">Carrito <span class="badge" id="badge">0</span></button>
+    </div>
   </div>
 </header>
 
@@ -306,6 +327,12 @@ footer img.foot-logo{width:120px;height:auto}
 </aside>
 
 <div class="toast" id="toast"></div>
+
+<div class="ios-tip" id="iosTip" hidden role="dialog" aria-label="Instalar en iPhone">
+  <img src="img/app-192.png" alt="">
+  <p><b>Instala Té-tazas</b>Toca <span class="share">⎋ Compartir</span> y luego <b>“Agregar a inicio”</b>.</p>
+  <button class="x" id="iosClose" aria-label="Cerrar">×</button>
+</div>
 
 <script>
 /* ═════════════ CONFIGURACIÓN — edita solo esta parte ═════════════ */
@@ -766,6 +793,29 @@ function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('on
 
 saveCart();
 loadCatalog();
+
+/* ── Instalar como app ── */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+let installEvt = null;
+addEventListener('beforeinstallprompt', e => {        // Android / Chrome / Edge
+  e.preventDefault(); installEvt = e; $('#installBtn').hidden = false;
+});
+$('#installBtn').onclick = async () => {
+  if (!installEvt) return;
+  installEvt.prompt();
+  await installEvt.userChoice;
+  installEvt = null; $('#installBtn').hidden = true;
+};
+addEventListener('appinstalled', () => { $('#installBtn').hidden = true; toast('Té-tazas quedó instalada'); });
+
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (isIOS && !standalone && !store.get('tazas_iostip', false)) {   // iPhone: no hay botón, se explica cómo
+  setTimeout(() => { $('#iosTip').hidden = false; }, 4000);
+}
+$('#iosClose').onclick = () => { $('#iosTip').hidden = true; store.set('tazas_iostip', true); };
 </script>
 </body>
 </html>

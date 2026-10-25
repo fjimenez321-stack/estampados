@@ -59,6 +59,13 @@ Catálogo tazas/
 ## Tipos de tazón (carrito)
 En `Codigo.gs` → `VARIANTS` defines los tipos y su recargo por unidad; en `COLORS`, los colores del tazón con interior de color. El sitio los toma del script, así que basta con cambiarlos ahí (y publicar una nueva versión).
 
+## Instalar como app
+El sitio se puede instalar en el celular (manifest + service worker):
+- **Android / Chrome:** aparece el botón **⬇ Instalar** junto al carrito.
+- **iPhone (Safari):** se muestra una nota con los pasos: Compartir → *Agregar a inicio*.
+
+Si cambias imágenes o archivos del sitio, sube el número de `VERSION` en `sw.js` (`tetazas-v2`, `v3`…) para que las apps instaladas tomen la copia nueva. La página y el catálogo se actualizan solos.
+
 ## Uso diario
 - **Nuevo diseño:** súbelo a la carpeta. Aparece en máximo 10 minutos
   (o al instante abriendo `TU_URL/exec?action=catalog&fresh=1`).
