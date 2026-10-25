@@ -254,6 +254,18 @@ footer img.foot-logo{width:120px;height:auto}
 .ios-tip .share{font-family:var(--mono);font-size:.8rem;background:var(--cobalt-soft);color:var(--cobalt);padding:1px 5px;border-radius:5px}
 @media(display-mode:standalone){.install-btn,.ios-tip{display:none!important}}
 
+/* Varias fotos por producto */
+.nfotos{position:absolute;right:8px;bottom:8px;font-family:var(--mono);font-size:.68rem;background:rgba(29,27,34,.78);color:#fff;padding:3px 7px;border-radius:6px}
+.gal{position:relative}
+.gal-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:var(--radius);scrollbar-width:none}
+.gal-track::-webkit-scrollbar{display:none}
+.gal-track img{flex:0 0 100%;scroll-snap-align:start;border-radius:0}
+.gal-count{position:absolute;right:10px;bottom:10px;font-family:var(--mono);font-size:.72rem;background:rgba(29,27,34,.75);color:#fff;padding:3px 8px;border-radius:999px}
+.thumbs-row{display:flex;gap:6px;margin-top:8px;overflow-x:auto;padding:2px}
+.thumbs-row button{flex:none;width:54px;height:54px;border-radius:9px;overflow:hidden;opacity:.55;outline:2px solid transparent;transition:.15s}
+.thumbs-row button.on{opacity:1;outline-color:var(--cobalt)}
+.thumbs-row img{width:100%;height:100%;object-fit:cover}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -448,17 +460,19 @@ function demoProducts(){
     ['Montañas al atardecer','Paisajes','#8a4fd1','⛰️'], ['Ola de Viña','Paisajes','#0f8fb3','🌊'],
     ['Tu foto aquí','Personalizada','#1d1b22','📷'], ['Tu nombre aquí','Personalizada','#c23b6a','✍️']
   ];
-  return designs.map(([name, category, color, emoji], i) => ({
-    id: 'demo' + i, name, category, price: i > 5 ? 4000 : 3500,
-    desc: i === 0 ? 'Para quienes miran las estrellas antes del primer café.\n\n- Cerámica blanca 11 oz\n- Apto para microondas\n- **Impresión a todo color**' :
-          i === 6 ? 'Envíanos tu foto al hacer el pedido y la ajustamos al tazón.' : '',
-    img: 'data:image/svg+xml,' + encodeURIComponent(
+  const pic = (color, emoji, flip) => 'data:image/svg+xml,' + encodeURIComponent(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#efe7da"/>
+       <g transform="${flip ? 'translate(400 0) scale(-1 1)' : ''}">
        <rect x="95" y="110" width="170" height="200" rx="18" fill="#fff" stroke="#d8ccba" stroke-width="4"/>
        <path d="M265 160 h28 a38 38 0 0 1 0 100 h-28" fill="none" stroke="#d8ccba" stroke-width="16"/>
-       <rect x="95" y="150" width="170" height="110" fill="${color}"/>
-       <text x="180" y="225" font-size="64" text-anchor="middle">${emoji}</text></svg>`)
-  }));
+       <rect x="95" y="150" width="170" height="110" fill="${color}"/></g>
+       <text x="${flip ? 220 : 180}" y="225" font-size="64" text-anchor="middle">${emoji}</text></svg>`);
+  return designs.map(([name, category, color, emoji], i) => ({
+    id: 'demo' + i, name, category, price: i > 5 ? 4000 : 3500,
+    imgs: i === 0 ? [pic(color, emoji), pic(color, emoji, true), pic('#1d1b22', '🚀')] : [pic(color, emoji)],
+    desc: i === 0 ? 'Para quienes miran las estrellas antes del primer café.\n\n- Cerámica blanca 11 oz\n- Apto para microondas\n- **Impresión a todo color**' :
+          i === 6 ? 'Envíanos tu foto al hacer el pedido y la ajustamos al tazón.' : '',
+  })).map(p => ({ ...p, img: p.imgs[0] }));
 }
 
 async function loadCatalog(){
@@ -509,7 +523,8 @@ function renderGrid(){
   $('#grid').innerHTML = list.map(p => `
     <article class="card">
       <button class="ph" data-detail="${esc(p.id)}" aria-label="Ver ${esc(p.name)}"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">
-        ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}</button>
+        ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+        ${p.imgs?.length > 1 ? `<span class="nfotos">▣ ${p.imgs.length}</span>` : ''}</button>
       <div class="body"><h3>${esc(p.name)}</h3>
         ${p.desc ? `<p class="desc">${esc(plain(p.desc))}</p>` : ''}
         <div class="row"><span class="price">${money(p.price)}</span>
@@ -557,15 +572,41 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel()
 
 function render(){ ({ cart: renderCart, form: renderForm, detail: renderDetail })[view]?.(); }
 
+/* Galería deslizable del producto (una o varias fotos) */
+function gallery(p){
+  const imgs = (p.imgs?.length ? p.imgs : [p.img]).map(u => u.replace('sz=w800', 'sz=w1200'));
+  if (imgs.length === 1) return `<img class="detail-img" src="${esc(imgs[0])}" alt="${esc(p.name)}" referrerpolicy="no-referrer">`;
+  return `<div class="gal">
+    <div class="gal-track" id="galTrack">${imgs.map((u, i) =>
+      `<img class="detail-img" src="${esc(u)}" alt="${esc(p.name)} · foto ${i + 1}" referrerpolicy="no-referrer" ${i ? 'loading="lazy"' : ''}>`).join('')}</div>
+    <span class="gal-count" id="galCount">1 / ${imgs.length}</span>
+  </div>
+  <div class="thumbs-row">${imgs.map((u, i) =>
+    `<button data-go="${i}" class="${i ? '' : 'on'}" aria-label="Foto ${i + 1}"><img src="${esc(u.replace('sz=w1200', 'sz=w200'))}" alt="" referrerpolicy="no-referrer"></button>`).join('')}</div>`;
+}
+
+function wireGallery(){
+  const t = $('#galTrack'); if (!t) return;
+  const btns = [...document.querySelectorAll('.thumbs-row button')];
+  const mark = () => {
+    const i = Math.round(t.scrollLeft / t.clientWidth);
+    btns.forEach((b, k) => b.classList.toggle('on', k === i));
+    $('#galCount').textContent = `${i + 1} / ${btns.length}`;
+  };
+  t.addEventListener('scroll', () => requestAnimationFrame(mark), { passive: true });
+  btns.forEach(b => b.onclick = () => t.scrollTo({ left: +b.dataset.go * t.clientWidth, behavior: 'smooth' }));
+}
+
 function renderDetail(){
   const p = byId(detailId); if (!p) return closePanel();
   $('#pTitle').textContent = p.category || 'Diseño';
   $('#pBody').innerHTML = `<div class="detail">
-    <img class="detail-img" src="${esc(p.img.replace('sz=w800', 'sz=w1200'))}" alt="${esc(p.name)}" referrerpolicy="no-referrer">
+    ${gallery(p)}
     <h3>${esc(p.name)}</h3><span class="price">${money(p.price)}</span>
     ${p.desc ? `<div class="md">${md(p.desc)}</div>` : ''}</div>`;
   $('#pFoot').innerHTML = `<button class="cta" id="detAdd">Agregar al carrito</button>
     <button class="ghost" id="detCart">Ver carrito (${units()})</button>`;
+  wireGallery();
   $('#detAdd').onclick = () => { addToCart(p.id); $('#detCart').textContent = `Ver carrito (${units()})`; };
   $('#detCart').onclick = () => { view = 'cart'; render(); };
 }

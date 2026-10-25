@@ -32,13 +32,19 @@ Sin `API_URL` el sitio funciona en modo demostración, útil para probarlo antes
 ## Organizar el catálogo (tu panel de administración es Drive)
 ```
 Catálogo tazas/
-├── Animales/                 ← subcarpeta = categoría
-│   ├── descripcion.txt       ← texto bajo el filtro "Animales" (opcional)
-│   ├── Gato astronauta_3500.jpg
-│   └── Gato astronauta.txt   ← descripción del producto (opcional)
+├── Animales/                     ← subcarpeta = categoría
+│   ├── descripcion.txt           ← texto bajo el filtro "Animales" (opcional)
+│   ├── Gato astronauta_3500/     ← carpeta = UN producto con varias fotos
+│   │   ├── foto1.jpg             ← la primera (por nombre) es la portada
+│   │   ├── foto2.jpg
+│   │   └── descripcion           ← cualquier texto dentro = descripción
+│   ├── Perro_3500.jpg            ← foto suelta = producto de una foto
+│   ├── Perro_3500 (2).jpg        ← mismo nombre + (2) o #2 = otra foto del mismo
+│   └── Perro.txt                 ← descripción de la foto suelta
 └── Frases/
     └── Mejor profe_4000.png
 ```
+Hasta 10 fotos por producto (`MAX_IMAGES` en `Codigo.gs`).
 - La descripción puede ser `.txt`, `.md` o un **Google Docs** con el mismo nombre (lo más cómodo desde el celular). El precio en el nombre del texto es opcional.
 - Admite `**negrita**`, `*cursiva*` y listas con `- ` al inicio de la línea.
 - Renombrar la carpeta cambia el nombre de la categoría; mover una foto la cambia de categoría.

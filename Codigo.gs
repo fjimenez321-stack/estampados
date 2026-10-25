@@ -26,7 +26,8 @@ const CONFIG = {
   SHEET_NAME: 'Pedidos',
   CACHE_SECONDS: 600,    // el catálogo se refresca cada 10 min
   MAX_PHOTOS: 3,
-  MAX_DESC: 1500,        // largo máximo de cada descripción
+  MAX_DESC: 1500,
+  MAX_IMAGES: 10,        // fotos máximas por producto        // largo máximo de cada descripción
   // Tipos de tazón que el cliente elige en el carrito (extra = recargo por unidad)
   VARIANTS: [
     { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0 },
@@ -169,7 +170,7 @@ function doPost(e) {
 function getCatalog_(fresh) {
   const cache = CacheService.getScriptCache();
   if (!fresh) {
-    const hit = cache.get('catalog_v2');
+    const hit = cache.get('catalog_v3');
     if (hit) return JSON.parse(hit);
   }
   const products = [], categories = [];
@@ -186,44 +187,77 @@ function getCatalog_(fresh) {
   });
   categories.sort(function (a, b) { return a.name.localeCompare(b.name, 'es'); });
   const out = { products: products, categories: categories };
-  try { cache.put('catalog_v2', JSON.stringify(out), CONFIG.CACHE_SECONDS); } catch (_) {}
+  try { cache.put('catalog_v3', JSON.stringify(out), CONFIG.CACHE_SECONDS); } catch (_) {}
   return out;
 }
 
 /**
- * Lee una carpeta: imágenes = productos; archivos de texto con el mismo nombre = descripciones.
- * Textos aceptados: .txt, .md o un Google Docs. El precio en el nombre es opcional
- * ("Gato astronauta.txt" sirve para "Gato astronauta_3500.jpg").
- * Un texto llamado "descripcion" describe la categoría completa. Devuelve esa descripción.
+ * Lee una carpeta de categoría (o la raíz del catálogo).
+ *  - Fotos sueltas: cada nombre es un producto. Varias fotos con el mismo nombre
+ *    ("Gato_3500.jpg", "Gato_3500 (2).jpg", "Gato_3500 #3.jpg") se juntan en uno.
+ *  - Subcarpetas (solo dentro de una categoría): cada una es un producto con todas
+ *    sus fotos. Nombre y precio salen del nombre de la carpeta ("Gato astronauta_3500").
+ *  - Textos (.txt, .md o Google Docs) con el mismo nombre = descripción.
+ *    Uno llamado "descripcion" describe la categoría. Devuelve esa descripción.
  */
 function readFolder_(folder, category, out) {
-  const images = [], texts = {};
+  const groups = {}, texts = {};
   const files = folder.getFiles();
   while (files.hasNext()) {
     const f = files.next();
     if (f.isTrashed()) continue;
     const mime = f.getMimeType();
-    if (mime.indexOf('image/') === 0) images.push(f);
-    else if (isText_(f, mime)) texts[parseName_(f.getName()).key] = f;
-  }
-  images.forEach(function (f) {
     const info = parseName_(f.getName());
-    const tf = texts[info.key];
-    out.push({
-      id: f.getId(),
-      name: info.name,
-      price: info.price,
-      category: category,
-      desc: tf ? readText_(tf) : (f.getDescription() || '').slice(0, CONFIG.MAX_DESC),
-      img: 'https://drive.google.com/thumbnail?id=' + f.getId() + '&sz=w800'
-    });
+    if (mime.indexOf('image/') === 0) {
+      (groups[info.key] = groups[info.key] || { info: info, files: [] }).files.push(f);
+    } else if (isText_(f, mime)) texts[info.key] = f;
+  }
+  Object.keys(groups).forEach(function (key) {
+    const g = groups[key];
+    const imgs = sortFiles_(g.files);
+    const tf = texts[key];
+    out.push(product_('k:' + category + '/' + key, g.info, category, imgs,
+                      tf ? readText_(tf) : (imgs[0].getDescription() || '').slice(0, CONFIG.MAX_DESC)));
   });
+
+  if (category) {                                   // carpetas de producto dentro de la categoría
+    const subs = folder.getFolders();
+    while (subs.hasNext()) {
+      const pf = subs.next();
+      if (pf.isTrashed()) continue;
+      const imgs = [], txt = [];
+      const it = pf.getFiles();
+      while (it.hasNext()) {
+        const f = it.next();
+        if (f.isTrashed()) continue;
+        if (f.getMimeType().indexOf('image/') === 0) imgs.push(f);
+        else if (isText_(f, f.getMimeType())) txt.push(f);
+      }
+      if (!imgs.length) continue;
+      const desc = txt.length ? readText_(sortFiles_(txt)[0]) : (pf.getDescription() || '').slice(0, CONFIG.MAX_DESC);
+      out.push(product_(pf.getId(), parseName_(pf.getName()), category, sortFiles_(imgs), desc));
+    }
+  }
   const cat = texts['descripcion'] || texts['descripción'];
   return cat ? readText_(cat) : '';
 }
 
+function product_(id, info, category, imgFiles, desc) {
+  const urls = imgFiles.slice(0, CONFIG.MAX_IMAGES).map(function (f) {
+    return 'https://drive.google.com/thumbnail?id=' + f.getId() + '&sz=w800';
+  });
+  return { id: id, name: info.name, price: info.price, category: category, desc: desc, img: urls[0], imgs: urls };
+}
+
+function sortFiles_(arr) {
+  return arr.slice().sort(function (a, b) {
+    return a.getName().localeCompare(b.getName(), 'es', { numeric: true });
+  });
+}
+
 function parseName_(fileName) {
-  const base = fileName.replace(/\.(jpe?g|png|webp|gif|heic|txt|md|markdown)$/i, '');
+  const base = fileName.replace(/\.(jpe?g|png|webp|gif|heic|txt|md|markdown)$/i, '')
+                       .replace(/\s*(\(\d+\)|#\d+)$/, '');          // "(2)" o "#2" = otra foto del mismo
   const m = base.match(/^(.*?)[\s_-]+\$?(\d{1,3}(?:[.,]?\d{3})*)$/);
   const name = (m ? m[1] : base).replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
   return { name: name, key: name.toLowerCase(),
@@ -296,7 +330,7 @@ function setup() {
   const root = DriveApp.getFolderById(CONFIG.CATALOG_FOLDER_ID);
   share_(root);
   DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID); // verifica que el ID sea válido
-  CacheService.getScriptCache().remove('catalog_v2');
+  CacheService.getScriptCache().remove('catalog_v3');
   Logger.log('Listo. Planilla: ' + getSpreadsheet_().getUrl());
   Logger.log('Hoja: ' + sh.getName() + ' · Productos: ' + getCatalog_(true).products.length);
 }
