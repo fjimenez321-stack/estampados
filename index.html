@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:image" content="img/logo.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&family=Pacifico&family=Lobster&display=swap" rel="stylesheet">
 <style>
 :root{
   --bone:#f6f1e8; --paper:#fffdf9; --ink:#1d1b22; --muted:#6d6876; --line:#e6dccd;
@@ -273,6 +273,34 @@ footer img.foot-logo{width:120px;height:auto}
 .item textarea{margin-top:8px;width:100%;font-size:.85rem;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bone);resize:vertical}
 .price small{font-size:.72em;color:var(--muted);font-weight:400}
 
+/* Taller */
+.hero-ctas{display:flex;flex-wrap:wrap;gap:8px}
+.hero-cta.alt{background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+.taller{max-width:1100px;margin:0 auto;padding:10px 16px 0;display:grid;gap:14px;position:relative;z-index:1}
+@media(min-width:900px){.taller{grid-template-columns:1fr 1fr;align-items:start}.t-lead{grid-column:1/-1}}
+.t-lead{color:var(--muted);max-width:720px}
+.t-lead b{color:var(--ink)}
+.t-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.t-head{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+.t-head small{color:var(--muted);font-size:.82rem}
+.f .t-head{margin:6px 0 0}
+.t-preview{display:grid;gap:12px;align-items:center}
+@media(min-width:520px){.t-preview{grid-template-columns:1fr 120px}}
+#tCanvas{width:100%;height:auto;aspect-ratio:22/8;border-radius:10px;border:1px dashed #cdbfa9;touch-action:none;cursor:grab;background:#fff}
+.t-mug{width:96px;height:110px;margin:0 auto;border-radius:6px 6px 14px 14px;background:#fff center/200% 100% no-repeat;
+  box-shadow:inset -10px 0 14px rgba(0,0,0,.08),inset 8px 0 10px rgba(255,255,255,.6),0 6px 14px rgba(29,27,34,.12);position:relative;border:1px solid var(--line)}
+.t-mug::after{content:'';position:absolute;right:-26px;top:22px;width:30px;height:56px;border:9px solid #f4f1ec;border-left:0;border-radius:0 26px 26px 0;box-shadow:2px 2px 6px rgba(29,27,34,.12)}
+.t-tools{display:grid;gap:10px;margin-top:12px}
+.t-tools label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600}
+.t-tools input[type=text],.t-tools input:not([type]),.t-tools select{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bone);font-weight:400}
+.t-tools input[type=color]{width:100%;height:38px;border:1px solid var(--line);border-radius:10px;background:var(--bone);padding:3px}
+.t-tools input[type=range]{accent-color:var(--cobalt)}
+.t-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.t-est{display:flex;justify-content:space-between;align-items:baseline;background:var(--cobalt-soft);border-radius:12px;padding:12px}
+.t-est b{font-family:var(--mono);font-size:1.25rem;color:var(--cobalt)}
+.t-done{text-align:center;padding:20px 8px}
+.t-done .order-id{margin:6px 0}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -299,7 +327,10 @@ footer img.foot-logo{width:120px;height:auto}
       <span class="pill">Entrega en estaciones</span>
       <span class="pill">Retiro en Recreo, Viña</span>
     </div>
-    <a class="hero-cta" href="#catalogo">Ver diseños ↓</a>
+    <div class="hero-ctas">
+      <a class="hero-cta" href="#catalogo">Ver diseños ↓</a>
+      <a class="hero-cta alt" href="#taller">Diseña desde cero</a>
+    </div>
   </div>
   <div class="hero-art" aria-hidden="true">
     <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
@@ -332,6 +363,70 @@ footer img.foot-logo{width:120px;height:auto}
   <p class="cat-desc" id="catDesc"></p>
   <div class="grid" id="grid"></div>
 </main>
+
+<div class="titled" id="taller"><h2 class="ttl"><img src="img/ic-latido.webp" alt="">Taller: diseña desde cero</h2></div>
+<section class="taller">
+  <p class="t-lead">¿Tienes una idea propia? Arma un boceto, cuéntanos qué imaginas y te enviamos una propuesta antes de cobrar nada.
+    Diseño original <b>desde <span id="tPrice">$5.000</span> por tazón</b>.</p>
+
+  <div class="t-card" id="tBuilder">
+    <div class="t-head"><b>1 · Tu boceto</b><small>Opcional · arrastra la foto o el texto para moverlos</small></div>
+    <div class="t-preview">
+      <canvas id="tCanvas" width="880" height="320" aria-label="Boceto del diseño extendido"></canvas>
+      <div class="t-mug" id="tMug" aria-hidden="true"></div>
+    </div>
+    <div class="t-tools">
+      <label>Foto<input type="file" id="tImg" accept="image/*"></label>
+      <label>Tamaño de la foto<input type="range" id="tImgS" min="0.3" max="2.5" step="0.05" value="1"></label>
+      <label>Texto<input id="tText" maxlength="40" placeholder="Ej: Feliz día, Mamá"></label>
+      <div class="t-row">
+        <label>Letra<select id="tFont">
+          <option value="Bricolage Grotesque">Moderna</option><option value="Pacifico">Manuscrita</option>
+          <option value="Lobster">Retro</option><option value="Georgia">Clásica</option><option value="Space Mono">Máquina</option>
+        </select></label>
+        <label>Color<input type="color" id="tColor" value="#1d1b22"></label>
+        <label>Fondo<input type="color" id="tBg" value="#ffffff"></label>
+      </div>
+      <label>Tamaño del texto<input type="range" id="tSize" min="20" max="140" value="64"></label>
+      <button type="button" class="ghost" id="tReset">Empezar de nuevo</button>
+    </div>
+  </div>
+
+  <form class="t-card f" id="tForm" novalidate>
+    <div class="t-head"><b>2 · Cuéntanos tu idea</b></div>
+    <label>¿Qué imaginas? <small>Estilo, colores, elementos, lo que quieras</small>
+      <textarea name="idea" maxlength="2000" placeholder="Ej: un tazón para mi papá con nuestra foto en la playa, estilo acuarela, con la frase…"></textarea></label>
+    <label>Textos o frases exactas <small>Opcional · tal como deben ir</small><input name="texts" maxlength="500"></label>
+    <div class="t-row">
+      <label>Ocasión<select name="occasion">
+        <option>Regalo</option><option>Cumpleaños</option><option>Pareja / aniversario</option><option>Profesor / fin de año</option>
+        <option>Navidad</option><option>Empresa / evento</option><option>Otra</option></select></label>
+      <label>¿Para cuándo?<input type="date" name="when"></label>
+    </div>
+    <div class="t-row">
+      <label>Tipo de tazón<select name="variant" id="tVariant"></select></label>
+      <label id="tColorWrap" hidden>Color<select name="color" id="tMugColor"></select></label>
+      <label>Cantidad<input type="number" name="qty" id="tQty" min="2" max="500" value="2" inputmode="numeric"></label>
+    </div>
+    <label>Fotos de referencia <small>Opcional · hasta 4</small><input type="file" id="tRefs" accept="image/*" multiple></label>
+    <div class="thumbs" id="tThumbs"></div>
+
+    <div class="t-head"><b>3 · ¿Dónde te enviamos la propuesta?</b></div>
+    <div class="t-row">
+      <label>Nombre<input name="name" maxlength="80" autocomplete="name" required></label>
+      <label>Teléfono (WhatsApp)<input name="phone" type="tel" inputmode="tel" maxlength="30" autocomplete="tel" placeholder="+56 9 1234 5678" required></label>
+    </div>
+    <div class="t-row">
+      <label>Correo <small>Opcional</small><input name="email" type="email" maxlength="100" autocomplete="email"></label>
+      <label>Prefiero que me contacten por<select name="contact"><option>WhatsApp</option><option>Correo</option></select></label>
+    </div>
+    <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <div class="t-est"><span>Valor referencial</span><b id="tEst">$10.000</b></div>
+    <p class="hint" style="margin-top:0">El precio final depende de la complejidad y lo confirmamos en la propuesta. No pagas nada hasta aprobarla.</p>
+    <div id="tErr"></div>
+    <button class="cta" id="tSend" type="submit">Enviar mi idea</button>
+  </form>
+</section>
 
 <footer>
   <img src="img/logo.webp" alt="Té-tazas" class="foot-logo">
@@ -372,6 +467,7 @@ const CONFIG = {
   ],
   COLORS: ['Rojo', 'Amarillo', 'Azul'],
   EXTRA_ELEMENT: 1000,       // recargo por tazón con más de una foto o frase
+  CUSTOM_PRICE: 5000,        // Taller: diseño desde cero, por tazón (referencial)
   PACKS: [
     { id: 'pack:curso', name: 'Pack de curso', units: 30, price: 100000, ivaPct: 19, img: 'img/profe.webp',
       desc: '30 tazones clásicos personalizados, uno para cada estudiante o colega.\n\n- Mismo diseño con el nombre de cada uno, o diseños distintos\n- Ideal para fin de año, graduaciones y regalos de curso\n- Envía la lista de nombres al hacer el pedido' }
@@ -506,6 +602,7 @@ async function loadCatalog(){
       if (d.colors?.length) CONFIG.COLORS = d.colors;
       if (Array.isArray(d.packs)) CONFIG.PACKS = d.packs;
       if (d.extraElement != null) CONFIG.EXTRA_ELEMENT = d.extraElement;
+      if (d.customPrice) CONFIG.CUSTOM_PRICE = d.customPrice;
       if (d.minUnits) CONFIG.MIN_UNITS = d.minUnits;
       if (d.depositPct != null) CONFIG.DEPOSIT_PCT = d.depositPct;
     } catch (e) {
@@ -517,6 +614,7 @@ async function loadCatalog(){
   $('#pillMin').textContent = 'Mínimo ' + CONFIG.MIN_UNITS + ' unidades';
   $('#howPct').textContent = CONFIG.DEPOSIT_PCT;
   $('#count').textContent = products.length + ' diseño' + (products.length === 1 ? '' : 's');
+  window.tallerRefresh?.();
   products = [...CONFIG.PACKS.map(pk => ({ ...pk, category: 'Packs', pack: true, imgs: [pk.img] })), ...products];
   cart = cart.filter(c => products.some(p => p.id === c.id));
   saveCart();
@@ -833,6 +931,133 @@ async function refreshSlots(){
   renderHours();
 }
 
+/* ── Taller: boceto + solicitud de diseño desde cero ── */
+function initTaller(){
+  const cv = $('#tCanvas'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const T = { bg: '#ffffff', img: null, ix: .5, iy: .45, is: 1, text: '', font: 'Bricolage Grotesque', color: '#1d1b22', size: 64, tx: .5, ty: .82, dirty: false };
+  let refPhotos = [], drag = null, raf = 0;
+
+  function draw(){
+    raf = 0;
+    ctx.fillStyle = T.bg; ctx.fillRect(0, 0, W, H);
+    if (T.img){
+      const h = H * T.is, w = h * T.img.width / T.img.height;
+      ctx.drawImage(T.img, T.ix * W - w / 2, T.iy * H - h / 2, w, h);
+    }
+    if (T.text){
+      ctx.font = `700 ${T.size}px "${T.font}"`; ctx.fillStyle = T.color;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(T.text, T.tx * W, T.ty * H, W * .96);
+    }
+    if (!T.img && !T.text){
+      ctx.fillStyle = '#b9ab95'; ctx.font = '600 26px "Bricolage Grotesque"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('Sube una foto o escribe un texto', W / 2, H / 2);
+    }
+    $('#tMug').style.backgroundImage = `url(${cv.toDataURL('image/jpeg', .7)})`;
+  }
+  const redraw = () => { if (!raf) raf = requestAnimationFrame(draw); };
+  const touch = () => { T.dirty = !!(T.img || T.text); redraw(); };
+
+  $('#tImg').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    const img = new Image(); img.onload = () => { T.img = img; touch(); };
+    img.src = await resize(f, 1400);
+  };
+  $('#tImgS').oninput = e => { T.is = +e.target.value; redraw(); };
+  $('#tText').oninput = e => { T.text = e.target.value; touch(); };
+  $('#tFont').onchange = async e => { T.font = e.target.value; try { await document.fonts.load(`700 40px "${T.font}"`); } catch {} redraw(); };
+  $('#tColor').oninput = e => { T.color = e.target.value; redraw(); };
+  $('#tBg').oninput = e => { T.bg = e.target.value; redraw(); };
+  $('#tSize').oninput = e => { T.size = +e.target.value; redraw(); };
+  $('#tReset').onclick = () => {
+    Object.assign(T, { bg: '#ffffff', img: null, ix: .5, iy: .45, is: 1, text: '', tx: .5, ty: .82, dirty: false });
+    ['#tImg', '#tText'].forEach(s => $(s).value = ''); $('#tBg').value = '#ffffff'; $('#tImgS').value = 1; redraw();
+  };
+
+  // Arrastrar: el texto tiene prioridad si el dedo está cerca de él
+  const pos = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height }; };
+  cv.addEventListener('pointerdown', e => {
+    const p = pos(e);
+    const nearText = T.text && Math.abs(p.y - T.ty) < (T.size / H) * .7 && Math.abs(p.x - T.tx) < .45;
+    drag = nearText ? 'text' : T.img ? 'img' : null;
+    if (drag){ cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; }
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const p = pos(e), clamp = v => Math.min(1.2, Math.max(-.2, v));
+    if (drag === 'text'){ T.tx = clamp(p.x); T.ty = clamp(p.y); } else { T.ix = clamp(p.x); T.iy = clamp(p.y); }
+    redraw();
+  });
+  ['pointerup', 'pointercancel'].forEach(ev => cv.addEventListener(ev, () => { drag = null; cv.style.cursor = 'grab'; }));
+
+  // Formulario
+  const form = $('#tForm');
+  const fillVariants = () => {
+    form.variant.innerHTML = CONFIG.VARIANTS.map(v => `<option value="${esc(v.key)}">${esc(v.label)}${v.extra ? ' +' + money(v.extra) : ''}</option>`).join('');
+    form.color.innerHTML = '<option value="">Elige…</option>' + CONFIG.COLORS.map(c => `<option>${esc(c)}</option>`).join('');
+    form.qty.min = CONFIG.MIN_UNITS;
+    $('#tPrice').textContent = money(CONFIG.CUSTOM_PRICE);
+    est();
+  };
+  const est = () => {
+    const v = CONFIG.VARIANTS.find(x => x.key === form.variant.value) || CONFIG.VARIANTS[0];
+    const q = Math.max(CONFIG.MIN_UNITS, +form.qty.value || 0);
+    $('#tColorWrap').hidden = v.key !== 'color';
+    $('#tEst').textContent = money(q * (CONFIG.CUSTOM_PRICE + v.extra));
+  };
+  form.variant.onchange = form.qty.oninput = est;
+  window.tallerRefresh = fillVariants;
+  fillVariants();
+
+  const thumbs = () => {
+    $('#tThumbs').innerHTML = refPhotos.map((p, i) => `<div><img src="${p}" alt="Referencia ${i + 1}"><button type="button" data-tr="${i}" aria-label="Quitar">×</button></div>`).join('');
+  };
+  $('#tThumbs').onclick = e => { const b = e.target.closest('[data-tr]'); if (b){ refPhotos.splice(+b.dataset.tr, 1); thumbs(); } };
+  $('#tRefs').onchange = async e => {
+    for (const f of [...e.target.files].slice(0, 4 - refPhotos.length)) { try { refPhotos.push(await resize(f)); } catch {} }
+    e.target.value = ''; thumbs();
+  };
+
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(form)), err = $('#tErr'), btn = $('#tSend');
+    err.innerHTML = '';
+    if (!d.name.trim() || (d.phone || '').replace(/\D/g, '').length < 8)
+      return err.innerHTML = '<div class="err">Necesitamos tu nombre y un teléfono válido para enviarte la propuesta.</div>';
+    if (!d.idea.trim() && !T.dirty)
+      return err.innerHTML = '<div class="err">Cuéntanos tu idea o arma un boceto arriba.</div>';
+    if (d.variant === 'color' && !d.color) return err.innerHTML = '<div class="err">Elige el color del tazón.</div>';
+    const payload = { ...d, type: 'request', photos: refPhotos, sketch: T.dirty ? cv.toDataURL('image/jpeg', .9) : '' };
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    try {
+      let res;
+      if (!CONFIG.API_URL){
+        await new Promise(r => setTimeout(r, 700));
+        const v = CONFIG.VARIANTS.find(x => x.key === d.variant) || CONFIG.VARIANTS[0];
+        const q = Math.max(CONFIG.MIN_UNITS, +d.qty || 0);
+        res = { ok: true, id: 'S-DEMO', qty: q, estimate: q * (CONFIG.CUSTOM_PRICE + v.extra) };
+      } else {
+        res = await (await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })).json();
+      }
+      if (!res.ok) throw new Error(res.error || 'Error desconocido');
+      const msg = `Hola, envié la solicitud de diseño ${res.id} desde el Taller de Té-tazas.`;
+      form.innerHTML = `<div class="t-done">
+        <img class="mug done-art" style="margin:0 auto 6px" src="img/gracias.webp" alt="">
+        <p>Tu solicitud es la</p><div class="order-id">${esc(res.id)}</div>
+        <p style="color:var(--muted)">${res.qty} tazones · valor referencial ${money(res.estimate)}</p>
+        <p style="margin-top:12px">Revisamos tu idea y te enviamos la propuesta por ${esc(d.contact || 'WhatsApp')}. Si la apruebas, coordinamos el abono y la entrega.</p>
+        <a class="wsp" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent(msg)}">Escribir por WhatsApp</a>
+      </div>`;
+      $('#tBuilder').style.display = 'none';
+      $('#taller').scrollIntoView({ behavior: 'smooth' });
+    } catch (ex) {
+      err.innerHTML = `<div class="err">No pudimos enviar tu solicitud: ${esc(ex.message)}</div>`;
+      btn.disabled = false; btn.textContent = 'Enviar mi idea';
+    }
+  };
+  document.fonts?.ready.then(redraw); redraw();
+}
+
 /* ── Confirmación ── */
 function renderDone(res, data){
   $('#pTitle').textContent = 'Pedido recibido';
@@ -867,6 +1092,7 @@ function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('on
 
 saveCart();
 loadCatalog();
+initTaller();
 
 /* ── Instalar como app ── */
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {

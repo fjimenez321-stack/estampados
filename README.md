@@ -76,6 +76,11 @@ Si cambias imágenes o archivos del sitio, sube el número de `VERSION` en `sw.j
 - **Más de una foto o frase en un tazón:** casilla en el carrito, +$1.000 por tazón (`EXTRA_ELEMENT`).
 - **Packs:** en `Codigo.gs` → `PACKS`. El *Pack de curso* son 30 tazones por $100.000 + IVA (19%) y aparece primero en el catálogo. Si no cobras IVA, pon `ivaPct: 0`. Para otro pack, agrega un elemento a la lista.
 
+## Taller (diseño desde cero)
+Sección del sitio donde el cliente arma un boceto (foto, texto, letra y colores), describe su idea, sube hasta 4 referencias y deja sus datos. **No paga nada**: la solicitud llega a la hoja **Solicitudes** con número `S-0001`, y el boceto y las referencias quedan en una carpeta dentro de *Pedidos tazas*.
+
+Estados: *Nueva → Propuesta enviada → Aprobada / Descartada*. Cuando el cliente aprueba, coordinas el abono por WhatsApp. El precio base es $5.000 por tazón (`CUSTOM_PRICE`) más el recargo del tipo de tazón; es referencial.
+
 ## Uso diario
 - **Nuevo diseño:** súbelo a la carpeta. Aparece en máximo 10 minutos
   (o al instante abriendo `TU_URL/exec?action=catalog&fresh=1`).

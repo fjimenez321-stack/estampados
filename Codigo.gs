@@ -28,6 +28,8 @@ const CONFIG = {
   CACHE_SECONDS: 600,    // el catálogo se refresca cada 10 min
   MAX_PHOTOS: 6,
   EXTRA_ELEMENT: 1000,   // recargo por tazón con más de una foto o frase
+  CUSTOM_PRICE: 5000,    // Taller: diseño desde cero, precio base por tazón (referencial)
+  MAX_REF_PHOTOS: 4,     // Taller: fotos de referencia por solicitud
   MAX_DESC: 1500,
   MAX_IMAGES: 10,        // fotos máximas por producto        // largo máximo de cada descripción
   // Tipos de tazón que el cliente elige en el carrito (extra = recargo por unidad)
@@ -83,7 +85,7 @@ function doGet(e) {
       return json_({ ok: true, minUnits: CONFIG.MIN_UNITS, depositPct: CONFIG.DEPOSIT_PCT,
                      products: cat.products, categories: cat.categories,
                      variants: CONFIG.VARIANTS, colors: CONFIG.COLORS,
-                     packs: CONFIG.PACKS, extraElement: CONFIG.EXTRA_ELEMENT,
+                     packs: CONFIG.PACKS, extraElement: CONFIG.EXTRA_ELEMENT, customPrice: CONFIG.CUSTOM_PRICE,
                      slots: readSlots_().filter(function (s) { return s.status !== 'Desactivado'; }).map(function (s) {
                        return { station: s.station, day: s.day, from: s.from, to: s.to, available: s.available };
                      }) });
@@ -99,6 +101,7 @@ function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
     if (data.website) return json_({ ok: true, id: 'T-0000' }); // trampa anti-bots
+    if (data.type === 'request') return json_(saveRequest_(data, lock));
 
     const name = clean_(data.name, 80);
     const phone = clean_(data.phone, 30);
@@ -348,12 +351,82 @@ function getSlotsSheet_() {
   return sh;
 }
 
+/* ───────────── Taller: solicitudes de diseño desde cero ───────────── */
+
+const REQ_SHEET = 'Solicitudes';
+const REQ_HEADERS = ['Fecha', 'Solicitud', 'Nombre', 'Teléfono', 'Correo', 'Contactar por', 'Tipo de tazón',
+                     'Cantidad', 'Para cuándo', 'Ocasión', 'Idea', 'Textos', 'Estimado', 'Archivos', 'Estado'];
+const REQ_ESTADOS = ['Nueva', 'Propuesta enviada', 'Aprobada', 'Descartada'];
+
+function saveRequest_(data, lock) {
+  const name = clean_(data.name, 80), phone = clean_(data.phone, 30), email = clean_(data.email, 100);
+  const idea = clean_(data.idea, 2000);
+  if (!name || !phone) throw new Error('Faltan tu nombre o teléfono.');
+  if (!idea && !data.sketch) throw new Error('Cuéntanos tu idea o arma un boceto.');
+  const qty = Math.max(CONFIG.MIN_UNITS, Math.min(500, Math.floor(Number(data.qty)) || CONFIG.MIN_UNITS));
+  const v = CONFIG.VARIANTS.filter(function (x) { return x.key === data.variant; })[0] || CONFIG.VARIANTS[0];
+  const color = v.key === 'color' && CONFIG.COLORS.indexOf(data.color) >= 0 ? ' ' + data.color.toLowerCase() : '';
+  const estimate = qty * (CONFIG.CUSTOM_PRICE + v.extra);
+
+  lock.waitLock(20000);
+  const props = PropertiesService.getScriptProperties();
+  const n = Number(props.getProperty('REQ_SEQ') || 0) + 1;
+  props.setProperty('REQ_SEQ', String(n));
+  const id = 'S-' + String(n).padStart(4, '0');
+
+  let filesUrl = '';
+  const imgs = [];
+  if (data.sketch) imgs.push(['boceto', data.sketch]);
+  (data.photos || []).slice(0, CONFIG.MAX_REF_PHOTOS).forEach(function (p, i) { imgs.push(['referencia' + (i + 1), p]); });
+  const valid = imgs.filter(function (x) { return /^data:image\/(jpeg|png|webp);base64,/.test(String(x[1] || '')); });
+  if (valid.length) {
+    const folder = DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID).createFolder(id + ' · Taller · ' + name);
+    valid.forEach(function (x) {
+      const m = String(x[1]).match(/^data:(image\/\w+);base64,(.+)$/);
+      folder.createFile(Utilities.newBlob(Utilities.base64Decode(m[2]), m[1], id + '_' + x[0] + '.jpg'));
+    });
+    filesUrl = folder.getUrl();
+  }
+  getReqSheet_().appendRow([new Date(), id, name, "'" + phone, email, clean_(data.contact, 20) || 'WhatsApp',
+    v.label + color, qty, clean_(data.when, 40), clean_(data.occasion, 60), idea, clean_(data.texts, 500),
+    estimate, filesUrl, REQ_ESTADOS[0]]);
+  lock.releaseLock();
+
+  if (CONFIG.NOTIFY_EMAIL) {
+    try {
+      MailApp.sendEmail(CONFIG.NOTIFY_EMAIL, 'Taller: nueva solicitud ' + id,
+        [name + ' · ' + phone + (email ? ' · ' + email : ''), qty + ' × ' + v.label + color,
+         'Ocasión: ' + (data.occasion || '-') + ' · Para: ' + (data.when || '-'), '', idea,
+         data.texts ? 'Textos: ' + data.texts : '', filesUrl ? 'Archivos: ' + filesUrl : ''].join('\n'));
+    } catch (_) {}
+  }
+  return { ok: true, id: id, qty: qty, estimate: estimate };
+}
+
+function getReqSheet_() {
+  const ss = getSpreadsheet_();
+  let sh = ss.getSheetByName(REQ_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(REQ_SHEET);
+    sh.getRange(1, 1, 1, REQ_HEADERS.length).setValues([REQ_HEADERS]).setFontWeight('bold').setBackground('#fde8dc');
+    sh.setFrozenRows(1);
+    sh.getRange('A:A').setNumberFormat('dd-mm-yyyy hh:mm');
+    sh.getRange('M:M').setNumberFormat('$#,##0');
+    sh.getRange('K:L').setWrap(true);
+    sh.setColumnWidth(11, 320);
+    sh.getRange(2, 15, 999, 1).setDataValidation(
+      SpreadsheetApp.newDataValidation().requireValueInList(REQ_ESTADOS, true).build());
+  }
+  return sh;
+}
+
 /* ───────────── Configuración inicial ───────────── */
 
 /** Ejecuta esta función UNA vez desde el editor (y de nuevo si una foto no se ve). */
 function setup() {
   const sh = getSheet_();
   getSlotsSheet_();
+  getReqSheet_();
   const root = DriveApp.getFolderById(CONFIG.CATALOG_FOLDER_ID);
   share_(root);
   DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID); // verifica que el ID sea válido
