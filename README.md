@@ -1,4 +1,4 @@
-# Taller de Tazas — Puesta en marcha
+# Té-tazas — Puesta en marcha
 
 Todo con tu **cuenta personal de Gmail**. Toma unos 15 minutos.
 
@@ -55,6 +55,9 @@ Catálogo tazas/
 - Cuando un cliente reserva, la fila pasa a **Reservado** con el número de pedido y desaparece del sitio.
 - Para liberarlo, cámbialo a **Disponible**. **Desactivado** lo oculta sin reservarlo (vacaciones, un día que no puedes).
 - Para agregar horarios o estaciones, añade filas. Escribe el nombre de la estación igual que en el sitio.
+
+## Tipos de tazón (carrito)
+En `Codigo.gs` → `VARIANTS` defines los tipos y su recargo por unidad; en `COLORS`, los colores del tazón con interior de color. El sitio los toma del script, así que basta con cambiarlos ahí (y publicar una nueva versión).
 
 ## Uso diario
 - **Nuevo diseño:** súbelo a la carpeta. Aparece en máximo 10 minutos

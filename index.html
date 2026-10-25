@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Taller de Tazas</title>
+<title>Té-tazas</title>
 <meta name="description" content="Tazones personalizados desde $3.500. Entrega en estaciones o retiro en Recreo, Viña del Mar.">
 <link rel="icon" href="img/icono.png">
 <link rel="apple-touch-icon" href="img/icono.png">
-<meta property="og:image" content="img/cafe.webp">
+<meta property="og:image" content="img/logo.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -27,8 +27,8 @@ img{display:block;max-width:100%}
 /* Header */
 .top{position:sticky;top:0;z-index:20;background:rgba(246,241,232,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .top-in{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{font-weight:800;font-size:1.25rem;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
-.brand i{font-style:normal;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--cobalt);color:#fff;font-size:1.1rem}
+.brand{display:flex;align-items:center}
+.brand img{height:52px;width:auto;filter:drop-shadow(0 2px 4px rgba(60,30,10,.15))}
 .cart-btn{position:relative;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;padding:9px 14px;border-radius:999px;font-weight:600}
 .badge{min-width:22px;height:22px;border-radius:999px;background:var(--ember);display:grid;place-items:center;font-family:var(--mono);font-size:.75rem;padding:0 6px}
 
@@ -143,7 +143,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 @media(min-width:820px){.hero{grid-template-columns:1.1fr .9fr;padding-top:40px}}
 .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ember);margin-bottom:10px}
 .hero-cta{display:inline-flex;margin-top:18px;background:var(--ink);color:#fff;padding:13px 20px;border-radius:12px;font-weight:700;text-decoration:none}
-.hero-art{position:relative;height:215px;max-width:420px;width:100%;margin:0 auto}
+.hero-art{position:relative;height:250px;max-width:420px;width:100%;margin:0 auto}
 @media(min-width:820px){.hero-art{height:360px}}
 .hero-art .mug{position:absolute;filter:drop-shadow(0 14px 18px rgba(29,27,34,.14))}
 .hero-art .m1{width:52%;left:24%;top:4%;z-index:3;animation:float 6s ease-in-out infinite}
@@ -221,6 +221,19 @@ footer img{width:44px;height:44px}
 .hint{font-size:.85rem;color:var(--muted);margin-top:-6px}
 .hint:empty{display:none}
 
+.opts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.opts select{flex:1;min-width:120px;font-size:.84rem;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.opts select.need{border-color:var(--ember);color:var(--ember)}
+.resume small{color:var(--muted);font-size:.78rem}
+
+/* Títulos con sprites */
+.hero-logo{width:min(250px,62%);margin:0 0 6px -6px;filter:drop-shadow(0 6px 10px rgba(60,30,10,.12))}
+.titled{max-width:1100px;margin:0 auto;padding:26px 16px 0;position:relative;z-index:1}
+.ttl{display:flex;align-items:center;gap:10px;font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.02em;line-height:1.05;color:#4a2416}
+.ttl img{width:52px;height:auto;flex:none;filter:drop-shadow(0 3px 5px rgba(60,30,10,.15))}
+.titled + .how,.titled + .hours{padding-top:10px}
+footer img.foot-logo{width:120px;height:auto}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -228,13 +241,14 @@ footer img{width:44px;height:44px}
 
 <header class="top">
   <div class="top-in">
-    <div class="brand"><i>☕</i><span id="storeName">Taller de Tazas</span></div>
+    <a class="brand" href="#" aria-label="Té-tazas, inicio"><img src="img/logo.webp" alt="Té-tazas" id="storeName"></a>
     <button class="cart-btn" id="openCart" aria-label="Abrir carrito">Carrito <span class="badge" id="badge">0</span></button>
   </div>
 </header>
 
 <section class="hero">
   <div>
+    <img class="hero-logo" src="img/logo-pincel.webp" alt="Té-tazas">
     <div class="eyebrow">Sublimados en Viña del Mar</div>
     <h1>Tazones personalizados <span>desde $3.500</span></h1>
     <p>Elige tus diseños, agrégalos al carrito y deja tu pedido en un minuto. Si quieres tu propia foto o un nombre, lo indicas al pedir.</p>
@@ -256,19 +270,21 @@ footer img{width:44px;height:44px}
 
 <div class="strip" aria-hidden="true"><div class="strip-track" id="strip"></div></div>
 
+<div class="titled"><h2 class="ttl"><img src="img/ic-gato.webp" alt="">¿Cómo funciona?</h2></div>
 <section class="how">
   <div class="how-card"><img class="mug" src="img/montanas.webp" alt=""><div><span class="n">01</span><b>Elige</b><span>Diseños del catálogo, o tu foto, nombre o frase.</span></div></div>
   <div class="how-card"><img class="mug" src="img/gracias.webp" alt=""><div><span class="n">02</span><b>Abona</b><span>Transfiere el <span id="howPct">50</span>% y comenzamos tu pedido.</span></div></div>
   <div class="how-card"><img class="mug" src="img/playa.webp" alt=""><div><span class="n">03</span><b>Recibe</b><span>En una estación o en Recreo. Pagas el resto al recibir.</span></div></div>
 </section>
 
+<div class="titled"><h2 class="ttl"><img src="img/ic-sonrisa.webp" alt="">Horarios</h2></div>
 <section class="hours" aria-label="Horarios">
   <div class="hours-card"><h3><i>🚉</i>Entregas en estaciones</h3><div id="hoursList"><small>Cargando horarios…</small></div></div>
   <div class="hours-card"><h3><i>🏠</i>Retiro en Recreo</h3><span class="big" id="pickHours"></span><small>Coordinamos la dirección al confirmar tu pedido.</small></div>
 </section>
 
 <main class="wrap" id="catalogo">
-  <div class="sec-title"><h2>Diseños disponibles</h2><small id="count"></small></div>
+  <div class="sec-title"><h2 class="ttl"><img src="img/ic-amor.webp" alt="">Diseños disponibles</h2><small id="count"></small></div>
   <div id="demoNote"></div>
   <div class="chips" id="chips" role="toolbar" aria-label="Categorías"></div>
   <p class="cat-desc" id="catDesc"></p>
@@ -276,8 +292,8 @@ footer img{width:44px;height:44px}
 </main>
 
 <footer>
-  <img class="mug" src="img/cafe.webp" alt="">
-  <span><span id="footName">Taller de Tazas</span> · Viña del Mar · Tazones sublimados de cerámica 11 oz</span>
+  <img src="img/logo.webp" alt="Té-tazas" class="foot-logo">
+  <span><span id="footName">Té-tazas</span> · Viña del Mar · Tazones sublimados 11 y 16 oz</span>
 </footer>
 
 <div class="scrim" id="scrim"></div>
@@ -292,11 +308,19 @@ footer img{width:44px;height:44px}
 <script>
 /* ═════════════ CONFIGURACIÓN — edita solo esta parte ═════════════ */
 const CONFIG = {
-  STORE_NAME: 'Taller de Tazas',
+  STORE_NAME: 'Té-tazas',
   API_URL: 'https://script.google.com/macros/s/AKfycbzlWvNRs6P_1Llsm8oJjM2mhw5kcSz_6oi7u9O2vXgKZz3JBAkLAJrxFGQxh_kMSW7nmg/exec',               // URL /exec del Apps Script. Vacío = modo demostración
   WHATSAPP: '56966038152',   // para que te envíen el comprobante (sin + ni espacios)
   MIN_UNITS: 2,              // se reemplaza por el valor del script al cargar
   DEPOSIT_PCT: 50,           // ídem
+  // Se reemplazan por los del script al cargar (Codigo.gs > VARIANTS / COLORS)
+  VARIANTS: [
+    { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0 },
+    { key: 'magico',  label: 'Mágico (aparece con calor)', extra: 2000 },
+    { key: 'color',   label: 'Interior de color', extra: 2000 },
+    { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
+  ],
+  COLORS: ['Rojo', 'Azul', 'Negro', 'Verde', 'Amarillo', 'Rosado'],
   PICKUP: 'Retiro en Recreo, Viña del Mar',
   PICKUP_HOURS: 'Todos los días, 16:00 a 19:00',
   STATIONS: ['Puerto','Bellavista','Francia','Barón','Portales','Recreo','Miramar','Viña del Mar',
@@ -342,7 +366,7 @@ let photos = [];                           // dataURLs redimensionadas
 let view = 'cart';
 
 document.title = CONFIG.STORE_NAME;
-$('#storeName').textContent = $('#footName').textContent = CONFIG.STORE_NAME;
+$('#footName').textContent = CONFIG.STORE_NAME;
 
 /* Horarios */
 $('#pickHours').textContent = CONFIG.PICKUP_HOURS;
@@ -421,6 +445,8 @@ async function loadCatalog(){
       products = d.products;
       categories = d.categories || [];
       slots = d.slots || [];
+      if (d.variants?.length) CONFIG.VARIANTS = d.variants;
+      if (d.colors?.length) CONFIG.COLORS = d.colors;
       if (d.minUnits) CONFIG.MIN_UNITS = d.minUnits;
       if (d.depositPct != null) CONFIG.DEPOSIT_PCT = d.depositPct;
     } catch (e) {
@@ -476,13 +502,17 @@ $('#grid').addEventListener('click', e => {
 /* ── Carrito ── */
 const byId = id => products.find(p => p.id === id);
 const units = () => cart.reduce((s, c) => s + c.qty, 0);
-const total = () => cart.reduce((s, c) => s + c.qty * (byId(c.id)?.price || 0), 0);
+const variant = c => CONFIG.VARIANTS.find(v => v.key === c.variant) || CONFIG.VARIANTS[0];
+const unitPrice = c => (byId(c.id)?.price || 0) + variant(c).extra;
+const variantText = c => variant(c).label + (variant(c).key === 'color' && c.color ? ' · ' + c.color.toLowerCase() : '');
+const total = () => cart.reduce((s, c) => s + c.qty * unitPrice(c), 0);
 const deposit = t => Math.ceil(t * CONFIG.DEPOSIT_PCT / 100 / 100) * 100;
 function saveCart(){ store.set('tazas_cart', cart); $('#badge').textContent = units(); }
 
 function addToCart(id){
-  const c = cart.find(c => c.id === id);
-  if (c) c.qty++; else cart.push({ id, qty: 1, note: '' });
+  const base = CONFIG.VARIANTS[0].key;
+  const c = cart.find(c => c.id === id && (c.variant || base) === base && !c.note);
+  if (c) c.qty++; else cart.push({ id, qty: 1, note: '', variant: base, color: '' });
   saveCart();
   const left = CONFIG.MIN_UNITS - units();
   toast(left > 0 ? `Agregado · te falta ${left} para el mínimo` : 'Agregado al carrito');
@@ -522,17 +552,25 @@ function renderCart(){
       <div><h4>${esc(p.name)}</h4>
         <div class="sub">
           <div class="qty"><button data-q="${i}" data-d="-1" aria-label="Menos">−</button><span>${c.qty}</span><button data-q="${i}" data-d="1" aria-label="Más">+</button></div>
-          <span class="price">${money(p.price * c.qty)}</span>
+          <span class="price">${money(unitPrice(c) * c.qty)}</span>
+        </div>
+        <div class="opts">
+          <select data-var="${i}" aria-label="Tipo de tazón">${CONFIG.VARIANTS.map(v =>
+            `<option value="${esc(v.key)}" ${v.key === variant(c).key ? 'selected' : ''}>${esc(v.label)}${v.extra ? ' +' + money(v.extra) : ''}</option>`).join('')}</select>
+          ${variant(c).key === 'color' ? `<select data-color="${i}" aria-label="Color" class="${c.color ? '' : 'need'}"><option value="">Color…</option>${CONFIG.COLORS.map(k =>
+            `<option ${k === c.color ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select>` : ''}
         </div>
         <input data-note="${i}" maxlength="150" placeholder="Nombre o frase (opcional)" value="${esc(c.note)}">
         <button class="rm" data-rm="${i}">Quitar</button>
       </div>
     </div>`; }).join('');
   const left = CONFIG.MIN_UNITS - units();
+  const noColor = cart.some(c => variant(c).key === 'color' && !c.color);
   $('#pFoot').innerHTML = `
+    ${noColor ? '<div class="warn">Elige el color de los tazones con interior de color.</div>' : ''}
     <div class="sum"><span>${units()} unidad${units() === 1 ? '' : 'es'}</span><b>${money(total())}</b></div>
     ${left > 0 ? `<div class="warn">Agrega ${left} más para completar el mínimo de ${CONFIG.MIN_UNITS}.</div>` : ''}
-    <button class="cta" id="toForm" ${left > 0 ? 'disabled' : ''}>Continuar</button>`;
+    <button class="cta" id="toForm" ${left > 0 || noColor ? 'disabled' : ''}>Continuar</button>`;
   $('#toForm').onclick = () => { view = 'form'; render(); };
 }
 
@@ -540,6 +578,11 @@ $('#pBody').addEventListener('click', e => {
   const q = e.target.closest('[data-q]'), rm = e.target.closest('[data-rm]');
   if (q){ const c = cart[+q.dataset.q]; c.qty = Math.max(1, c.qty + +q.dataset.d); saveCart(); renderCart(); }
   if (rm){ cart.splice(+rm.dataset.rm, 1); saveCart(); renderCart(); }
+});
+$('#pBody').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.var != null){ const c = cart[+t.dataset.var]; c.variant = t.value; if (t.value !== 'color') c.color = ''; saveCart(); renderCart(); }
+  if (t.dataset.color != null){ cart[+t.dataset.color].color = t.value; saveCart(); renderCart(); }
 });
 $('#pBody').addEventListener('input', e => {
   if (e.target.dataset.note != null){ cart[+e.target.dataset.note].note = e.target.value; saveCart(); }
@@ -576,7 +619,7 @@ function renderForm(){
       </label>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <ul class="resume">
-        ${cart.map(c => `<li><span>${c.qty} × ${esc(byId(c.id).name)}</span><span>${money(c.qty * byId(c.id).price)}</span></li>`).join('')}
+        ${cart.map(c => `<li><span>${c.qty} × ${esc(byId(c.id).name)}<br><small>${esc(variantText(c))}</small></span><span>${money(c.qty * unitPrice(c))}</span></li>`).join('')}
         <li style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px"><b>Total</b><b>${money(t)}</b></li>
         <li><span>Abono por transferencia (${CONFIG.DEPOSIT_PCT}%)</span><span>${money(deposit(t))}</span></li>
         <li><span>Resto al recibir</span><span>${money(t - deposit(t))}</span></li>
@@ -645,7 +688,7 @@ async function submitOrder(){
   }
   store.set('tazas_client', { name: data.name, phone: data.phone, delivery: data.delivery });
   if (!station) data.delivery += ' · ' + CONFIG.PICKUP_HOURS;
-  const payload = { ...data, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note })), photos };
+  const payload = { ...data, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note, variant: variant(c).key, color: c.color || '' })), photos };
   btn.disabled = true; btn.textContent = photos.length ? 'Subiendo fotos…' : 'Enviando…';
   try {
     let res;

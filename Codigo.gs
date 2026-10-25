@@ -26,7 +26,15 @@ const CONFIG = {
   SHEET_NAME: 'Pedidos',
   CACHE_SECONDS: 600,    // el catálogo se refresca cada 10 min
   MAX_PHOTOS: 3,
-  MAX_DESC: 1500         // largo máximo de cada descripción
+  MAX_DESC: 1500,        // largo máximo de cada descripción
+  // Tipos de tazón que el cliente elige en el carrito (extra = recargo por unidad)
+  VARIANTS: [
+    { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0 },
+    { key: 'magico',  label: 'Mágico (aparece con calor)', extra: 2000 },
+    { key: 'color',   label: 'Interior de color', extra: 2000 },
+    { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
+  ],
+  COLORS: ['Rojo', 'Azul', 'Negro', 'Verde', 'Amarillo', 'Rosado']   // para "Interior de color"
 };
 
 const HEADERS = ['Fecha', 'Pedido', 'Nombre', 'Teléfono', 'Entrega', 'Detalle',
@@ -60,6 +68,7 @@ function doGet(e) {
       const cat = getCatalog_(p.fresh === '1');
       return json_({ ok: true, minUnits: CONFIG.MIN_UNITS, depositPct: CONFIG.DEPOSIT_PCT,
                      products: cat.products, categories: cat.categories,
+                     variants: CONFIG.VARIANTS, colors: CONFIG.COLORS,
                      slots: readSlots_().filter(function (s) { return s.status !== 'Desactivado'; }).map(function (s) {
                        return { station: s.station, day: s.day, from: s.from, to: s.to, available: s.available };
                      }) });
@@ -94,10 +103,15 @@ function doPost(e) {
       const p = byId[it.id];
       const q = Math.floor(Number(it.qty));
       if (!p || !(q > 0) || q > 200) return;
+      const v = CONFIG.VARIANTS.filter(function (x) { return x.key === it.variant; })[0] || CONFIG.VARIANTS[0];
+      const color = v.key === 'color' && CONFIG.COLORS.indexOf(it.color) >= 0 ? it.color : '';
+      if (v.key === 'color' && !color) throw new Error('Elige el color del tazón "' + p.name + '".');
+      const unit = p.price + v.extra;
       units += q;
-      total += q * p.price;
+      total += q * unit;
       const note = clean_(it.note, 150);
-      lines.push(q + ' × ' + p.name + ' ($' + fmt_(p.price) + ')' + (note ? ' — ' + note : ''));
+      lines.push(q + ' × ' + p.name + ' [' + v.label + (color ? ' ' + color.toLowerCase() : '') + '] ($' + fmt_(unit) + ')' +
+                 (note ? ' — ' + note : ''));
     });
     if (!lines.length) throw new Error('El carrito está vacío o esos productos ya no están disponibles.');
     if (units < CONFIG.MIN_UNITS) throw new Error('El pedido mínimo es de ' + CONFIG.MIN_UNITS + ' unidades.');
