@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Taller de Tazas</title>
 <meta name="description" content="Tazones personalizados desde $3.500. Entrega en estaciones o retiro en Recreo, Viña del Mar.">
+<link rel="icon" href="img/icono.png">
+<link rel="apple-touch-icon" href="img/icono.png">
+<meta property="og:image" content="img/cafe.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -121,6 +124,69 @@ footer{max-width:1100px;margin:24px auto 0;padding:24px 16px 40px;color:var(--mu
 
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:.9rem;opacity:0;transition:.2s;z-index:60;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%)}
+
+/* ── Ambiente visual ── */
+body{background:
+  radial-gradient(900px 500px at 100% -10%,rgba(37,70,201,.10),transparent 60%),
+  radial-gradient(700px 420px at -10% 30%,rgba(226,87,43,.09),transparent 60%),
+  var(--bone)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:radial-gradient(rgba(29,27,34,.07) 1px,transparent 1px);background-size:22px 22px}
+.top,.hero,.wrap,footer,.strip,.how{position:relative;z-index:1}
+.top{z-index:20}
+
+/* Sprite con borde difuminado: funde el fondo gris de la foto con la página */
+.mug{display:block;-webkit-mask-image:radial-gradient(closest-side,#000 72%,transparent 100%);
+  mask-image:radial-gradient(closest-side,#000 72%,transparent 100%)}
+
+.hero{display:grid;gap:8px;align-items:center;padding-top:20px}
+@media(min-width:820px){.hero{grid-template-columns:1.1fr .9fr;padding-top:40px}}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ember);margin-bottom:10px}
+.hero-cta{display:inline-flex;margin-top:18px;background:var(--ink);color:#fff;padding:13px 20px;border-radius:12px;font-weight:700;text-decoration:none}
+.hero-art{position:relative;height:215px;max-width:420px;width:100%;margin:0 auto}
+@media(min-width:820px){.hero-art{height:360px}}
+.hero-art .mug{position:absolute;filter:drop-shadow(0 14px 18px rgba(29,27,34,.14))}
+.hero-art .m1{width:52%;left:24%;top:4%;z-index:3;animation:float 6s ease-in-out infinite}
+.hero-art .m2{width:40%;left:0;top:34%;z-index:2;transform:rotate(-8deg);animation:float 7s ease-in-out -2s infinite}
+.hero-art .m3{width:40%;right:0;top:30%;z-index:2;transform:rotate(7deg);animation:float 6.5s ease-in-out -4s infinite}
+.hero-art .m4{width:26%;left:37%;bottom:-2%;z-index:4;animation:float 5.5s ease-in-out -1s infinite}
+.hero-art .dot{position:absolute;border-radius:50%}
+.hero-art .d1{width:70%;aspect-ratio:1;left:15%;top:10%;background:radial-gradient(circle,rgba(37,70,201,.16),transparent 70%)}
+.hero-art .d2{width:14px;height:14px;background:var(--ember);right:16%;top:8%}
+.hero-art .d3{width:9px;height:9px;background:var(--cobalt);left:10%;top:18%}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -10px}}
+
+/* Cinta de diseños */
+.strip{overflow:hidden;padding:18px 0;margin-top:10px;border-block:1px solid var(--line);background:rgba(255,253,249,.6)}
+.strip-track{display:flex;gap:14px;width:max-content;animation:scroll 50s linear infinite}
+.strip:hover .strip-track{animation-play-state:paused}
+.strip .bub{width:86px;height:86px;border-radius:50%;overflow:hidden;flex:none;background:#eee;
+  box-shadow:0 4px 14px rgba(29,27,34,.10),inset 0 0 0 3px var(--paper);border:1px solid var(--line)}
+.strip .bub img{width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* Cómo funciona */
+.how{max-width:1100px;margin:0 auto;padding:22px 16px 6px;display:grid;gap:10px}
+@media(min-width:720px){.how{grid-template-columns:repeat(3,1fr)}}
+.how-card{display:flex;align-items:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.how-card img{width:64px;height:64px;flex:none}
+.how-card b{display:block;font-size:1rem}
+.how-card span{color:var(--muted);font-size:.88rem;line-height:1.3}
+.how-card .n{font-family:var(--mono);color:var(--cobalt);font-size:.75rem}
+
+.sec-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:14px 0 12px}
+.sec-title h2{font-size:clamp(1.4rem,4vw,1.9rem);letter-spacing:-.02em;line-height:1.05}
+.sec-title small{color:var(--muted);font-family:var(--mono);font-size:.72rem}
+
+.card{transition:transform .2s,box-shadow .2s}
+@media(hover:hover){.card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}}
+.state img,.done-art{width:120px;margin:0 auto 12px}
+.done-art{width:110px;margin:0 0 6px}
+
+footer{display:flex;align-items:center;gap:12px}
+footer img{width:44px;height:44px}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -133,23 +199,44 @@ footer{max-width:1100px;margin:24px auto 0;padding:24px 16px 40px;color:var(--mu
 </header>
 
 <section class="hero">
-  <h1>Tazones personalizados <span>desde $3.500</span></h1>
-  <p>Elige tus diseños, agrégalos al carrito y deja tu pedido en un minuto. Si quieres tu propia foto o un nombre, lo indicas al pedir.</p>
-  <div class="pills">
-    <span class="pill" id="pillMin">Mínimo 2 unidades</span>
-    <span class="pill">Entrega en estaciones</span>
-    <span class="pill">Retiro en Recreo, Viña</span>
+  <div>
+    <div class="eyebrow">Sublimados en Viña del Mar</div>
+    <h1>Tazones personalizados <span>desde $3.500</span></h1>
+    <p>Elige tus diseños, agrégalos al carrito y deja tu pedido en un minuto. Si quieres tu propia foto o un nombre, lo indicas al pedir.</p>
+    <div class="pills">
+      <span class="pill" id="pillMin">Mínimo 2 unidades</span>
+      <span class="pill">Entrega en estaciones</span>
+      <span class="pill">Retiro en Recreo, Viña</span>
+    </div>
+    <a class="hero-cta" href="#catalogo">Ver diseños ↓</a>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
+    <img class="mug m2" src="img/perro.webp" alt="">
+    <img class="mug m3" src="img/astronauta.webp" alt="">
+    <img class="mug m1" src="img/cafe.webp" alt="">
+    <img class="mug m4" src="img/teamo.webp" alt="">
   </div>
 </section>
 
-<main class="wrap">
+<div class="strip" aria-hidden="true"><div class="strip-track" id="strip"></div></div>
+
+<section class="how">
+  <div class="how-card"><img class="mug" src="img/montanas.webp" alt=""><div><span class="n">01</span><b>Elige</b><span>Diseños del catálogo, o tu foto, nombre o frase.</span></div></div>
+  <div class="how-card"><img class="mug" src="img/gracias.webp" alt=""><div><span class="n">02</span><b>Abona</b><span>Transfiere el <span id="howPct">50</span>% y comenzamos tu pedido.</span></div></div>
+  <div class="how-card"><img class="mug" src="img/playa.webp" alt=""><div><span class="n">03</span><b>Recibe</b><span>En una estación o en Recreo. Pagas el resto al recibir.</span></div></div>
+</section>
+
+<main class="wrap" id="catalogo">
+  <div class="sec-title"><h2>Diseños disponibles</h2><small id="count"></small></div>
   <div id="demoNote"></div>
   <div class="chips" id="chips" role="toolbar" aria-label="Categorías"></div>
   <div class="grid" id="grid"></div>
 </main>
 
 <footer>
-  <span id="footName">Taller de Tazas</span> · Viña del Mar · Tazones sublimados de cerámica 11 oz
+  <img class="mug" src="img/cafe.webp" alt="">
+  <span><span id="footName">Taller de Tazas</span> · Viña del Mar · Tazones sublimados de cerámica 11 oz</span>
 </footer>
 
 <div class="scrim" id="scrim"></div>
@@ -201,6 +288,11 @@ let view = 'cart';
 document.title = CONFIG.STORE_NAME;
 $('#storeName').textContent = $('#footName').textContent = CONFIG.STORE_NAME;
 
+/* Cinta decorativa de tazones (se duplica para el desplazamiento infinito) */
+const STRIP = ['montanas','flores','gamer','cafe','astronauta','ciudad','calavera','nieve','cumple',
+               'teamo','gracias','profe','perro','gato','futbol','galaxia','bosque','playa'];
+$('#strip').innerHTML = [...STRIP, ...STRIP].map(n => `<div class="bub"><img src="img/${n}.webp" alt="" loading="lazy"></div>`).join('');
+
 /* ── Catálogo ── */
 function demoProducts(){
   const designs = [
@@ -239,6 +331,8 @@ async function loadCatalog(){
     }
   }
   $('#pillMin').textContent = 'Mínimo ' + CONFIG.MIN_UNITS + ' unidades';
+  $('#howPct').textContent = CONFIG.DEPOSIT_PCT;
+  $('#count').textContent = products.length + ' diseño' + (products.length === 1 ? '' : 's');
   cart = cart.filter(c => products.some(p => p.id === c.id));
   saveCart();
   renderChips(); renderGrid();
@@ -301,7 +395,7 @@ function render(){ ({ cart: renderCart, form: renderForm })[view]?.(); }
 function renderCart(){
   $('#pTitle').textContent = 'Tu carrito';
   if (!cart.length){
-    $('#pBody').innerHTML = '<p class="state">Tu carrito está vacío.<br>Elige al menos ' + CONFIG.MIN_UNITS + ' tazones.</p>';
+    $('#pBody').innerHTML = '<p class="state"><img class="mug" src="img/blanca.webp" alt="">Tu carrito está vacío.<br>Elige al menos ' + CONFIG.MIN_UNITS + ' tazones.</p>';
     $('#pFoot').innerHTML = '<button class="ghost" onclick="closePanel()">Ver catálogo</button>';
     return;
   }
@@ -439,7 +533,7 @@ function renderDone(res, data){
   const bankText = Object.entries(CONFIG.BANK).map(([k, v]) => `${k}: ${v}`).join('\n') + `\nMonto: ${money(res.deposit)}\nAsunto: ${res.id}`;
   const msg = `Hola, hice el pedido ${res.id} (${res.units} tazones, total ${money(res.total)}). Te envío el comprobante del abono de ${money(res.deposit)}.`;
   $('#pBody').innerHTML = `
-    <div class="ok-ico">✓</div>
+    <img class="mug done-art" src="img/gracias.webp" alt="">
     <p>Tu número de pedido es</p>
     <div class="order-id">${esc(res.id)}</div>
     <p style="color:var(--muted);margin-top:6px">${res.units} tazones · total ${money(res.total)} · ${esc(data.delivery)}</p>
