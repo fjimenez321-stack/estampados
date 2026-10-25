@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:image" content="img/logo.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&family=Pacifico&family=Lobster&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&family=Pacifico&family=Lobster&family=Bebas+Neue&family=Dancing+Script:wght@700&family=Caveat:wght@700&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bone:#f6f1e8; --paper:#fffdf9; --ink:#1d1b22; --muted:#6d6876; --line:#e6dccd;
@@ -286,11 +286,32 @@ footer img.foot-logo{width:120px;height:auto}
 .f .t-head{margin:6px 0 0}
 .t-preview{display:grid;gap:12px;align-items:center}
 @media(min-width:520px){.t-preview{grid-template-columns:1fr 120px}}
-#tCanvas{width:100%;height:auto;aspect-ratio:22/8;border-radius:10px;border:1px dashed #cdbfa9;touch-action:none;cursor:grab;background:#fff}
+#tCanvas{display:block;width:100%;height:auto;aspect-ratio:22/8;border-radius:6px;border:1px dashed #cdbfa9;touch-action:none;cursor:grab;background:#fff}
 .t-mug{width:96px;height:110px;margin:0 auto;border-radius:6px 6px 14px 14px;background:#fff center/200% 100% no-repeat;
   box-shadow:inset -10px 0 14px rgba(0,0,0,.08),inset 8px 0 10px rgba(255,255,255,.6),0 6px 14px rgba(29,27,34,.12);position:relative;border:1px solid var(--line)}
 .t-mug::after{content:'';position:absolute;right:-26px;top:22px;width:30px;height:56px;border:9px solid #f4f1ec;border-left:0;border-radius:0 26px 26px 0;box-shadow:2px 2px 6px rgba(29,27,34,.12)}
-.t-tools{display:grid;gap:10px;margin-top:12px}
+.t-tools{display:grid;gap:12px;margin-top:12px}
+.taller>*,.t-preview>*,.t-stage>*,.t-row>*{min-width:0}
+.t-tools input[type=file]{max-width:100%;font-size:.82rem}
+.t-tools fieldset{min-width:0;border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;display:grid;gap:10px}
+.t-tools legend{font-weight:700;font-size:.85rem;padding:0 4px;color:#4a2416}
+.t-area{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--mono);font-size:.74rem;color:var(--cobalt);margin-bottom:6px}
+.t-area .chk{margin:0;font-family:var(--sans);color:var(--muted)}
+.t-stage{display:grid;grid-template-columns:auto 1fr;gap:2px 6px;align-items:center}
+.t-dim{font-family:var(--mono);font-size:.68rem;color:var(--muted);grid-column:2;text-align:center}
+.t-dim-h{grid-column:1;grid-row:1;writing-mode:vertical-rl;transform:rotate(180deg)}
+.t-canvas-wrap{position:relative;grid-column:2;grid-row:1}
+.t-guides{position:absolute;inset:0;pointer-events:none}
+.t-guides .t-safe{position:absolute;left:var(--sx);right:var(--sx);top:var(--sy);bottom:var(--sy);border:1.5px dashed rgba(37,70,201,.45);border-radius:4px}
+.t-guides .t-mid{position:absolute;left:50%;top:0;bottom:0;border-left:1.5px dashed rgba(226,87,43,.45)}
+.t-ruler{grid-column:2;height:10px;background:repeating-linear-gradient(90deg,#b9ab95 0 1px,transparent 1px var(--cm,4.545%));border-top:1px solid #b9ab95}
+.t-note{margin-top:6px}
+.t-btns{display:flex;flex-wrap:wrap;gap:6px}
+.mini{padding:7px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bone);font-size:.82rem;font-weight:600}
+.mini.tog[aria-pressed="true"]{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.t-layers{display:flex;flex-wrap:wrap;gap:6px}
+.t-layers .chip{padding:6px 11px;font-size:.82rem}
+.t-layers .chip.add{border-style:dashed;color:var(--cobalt)}
 .t-tools label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600}
 .t-tools input[type=text],.t-tools input:not([type]),.t-tools select{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bone);font-weight:400}
 .t-tools input[type=color]{width:100%;height:38px;border:1px solid var(--line);border-radius:10px;background:var(--bone);padding:3px}
@@ -371,24 +392,76 @@ footer img.foot-logo{width:120px;height:auto}
     Diseño original <b>desde <span id="tPrice">$5.000</span> por tazón</b>.</p>
 
   <div class="t-card" id="tBuilder">
-    <div class="t-head"><b>1 · Tu boceto</b><small>Opcional · arrastra la foto o el texto para moverlos</small></div>
+    <div class="t-head"><b>1 · Tu boceto</b><small>Opcional · arrastra la foto o los textos para moverlos</small></div>
+    <div class="t-area"><span id="tAreaTxt">Área de impresión 22 × 8 cm · tazón 11 oz</span>
+      <label class="chk"><input type="checkbox" id="tGuides" checked> Guías</label></div>
     <div class="t-preview">
-      <canvas id="tCanvas" width="880" height="320" aria-label="Boceto del diseño extendido"></canvas>
+      <div class="t-stage">
+        <span class="t-dim t-dim-h" id="tDimH">8 cm</span>
+        <div class="t-canvas-wrap" id="tWrap">
+          <canvas id="tCanvas" width="880" height="320" aria-label="Boceto del diseño extendido"></canvas>
+          <div class="t-guides" id="tGuideBox"><span class="t-safe"></span><span class="t-mid"></span></div>
+        </div>
+        <div class="t-ruler" id="tRuler"></div>
+        <span class="t-dim" id="tDimW">22 cm</span>
+      </div>
       <div class="t-mug" id="tMug" aria-hidden="true"></div>
     </div>
+    <p class="hint t-note">Línea punteada: margen seguro (0,5 cm). Línea central: frente del tazón; los bordes laterales quedan junto al asa.</p>
+
     <div class="t-tools">
-      <label>Foto<input type="file" id="tImg" accept="image/*"></label>
-      <label>Tamaño de la foto<input type="range" id="tImgS" min="0.3" max="2.5" step="0.05" value="1"></label>
-      <label>Texto<input id="tText" maxlength="40" placeholder="Ej: Feliz día, Mamá"></label>
-      <div class="t-row">
-        <label>Letra<select id="tFont">
-          <option value="Bricolage Grotesque">Moderna</option><option value="Pacifico">Manuscrita</option>
-          <option value="Lobster">Retro</option><option value="Georgia">Clásica</option><option value="Space Mono">Máquina</option>
-        </select></label>
-        <label>Color<input type="color" id="tColor" value="#1d1b22"></label>
-        <label>Fondo<input type="color" id="tBg" value="#ffffff"></label>
-      </div>
-      <label>Tamaño del texto<input type="range" id="tSize" min="20" max="140" value="64"></label>
+      <fieldset>
+        <legend>Foto</legend>
+        <input type="file" id="tImg" accept="image/*">
+        <div class="t-row">
+          <label>Tamaño<input type="range" id="tImgS" min="0.2" max="3" step="0.05" value="1"></label>
+          <label>Giro<input type="range" id="tImgR" min="-180" max="180" step="1" value="0"></label>
+        </div>
+        <div class="t-btns"><button type="button" class="mini" data-fit="cover">Llenar todo</button>
+          <button type="button" class="mini" data-fit="contain">Foto completa</button>
+          <button type="button" class="mini" data-fit="none">Quitar foto</button></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Textos</legend>
+        <div class="t-layers" id="tLayers"></div>
+        <label>Texto<input id="tText" maxlength="60" placeholder="Ej: Feliz día, Mamá"></label>
+        <div class="t-row">
+          <label>Letra<select id="tFont">
+            <option value="Bricolage Grotesque">Moderna</option><option value="Bebas Neue">Titular</option>
+            <option value="Pacifico">Manuscrita</option><option value="Dancing Script">Elegante</option>
+            <option value="Caveat">A mano</option><option value="Permanent Marker">Plumón</option>
+            <option value="Lobster">Retro</option><option value="Playfair Display">Clásica</option>
+            <option value="Space Mono">Máquina</option>
+          </select></label>
+          <label>Color<input type="color" id="tColor" value="#1d1b22"></label>
+        </div>
+        <div class="t-btns">
+          <button type="button" class="mini tog" id="tBold" aria-pressed="true"><b>N</b> Negrita</button>
+          <button type="button" class="mini tog" id="tItalic" aria-pressed="false"><i>K</i> Cursiva</button>
+          <button type="button" class="mini tog" id="tShadow" aria-pressed="false">Sombra</button>
+          <button type="button" class="mini tog" id="tUpper" aria-pressed="false">AA Mayúsculas</button>
+        </div>
+        <div class="t-row">
+          <label>Tamaño<input type="range" id="tSize" min="14" max="180" value="64"></label>
+          <label>Espaciado<input type="range" id="tSpacing" min="-2" max="30" value="0"></label>
+        </div>
+        <div class="t-row">
+          <label>Curvatura<input type="range" id="tCurve" min="-100" max="100" value="0"></label>
+          <label>Giro<input type="range" id="tRot" min="-90" max="90" value="0"></label>
+        </div>
+        <div class="t-row">
+          <label>Contorno<input type="range" id="tStroke" min="0" max="16" value="0"></label>
+          <label>Color contorno<input type="color" id="tStrokeC" value="#ffffff"></label>
+        </div>
+        <div class="t-btns"><button type="button" class="mini" id="tCenter">Centrar</button>
+          <button type="button" class="mini" id="tDel">Eliminar texto</button></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fondo</legend>
+        <div class="t-row"><label>Color de fondo<input type="color" id="tBg" value="#ffffff"></label></div>
+      </fieldset>
       <button type="button" class="ghost" id="tReset">Empezar de nuevo</button>
     </div>
   </div>
@@ -459,12 +532,13 @@ const CONFIG = {
   DEPOSIT_PCT: 50,           // ídem
   // Se reemplazan por los del script al cargar (Codigo.gs > VARIANTS / COLORS)
   VARIANTS: [
-    { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0 },
-    { key: 'magico',  label: 'Mágico', extra: 2000,
+    { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0, size: 'tazón 11 oz', area: { w: 22, h: 8 } },
+    { key: 'magico',  label: 'Mágico', extra: 2000, size: 'tazón mágico 11 oz', area: { w: 22, h: 8 },
       hint: 'Tazón mágico: revela su diseño con el calor al servir una bebida caliente.' },
-    { key: 'color',   label: 'Interior de color', extra: 2000,
+    { key: 'color',   label: 'Interior de color', extra: 2000, size: 'tazón de color 11 oz', area: { w: 22, h: 8 },
       hint: 'Por defecto los tazones son blancos. Con esta opción el interior y el asa van en color: rojo, amarillo o azul.' },
-    { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
+    { key: 'oz16',    label: 'Grande 16 oz', extra: 2000, size: 'tazón 16 oz',
+      area: { w: 23, h: 9.5 } }   // ← confirma esta medida con tu plantilla de 16 oz
   ],
   COLORS: ['Rojo', 'Amarillo', 'Azul'],
   EXTRA_ELEMENT: 1000,       // recargo por tazón con más de una foto o frase
@@ -969,62 +1043,165 @@ async function refreshSlots(){
 
 /* ── Taller: boceto + solicitud de diseño desde cero ── */
 function initTaller(){
-  const cv = $('#tCanvas'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
-  const T = { bg: '#ffffff', img: null, ix: .5, iy: .45, is: 1, text: '', font: 'Bricolage Grotesque', color: '#1d1b22', size: 64, tx: .5, ty: .82, dirty: false };
-  let refPhotos = [], drag = null, raf = 0;
+  const cv = $('#tCanvas'), ctx = cv.getContext('2d');
+  const PX = 40;                                   // píxeles por cm en el boceto
+  const newText = (y = .82) => ({ text: '', font: 'Bricolage Grotesque', color: '#1d1b22', size: 64, bold: true, italic: false,
+    shadow: false, upper: false, spacing: 0, curve: 0, rot: 0, stroke: 0, strokeC: '#ffffff', x: .5, y });
+  const T = { bg: '#ffffff', img: null, ix: .5, iy: .45, is: 1, ir: 0, texts: [newText()], sel: 0, dirty: false, area: { w: 22, h: 8 } };
+  let refPhotos = [], drag = null, raf = 0, W = cv.width, H = cv.height;
+  const cur = () => T.texts[T.sel];
+
+  /* Tamaño del área según el tipo de tazón */
+  function setArea(v){
+    const area = v?.area || { w: 22, h: 8 };
+    T.area = area; W = cv.width = Math.round(area.w * PX); H = cv.height = Math.round(area.h * PX);
+    cv.style.aspectRatio = `${area.w}/${area.h}`;
+    const fmt = n => String(n).replace('.', ',');
+    $('#tAreaTxt').textContent = `Área de impresión ${fmt(area.w)} × ${fmt(area.h)} cm · ${v?.size || 'tazón 11 oz'}`;
+    $('#tDimW').textContent = fmt(area.w) + ' cm'; $('#tDimH').textContent = fmt(area.h) + ' cm';
+    $('#tRuler').style.setProperty('--cm', `calc(100% / ${area.w})`);
+    $('#tGuideBox').style.setProperty('--sx', (0.5 / area.w * 100) + '%');
+    $('#tGuideBox').style.setProperty('--sy', (0.5 / area.h * 100) + '%');
+    redraw();
+  }
+  window.tSetArea = setArea;
+
+  function fontStr(t, size){ return `${t.italic ? 'italic ' : ''}${t.bold ? 700 : 400} ${size}px "${t.font}"`; }
+  function drawText(t){
+    let str = t.upper ? t.text.toUpperCase() : t.text; if (!str) return;
+    ctx.save();
+    ctx.translate(t.x * W, t.y * H); ctx.rotate(t.rot * Math.PI / 180);
+    ctx.font = fontStr(t, t.size); ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+    ctx.lineJoin = 'round'; ctx.miterLimit = 2;
+    if (t.shadow){ ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = t.size * .12; ctx.shadowOffsetX = ctx.shadowOffsetY = t.size * .05; }
+    const chars = [...str], widths = chars.map(c => ctx.measureText(c).width + t.spacing);
+    const total = widths.reduce((a, b) => a + b, 0) - t.spacing;
+    const paint = (c, x, y) => {
+      if (t.stroke){ ctx.strokeStyle = t.strokeC; ctx.lineWidth = t.stroke * 2; ctx.strokeText(c, x, y); }
+      ctx.fillStyle = t.color; ctx.fillText(c, x, y);
+    };
+    if (!t.curve && !t.spacing){ paint(str, 0, 0); }
+    else if (!t.curve){
+      let x = -total / 2;
+      chars.forEach((c, k) => { paint(c, x + widths[k] / 2 - t.spacing / 2, 0); x += widths[k]; });
+    } else {
+      // Texto en arco: radio menor = curva más cerrada; signo = hacia arriba o abajo
+      const r = (W * 1.6) / (Math.abs(t.curve) / 100 * 5 + .2), dir = Math.sign(t.curve);
+      let ang = -total / 2 / r;
+      chars.forEach((c, k) => {
+        const a = ang + (widths[k] - t.spacing) / 2 / r;
+        ctx.save();
+        ctx.translate(Math.sin(a) * r, dir * (r - Math.cos(a) * r));
+        ctx.rotate(dir * a);
+        ctx.shadowColor = t.shadow ? 'rgba(0,0,0,.35)' : 'transparent';
+        paint(c, 0, 0); ctx.restore();
+        ang += widths[k] / r;
+      });
+    }
+    ctx.restore();
+  }
 
   function draw(){
     raf = 0;
     ctx.fillStyle = T.bg; ctx.fillRect(0, 0, W, H);
     if (T.img){
       const h = H * T.is, w = h * T.img.width / T.img.height;
-      ctx.drawImage(T.img, T.ix * W - w / 2, T.iy * H - h / 2, w, h);
+      ctx.save(); ctx.translate(T.ix * W, T.iy * H); ctx.rotate(T.ir * Math.PI / 180);
+      ctx.drawImage(T.img, -w / 2, -h / 2, w, h); ctx.restore();
     }
-    if (T.text){
-      ctx.font = `700 ${T.size}px "${T.font}"`; ctx.fillStyle = T.color;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(T.text, T.tx * W, T.ty * H, W * .96);
-    }
-    if (!T.img && !T.text){
-      ctx.fillStyle = '#b9ab95'; ctx.font = '600 26px "Bricolage Grotesque"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    T.texts.forEach(drawText);
+    if (!T.img && !T.texts.some(t => t.text)){
+      ctx.fillStyle = '#b9ab95'; ctx.font = `600 ${Math.round(H * .08)}px "Bricolage Grotesque"`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('Sube una foto o escribe un texto', W / 2, H / 2);
     }
     $('#tMug').style.backgroundImage = `url(${cv.toDataURL('image/jpeg', .7)})`;
   }
   const redraw = () => { if (!raf) raf = requestAnimationFrame(draw); };
-  const touch = () => { T.dirty = !!(T.img || T.text); redraw(); };
+  const touch = () => { T.dirty = !!(T.img || T.texts.some(t => t.text)); redraw(); };
 
+  /* Panel de textos: capas y controles sincronizados con el texto seleccionado */
+  const ctl = { tText: 'text', tFont: 'font', tColor: 'color', tSize: 'size', tSpacing: 'spacing', tCurve: 'curve', tRot: 'rot', tStroke: 'stroke', tStrokeC: 'strokeC' };
+  const togs = { tBold: 'bold', tItalic: 'italic', tShadow: 'shadow', tUpper: 'upper' };
+  function syncControls(){
+    const t = cur();
+    Object.entries(ctl).forEach(([id, k]) => { $('#' + id).value = t[k]; });
+    Object.entries(togs).forEach(([id, k]) => $('#' + id).setAttribute('aria-pressed', t[k]));
+    $('#tLayers').innerHTML = T.texts.map((x, i) =>
+      `<button type="button" class="chip" aria-pressed="${i === T.sel}" data-layer="${i}">${esc((x.text || 'Texto ' + (i + 1)).slice(0, 14))}</button>`).join('') +
+      (T.texts.length < 4 ? '<button type="button" class="chip add" data-layer="new">+ Texto</button>' : '');
+  }
+  Object.entries(ctl).forEach(([id, k]) => $('#' + id).addEventListener('input', async e => {
+    const t = cur(), v = e.target.value;
+    t[k] = ['size', 'spacing', 'curve', 'rot', 'stroke'].includes(k) ? +v : v;
+    if (k === 'font'){ try { await document.fonts.load(fontStr(t, 40)); } catch {} }
+    if (k === 'text') syncControls(), $('#tText').focus();
+    touch();
+  }));
+  Object.entries(togs).forEach(([id, k]) => $('#' + id).onclick = async () => {
+    cur()[k] = !cur()[k]; syncControls();
+    try { await document.fonts.load(fontStr(cur(), 40)); } catch {}
+    redraw();
+  });
+  $('#tLayers').onclick = e => {
+    const b = e.target.closest('[data-layer]'); if (!b) return;
+    if (b.dataset.layer === 'new'){ T.texts.push(newText(.2 + .2 * (T.texts.length % 3))); T.sel = T.texts.length - 1; }
+    else T.sel = +b.dataset.layer;
+    syncControls(); $('#tText').focus();
+  };
+  $('#tDel').onclick = () => {
+    if (T.texts.length > 1){ T.texts.splice(T.sel, 1); T.sel = 0; } else T.texts[0] = newText();
+    syncControls(); touch();
+  };
+  $('#tCenter').onclick = () => { cur().x = .5; redraw(); };
+
+  /* Foto */
   $('#tImg').onchange = async e => {
     const f = e.target.files[0]; if (!f) return;
-    const img = new Image(); img.onload = () => { T.img = img; touch(); };
-    img.src = await resize(f, 1400);
+    const img = new Image(); img.onload = () => { T.img = img; T.ix = .5; T.iy = .5; touch(); };
+    img.src = await resize(f, 1600);
   };
   $('#tImgS').oninput = e => { T.is = +e.target.value; redraw(); };
-  $('#tText').oninput = e => { T.text = e.target.value; touch(); };
-  $('#tFont').onchange = async e => { T.font = e.target.value; try { await document.fonts.load(`700 40px "${T.font}"`); } catch {} redraw(); };
-  $('#tColor').oninput = e => { T.color = e.target.value; redraw(); };
+  $('#tImgR').oninput = e => { T.ir = +e.target.value; redraw(); };
+  document.querySelectorAll('[data-fit]').forEach(b => b.onclick = () => {
+    const m = b.dataset.fit;
+    if (m === 'none'){ T.img = null; $('#tImg').value = ''; return touch(); }
+    if (!T.img) return;
+    const ratio = T.img.width / T.img.height, areaR = W / H;
+    T.is = m === 'cover' ? Math.max(1, areaR / ratio) : Math.min(1, areaR / ratio);
+    T.ix = .5; T.iy = .5; T.ir = 0; $('#tImgS').value = T.is; $('#tImgR').value = 0; redraw();
+  });
   $('#tBg').oninput = e => { T.bg = e.target.value; redraw(); };
-  $('#tSize').oninput = e => { T.size = +e.target.value; redraw(); };
+  $('#tGuides').onchange = e => { $('#tGuideBox').hidden = !e.target.checked; };
   $('#tReset').onclick = () => {
-    Object.assign(T, { bg: '#ffffff', img: null, ix: .5, iy: .45, is: 1, text: '', tx: .5, ty: .82, dirty: false });
-    ['#tImg', '#tText'].forEach(s => $(s).value = ''); $('#tBg').value = '#ffffff'; $('#tImgS').value = 1; redraw();
+    Object.assign(T, { bg: '#ffffff', img: null, ix: .5, iy: .45, is: 1, ir: 0, texts: [newText()], sel: 0, dirty: false });
+    $('#tImg').value = ''; $('#tBg').value = '#ffffff'; $('#tImgS').value = 1; $('#tImgR').value = 0;
+    syncControls(); redraw();
   };
 
-  // Arrastrar: el texto tiene prioridad si el dedo está cerca de él
+  /* Arrastrar: toma el texto más cercano al dedo; si no hay ninguno cerca, mueve la foto */
   const pos = e => { const r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height }; };
   cv.addEventListener('pointerdown', e => {
     const p = pos(e);
-    const nearText = T.text && Math.abs(p.y - T.ty) < (T.size / H) * .7 && Math.abs(p.x - T.tx) < .45;
-    drag = nearText ? 'text' : T.img ? 'img' : null;
+    let best = -1, bestD = Infinity;
+    T.texts.forEach((t, i) => {
+      if (!t.text) return;
+      ctx.font = fontStr(t, t.size);
+      const hw = Math.max(.06, ctx.measureText(t.text).width / W / 2), hh = Math.max(.08, t.size / H * .7);
+      const dx = Math.abs(p.x - t.x) / hw, dy = Math.abs(p.y - t.y) / hh, d = Math.max(dx, dy);
+      if (d < 1.15 && d < bestD){ best = i; bestD = d; }
+    });
+    if (best >= 0){ T.sel = best; syncControls(); drag = 'text'; }
+    else drag = T.img ? 'img' : null;
     if (drag){ cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; }
   });
   cv.addEventListener('pointermove', e => {
     if (!drag) return;
     const p = pos(e), clamp = v => Math.min(1.2, Math.max(-.2, v));
-    if (drag === 'text'){ T.tx = clamp(p.x); T.ty = clamp(p.y); } else { T.ix = clamp(p.x); T.iy = clamp(p.y); }
+    if (drag === 'text'){ cur().x = clamp(p.x); cur().y = clamp(p.y); } else { T.ix = clamp(p.x); T.iy = clamp(p.y); }
     redraw();
   });
   ['pointerup', 'pointercancel'].forEach(ev => cv.addEventListener(ev, () => { drag = null; cv.style.cursor = 'grab'; }));
+  syncControls();
 
   // Formulario
   const form = $('#tForm');
@@ -1039,6 +1216,8 @@ function initTaller(){
     const v = CONFIG.VARIANTS.find(x => x.key === form.variant.value) || CONFIG.VARIANTS[0];
     const q = Math.max(CONFIG.MIN_UNITS, +form.qty.value || 0);
     $('#tColorWrap').hidden = v.key !== 'color';
+    if (T.area.w !== (v.area?.w || 22) || T.area.h !== (v.area?.h || 8)) setArea(v);
+    else $('#tAreaTxt').textContent = $('#tAreaTxt').textContent.replace(/·.*$/, '· ' + (v.size || 'tazón 11 oz'));
     $('#tEst').textContent = money(q * (CONFIG.CUSTOM_PRICE + v.extra));
   };
   form.variant.onchange = form.qty.oninput = est;

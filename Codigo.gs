@@ -34,12 +34,13 @@ const CONFIG = {
   MAX_IMAGES: 10,        // fotos máximas por producto        // largo máximo de cada descripción
   // Tipos de tazón que el cliente elige en el carrito (extra = recargo por unidad)
   VARIANTS: [
-    { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0 },
-    { key: 'magico',  label: 'Mágico', extra: 2000,
+    { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0, size: 'tazón 11 oz', area: { w: 22, h: 8 } },
+    { key: 'magico',  label: 'Mágico', extra: 2000, size: 'tazón mágico 11 oz', area: { w: 22, h: 8 },
       hint: 'Tazón mágico: revela su diseño con el calor al servir una bebida caliente.' },
-    { key: 'color',   label: 'Interior de color', extra: 2000,
+    { key: 'color',   label: 'Interior de color', extra: 2000, size: 'tazón de color 11 oz', area: { w: 22, h: 8 },
       hint: 'Por defecto los tazones son blancos. Con esta opción el interior y el asa van en color: rojo, amarillo o azul.' },
-    { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
+    { key: 'oz16',    label: 'Grande 16 oz', extra: 2000, size: 'tazón 16 oz',
+      area: { w: 23, h: 9.5 } }   // ← confirma esta medida con tu plantilla de 16 oz
   ],
   COLORS: ['Rojo', 'Amarillo', 'Azul'],  // para "Interior de color"
   // Despacho a domicilio: solo para pedidos con productos desde HOME_MIN.
@@ -413,7 +414,7 @@ function saveRequest_(data, lock) {
     filesUrl = folder.getUrl();
   }
   getReqSheet_().appendRow([new Date(), id, name, "'" + phone, email, clean_(data.contact, 20) || 'WhatsApp',
-    v.label + color, qty, clean_(data.when, 40), clean_(data.occasion, 60), idea, clean_(data.texts, 500),
+    v.label + color + (v.area ? ' (' + v.area.w + '×' + v.area.h + ' cm)' : ''), qty, clean_(data.when, 40), clean_(data.occasion, 60), idea, clean_(data.texts, 500),
     estimate, filesUrl, REQ_ESTADOS[0]]);
   lock.releaseLock();
 

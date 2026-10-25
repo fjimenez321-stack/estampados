@@ -82,6 +82,8 @@ Si cambias imágenes o archivos del sitio, sube el número de `VERSION` en `sw.j
 ## Taller (diseño desde cero)
 Sección del sitio donde el cliente arma un boceto (foto, texto, letra y colores), describe su idea, sube hasta 4 referencias y deja sus datos. **No paga nada**: la solicitud llega a la hoja **Solicitudes** con número `S-0001`, y el boceto y las referencias quedan en una carpeta dentro de *Pedidos tazas*.
 
+El editor ajusta el área al tipo de tazón (`area` en `VARIANTS`: 11 oz = 22 × 8 cm; **confirma la de 16 oz**), muestra regla en cm, margen seguro de 0,5 cm y el centro del tazón. Hasta 4 textos con 9 letras, negrita, cursiva, mayúsculas, sombra, contorno, espaciado, curvatura y giro.
+
 Estados: *Nueva → Propuesta enviada → Aprobada / Descartada*. Cuando el cliente aprueba, coordinas el abono por WhatsApp. El precio base es $5.000 por tazón (`CUSTOM_PRICE`) más el recargo del tipo de tazón; es referencial.
 
 ## Uso diario
