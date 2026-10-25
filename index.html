@@ -1,205 +1,472 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller de Tazas</title>
+<meta name="description" content="Tazones personalizados desde $3.500. Entrega en estaciones o retiro en Recreo, Viña del Mar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bone:#f6f1e8; --paper:#fffdf9; --ink:#1d1b22; --muted:#6d6876; --line:#e6dccd;
+  --cobalt:#2546c9; --cobalt-soft:#e5eafc; --ember:#e2572b; --ok:#1f8a5b;
+  --radius:16px; --shadow:0 8px 28px rgba(29,27,34,.10);
+  --sans:'Bricolage Grotesque',system-ui,sans-serif; --mono:'Space Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bone);color:var(--ink);font-family:var(--sans);line-height:1.45;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+img{display:block;max-width:100%}
 
-  <title>Laboratorio Digital</title>
+/* Header */
+.top{position:sticky;top:0;z-index:20;background:rgba(246,241,232,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1100px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-weight:800;font-size:1.25rem;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.brand i{font-style:normal;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--cobalt);color:#fff;font-size:1.1rem}
+.cart-btn{position:relative;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;padding:9px 14px;border-radius:999px;font-weight:600}
+.badge{min-width:22px;height:22px;border-radius:999px;background:var(--ember);display:grid;place-items:center;font-family:var(--mono);font-size:.75rem;padding:0 6px}
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+/* Hero */
+.hero{max-width:1100px;margin:0 auto;padding:28px 16px 8px}
+.hero h1{font-size:clamp(1.9rem,6vw,3.2rem);line-height:1.02;letter-spacing:-.03em;font-weight:800}
+.hero h1 span{color:var(--cobalt)}
+.hero p{color:var(--muted);margin-top:10px;max-width:560px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pill{font-family:var(--mono);font-size:.72rem;background:var(--paper);border:1px solid var(--line);padding:6px 10px;border-radius:999px}
 
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-      min-height: 100vh;
-    }
+/* Filtros + grilla */
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-weight:600;font-size:.9rem}
+.chip[aria-pressed="true"]{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+@media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr);gap:16px}}
+@media(min-width:960px){.grid{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+.card .ph{aspect-ratio:1;background:#efe7da;position:relative}
+.card .ph img{width:100%;height:100%;object-fit:cover}
+.card .cat{position:absolute;left:8px;top:8px;font-family:var(--mono);font-size:.65rem;background:rgba(255,253,249,.92);padding:3px 7px;border-radius:6px}
+.card .body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card h3{font-size:.98rem;font-weight:600;line-height:1.2}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
+.price{font-family:var(--mono);font-weight:700}
+.add{background:var(--cobalt-soft);color:var(--cobalt);font-weight:700;padding:7px 12px;border-radius:10px;font-size:.88rem;transition:.15s}
+.add:active{transform:scale(.96)}
+.add.done{background:var(--ok);color:#fff}
+.state{text-align:center;color:var(--muted);padding:48px 16px}
+.skel{aspect-ratio:.78;border-radius:var(--radius);background:linear-gradient(90deg,#ece3d5,#f5efe5,#ece3d5);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.demo{background:#fff4d6;border:1px solid #ecd28c;color:#6b5414;font-size:.85rem;padding:10px 12px;border-radius:12px;margin-bottom:12px}
 
-    header {
-      padding: 55px 20px 35px;
-      text-align: center;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-    }
+footer{max-width:1100px;margin:24px auto 0;padding:24px 16px 40px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
 
-    header h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      margin-bottom: 12px;
-    }
+/* Panel lateral */
+.scrim{position:fixed;inset:0;background:rgba(20,18,26,.45);opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.panel{position:fixed;top:0;right:0;height:100%;width:min(440px,100%);background:var(--paper);z-index:50;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.panel.on{transform:none}
+.p-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.p-head h2{font-size:1.15rem}
+.x{width:36px;height:36px;border-radius:10px;font-size:1.3rem;background:var(--bone)}
+.p-body{flex:1;overflow-y:auto;padding:16px}
+.p-foot{border-top:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
 
-    header p {
-      color: #94a3b8;
-      font-size: 1.05rem;
-      max-width: 650px;
-      margin: auto;
-      line-height: 1.6;
-    }
+.item{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.item img{width:64px;height:64px;border-radius:10px;object-fit:cover;background:#efe7da}
+.item h4{font-size:.95rem;font-weight:600;line-height:1.2}
+.item .sub{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.qty{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.qty button{width:32px;height:32px;font-weight:700;background:var(--bone)}
+.qty span{min-width:32px;text-align:center;font-family:var(--mono)}
+.item input{margin-top:8px;width:100%;font-size:.85rem;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bone)}
+.rm{font-size:.8rem;color:var(--muted);text-decoration:underline}
 
-    main {
-      max-width: 1000px;
-      margin: auto;
-      padding: 40px 20px;
-    }
+.sum{display:flex;justify-content:space-between;align-items:baseline}
+.sum b{font-family:var(--mono);font-size:1.2rem}
+.warn{font-size:.85rem;color:var(--ember);font-weight:600}
+.cta{width:100%;background:var(--cobalt);color:#fff;font-weight:700;padding:14px;border-radius:12px;font-size:1rem}
+.cta:disabled{opacity:.45;cursor:not-allowed}
+.ghost{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font-weight:600}
 
-    .menu {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 20px;
-    }
+/* Formulario */
+.f{display:flex;flex-direction:column;gap:14px}
+.f label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:.9rem}
+.f small{font-weight:400;color:var(--muted)}
+.f input,.f select,.f textarea{padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bone);font-weight:400;width:100%}
+.f textarea{min-height:76px;resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus,.item input:focus{outline:2px solid var(--cobalt);outline-offset:1px}
+.hp{position:absolute;left:-9999px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs div{position:relative}
+.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:.7rem}
+.resume{background:var(--bone);border-radius:12px;padding:12px;font-size:.88rem}
+.resume li{list-style:none;display:flex;justify-content:space-between;gap:8px;padding:3px 0}
+.err{background:#fde8e1;color:#9a2f10;padding:10px 12px;border-radius:10px;font-size:.88rem}
 
-    .boton {
-      min-height: 170px;
-      padding: 25px;
-      border-radius: 18px;
-      text-decoration: none;
-      color: white;
-      background: #1e293b;
-      border: 1px solid #334155;
+/* Confirmación */
+.ok-ico{width:56px;height:56px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;font-size:1.6rem;margin-bottom:10px}
+.order-id{font-family:var(--mono);font-size:1.6rem;font-weight:700;color:var(--cobalt)}
+.bank{background:var(--bone);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px}
+.bank dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.9rem}
+.bank dt{color:var(--muted)}
+.bank dd{font-family:var(--mono);word-break:break-word}
+.step{display:flex;gap:10px;margin-top:12px;font-size:.92rem}
+.step b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:.8rem}
+.wsp{width:100%;background:#1faa59;color:#fff;font-weight:700;padding:13px;border-radius:12px;text-align:center;text-decoration:none;display:block}
 
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      text-align: center;
-
-      transition:
-        transform 0.25s ease,
-        background 0.25s ease,
-        border 0.25s ease;
-    }
-
-    .boton:hover {
-      transform: translateY(-6px);
-      background: #263449;
-      border-color: #38bdf8;
-    }
-
-    .icono {
-      font-size: 2.7rem;
-      margin-bottom: 15px;
-    }
-
-    .boton h2 {
-      font-size: 1.25rem;
-      margin-bottom: 8px;
-    }
-
-    .boton p {
-      color: #94a3b8;
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-
-    .estado {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 5px 10px;
-      border-radius: 20px;
-      background: #334155;
-      color: #cbd5e1;
-      font-size: 0.75rem;
-    }
-
-    footer {
-      text-align: center;
-      color: #64748b;
-      padding: 30px 20px;
-      font-size: 0.85rem;
-    }
-
-    @media (max-width: 600px) {
-      header {
-        padding-top: 35px;
-      }
-
-      main {
-        padding-top: 25px;
-      }
-
-      .boton {
-        min-height: 140px;
-      }
-    }
-  </style>
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:.9rem;opacity:0;transition:.2s;z-index:60;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%)}
+</style>
 </head>
-
 <body>
 
-<header>
-  <h1>🧪 Laboratorio Digital</h1>
-
-  <p>
-    Espacio experimental para probar tecnologías web,
-    realidad virtual, simulaciones, juegos y recursos
-    digitales para educación.
-  </p>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><i>☕</i><span id="storeName">Taller de Tazas</span></div>
+    <button class="cart-btn" id="openCart" aria-label="Abrir carrito">Carrito <span class="badge" id="badge">0</span></button>
+  </div>
 </header>
 
+<section class="hero">
+  <h1>Tazones personalizados <span>desde $3.500</span></h1>
+  <p>Elige tus diseños, agrégalos al carrito y deja tu pedido en un minuto. Si quieres tu propia foto o un nombre, lo indicas al pedir.</p>
+  <div class="pills">
+    <span class="pill" id="pillMin">Mínimo 2 unidades</span>
+    <span class="pill">Entrega en estaciones</span>
+    <span class="pill">Retiro en Recreo, Viña</span>
+  </div>
+</section>
 
-<main>
-
-  <section class="menu">
-
-    <a class="boton" href="vr/index.html">
-      <div class="icono">🥽</div>
-      <h2>Realidad Virtual</h2>
-      <p>Experimentos con WebXR, A-Frame y escenarios 3D.</p>
-      <span class="estado">VR</span>
-    </a>
-
-
-    <a class="boton" href="juegos/index.html">
-      <div class="icono">🎮</div>
-      <h2>Juegos</h2>
-      <p>Pruebas de juegos educativos desarrollados con JavaScript.</p>
-      <span class="estado">Games</span>
-    </a>
-
-
-    <a class="boton" href="simuladores/index.html">
-      <div class="icono">🔬</div>
-      <h2>Simuladores</h2>
-      <p>Simulaciones interactivas para ciencias, física y biología.</p>
-      <span class="estado">Simulación</span>
-    </a>
-
-
-    <a class="boton" href="material/index.html">
-      <div class="icono">📚</div>
-      <h2>Material Didáctico</h2>
-      <p>Actividades, presentaciones y recursos digitales.</p>
-      <span class="estado">Educación</span>
-    </a>
-
-
-    <a class="boton" href="experimentos/index.html">
-      <div class="icono">⚗️</div>
-      <h2>Experimentos Web</h2>
-      <p>Pruebas de nuevas librerías, APIs y tecnologías web.</p>
-      <span class="estado">Experimental</span>
-    </a>
-
-
-    <a class="boton" href="3d/index.html">
-      <div class="icono">🧊</div>
-      <h2>Modelos 3D</h2>
-      <p>Visualización y manipulación de objetos tridimensionales.</p>
-      <span class="estado">3D</span>
-    </a>
-
-  </section>
-
+<main class="wrap">
+  <div id="demoNote"></div>
+  <div class="chips" id="chips" role="toolbar" aria-label="Categorías"></div>
+  <div class="grid" id="grid"></div>
 </main>
 
-
 <footer>
-  Laboratorio de pruebas · GitHub Pages · 2026
+  <span id="footName">Taller de Tazas</span> · Viña del Mar · Tazones sublimados de cerámica 11 oz
 </footer>
 
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" aria-hidden="true" role="dialog" aria-label="Carrito">
+  <div class="p-head"><h2 id="pTitle">Tu carrito</h2><button class="x" id="closePanel" aria-label="Cerrar">×</button></div>
+  <div class="p-body" id="pBody"></div>
+  <div class="p-foot" id="pFoot"></div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═════════════ CONFIGURACIÓN — edita solo esta parte ═════════════ */
+const CONFIG = {
+  STORE_NAME: 'Taller de Tazas',
+  API_URL: '',               // URL /exec del Apps Script. Vacío = modo demostración
+  WHATSAPP: '56966038152',   // para que te envíen el comprobante (sin + ni espacios)
+  MIN_UNITS: 2,              // se reemplaza por el valor del script al cargar
+  DEPOSIT_PCT: 50,           // ídem
+  PICKUP: 'Retiro en Recreo, Viña del Mar',
+  STATIONS: ['Puerto','Bellavista','Francia','Barón','Portales','Recreo','Miramar','Viña del Mar',
+             'Hospital','Chorrillos','El Salto','Valencia','Quilpué','El Sol','El Belloto',
+             'Las Américas','La Concepción','Villa Alemana','Sargento Aldea','Peñablanca','Limache'],
+  BANK: {
+    'Banco': 'BancoEstado',
+    'Tipo de cuenta': 'Cuenta RUT',
+    'N° de cuenta': '12345678',
+    'Nombre': 'Felipe ...',
+    'RUT': '12.345.678-9',
+    'Correo': 'tucorreo@gmail.com'
+  }
+};
+/* ═════════════════════════════════════════════════════════════════ */
+
+const $ = s => document.querySelector(s);
+const money = n => '$' + Math.round(n).toLocaleString('es-CL');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+let products = [];
+let cart = store.get('tazas_cart', []);   // [{id, qty, note}]
+let filter = 'Todos';
+let photos = [];                           // dataURLs redimensionadas
+let view = 'cart';
+
+document.title = CONFIG.STORE_NAME;
+$('#storeName').textContent = $('#footName').textContent = CONFIG.STORE_NAME;
+
+/* ── Catálogo ── */
+function demoProducts(){
+  const designs = [
+    ['Gato astronauta','Animales','#2546c9','🐱'], ['Perrito con lentes','Animales','#e2572b','🐶'],
+    ['Mejor profe del mundo','Frases','#1f8a5b','🍎'], ['Primero el café','Frases','#6b3e26','☕'],
+    ['Montañas al atardecer','Paisajes','#8a4fd1','⛰️'], ['Ola de Viña','Paisajes','#0f8fb3','🌊'],
+    ['Tu foto aquí','Personalizada','#1d1b22','📷'], ['Tu nombre aquí','Personalizada','#c23b6a','✍️']
+  ];
+  return designs.map(([name, category, color, emoji], i) => ({
+    id: 'demo' + i, name, category, price: i > 5 ? 4000 : 3500,
+    img: 'data:image/svg+xml,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#efe7da"/>
+       <rect x="95" y="110" width="170" height="200" rx="18" fill="#fff" stroke="#d8ccba" stroke-width="4"/>
+       <path d="M265 160 h28 a38 38 0 0 1 0 100 h-28" fill="none" stroke="#d8ccba" stroke-width="16"/>
+       <rect x="95" y="150" width="170" height="110" fill="${color}"/>
+       <text x="180" y="225" font-size="64" text-anchor="middle">${emoji}</text></svg>`)
+  }));
+}
+
+async function loadCatalog(){
+  $('#grid').innerHTML = Array(8).fill('<div class="skel"></div>').join('');
+  if (!CONFIG.API_URL){
+    products = demoProducts();
+    $('#demoNote').innerHTML = '<div class="demo">Modo demostración: estos productos son de ejemplo. Pega la URL del Apps Script en <b>API_URL</b> para mostrar tu catálogo real.</div>';
+  } else {
+    try {
+      const r = await fetch(CONFIG.API_URL + '?action=catalog');
+      const d = await r.json();
+      if (!d.ok) throw new Error(d.error);
+      products = d.products;
+      if (d.minUnits) CONFIG.MIN_UNITS = d.minUnits;
+      if (d.depositPct != null) CONFIG.DEPOSIT_PCT = d.depositPct;
+    } catch (e) {
+      $('#grid').innerHTML = '<p class="state" style="grid-column:1/-1">No pudimos cargar el catálogo. Intenta de nuevo en unos minutos.</p>';
+      return;
+    }
+  }
+  $('#pillMin').textContent = 'Mínimo ' + CONFIG.MIN_UNITS + ' unidades';
+  cart = cart.filter(c => products.some(p => p.id === c.id));
+  saveCart();
+  renderChips(); renderGrid();
+}
+
+function renderChips(){
+  const cats = ['Todos', ...new Set(products.map(p => p.category).filter(Boolean))];
+  $('#chips').style.display = cats.length > 2 ? 'flex' : 'none';
+  $('#chips').innerHTML = cats.map(c =>
+    `<button class="chip" aria-pressed="${c === filter}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+}
+
+function renderGrid(){
+  const list = products.filter(p => filter === 'Todos' || p.category === filter);
+  if (!list.length){ $('#grid').innerHTML = '<p class="state" style="grid-column:1/-1">Aún no hay productos aquí.</p>'; return; }
+  $('#grid').innerHTML = list.map(p => `
+    <article class="card">
+      <div class="ph"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">
+        ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}</div>
+      <div class="body"><h3>${esc(p.name)}</h3>
+        <div class="row"><span class="price">${money(p.price)}</span>
+        <button class="add" data-add="${esc(p.id)}">Agregar</button></div></div>
+    </article>`).join('');
+}
+
+$('#chips').addEventListener('click', e => {
+  const b = e.target.closest('[data-cat]'); if (!b) return;
+  filter = b.dataset.cat; renderChips(); renderGrid();
+});
+$('#grid').addEventListener('click', e => {
+  const b = e.target.closest('[data-add]'); if (!b) return;
+  addToCart(b.dataset.add);
+  b.textContent = '✓ Listo'; b.classList.add('done');
+  setTimeout(() => { b.textContent = 'Agregar'; b.classList.remove('done'); }, 900);
+});
+
+/* ── Carrito ── */
+const byId = id => products.find(p => p.id === id);
+const units = () => cart.reduce((s, c) => s + c.qty, 0);
+const total = () => cart.reduce((s, c) => s + c.qty * (byId(c.id)?.price || 0), 0);
+const deposit = t => Math.ceil(t * CONFIG.DEPOSIT_PCT / 100 / 100) * 100;
+function saveCart(){ store.set('tazas_cart', cart); $('#badge').textContent = units(); }
+
+function addToCart(id){
+  const c = cart.find(c => c.id === id);
+  if (c) c.qty++; else cart.push({ id, qty: 1, note: '' });
+  saveCart();
+  const left = CONFIG.MIN_UNITS - units();
+  toast(left > 0 ? `Agregado · te falta ${left} para el mínimo` : 'Agregado al carrito');
+}
+
+function openPanel(v){ view = v; render(); $('#panel').classList.add('on'); $('#scrim').classList.add('on'); $('#panel').setAttribute('aria-hidden','false'); }
+function closePanel(){ $('#panel').classList.remove('on'); $('#scrim').classList.remove('on'); $('#panel').setAttribute('aria-hidden','true'); }
+$('#openCart').onclick = () => openPanel('cart');
+$('#closePanel').onclick = $('#scrim').onclick = closePanel;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+function render(){ ({ cart: renderCart, form: renderForm })[view]?.(); }
+
+function renderCart(){
+  $('#pTitle').textContent = 'Tu carrito';
+  if (!cart.length){
+    $('#pBody').innerHTML = '<p class="state">Tu carrito está vacío.<br>Elige al menos ' + CONFIG.MIN_UNITS + ' tazones.</p>';
+    $('#pFoot').innerHTML = '<button class="ghost" onclick="closePanel()">Ver catálogo</button>';
+    return;
+  }
+  $('#pBody').innerHTML = cart.map((c, i) => { const p = byId(c.id); return `
+    <div class="item">
+      <img src="${esc(p.img)}" alt="" referrerpolicy="no-referrer">
+      <div><h4>${esc(p.name)}</h4>
+        <div class="sub">
+          <div class="qty"><button data-q="${i}" data-d="-1" aria-label="Menos">−</button><span>${c.qty}</span><button data-q="${i}" data-d="1" aria-label="Más">+</button></div>
+          <span class="price">${money(p.price * c.qty)}</span>
+        </div>
+        <input data-note="${i}" maxlength="150" placeholder="Nombre o frase (opcional)" value="${esc(c.note)}">
+        <button class="rm" data-rm="${i}">Quitar</button>
+      </div>
+    </div>`; }).join('');
+  const left = CONFIG.MIN_UNITS - units();
+  $('#pFoot').innerHTML = `
+    <div class="sum"><span>${units()} unidad${units() === 1 ? '' : 'es'}</span><b>${money(total())}</b></div>
+    ${left > 0 ? `<div class="warn">Agrega ${left} más para completar el mínimo de ${CONFIG.MIN_UNITS}.</div>` : ''}
+    <button class="cta" id="toForm" ${left > 0 ? 'disabled' : ''}>Continuar</button>`;
+  $('#toForm').onclick = () => { view = 'form'; render(); };
+}
+
+$('#pBody').addEventListener('click', e => {
+  const q = e.target.closest('[data-q]'), rm = e.target.closest('[data-rm]');
+  if (q){ const c = cart[+q.dataset.q]; c.qty = Math.max(1, c.qty + +q.dataset.d); saveCart(); renderCart(); }
+  if (rm){ cart.splice(+rm.dataset.rm, 1); saveCart(); renderCart(); }
+});
+$('#pBody').addEventListener('input', e => {
+  if (e.target.dataset.note != null){ cart[+e.target.dataset.note].note = e.target.value; saveCart(); }
+});
+
+/* ── Datos del pedido ── */
+function renderForm(){
+  $('#pTitle').textContent = 'Datos del pedido';
+  const saved = store.get('tazas_client', {});
+  const t = total();
+  $('#pBody').innerHTML = `
+    <form class="f" id="orderForm" novalidate>
+      <label>Nombre<input name="name" required maxlength="80" autocomplete="name" value="${esc(saved.name || '')}"></label>
+      <label>Teléfono (WhatsApp)<input name="phone" required maxlength="30" type="tel" inputmode="tel" autocomplete="tel" placeholder="+56 9 1234 5678" value="${esc(saved.phone || '')}"></label>
+      <label>¿Dónde lo recibes?
+        <select name="delivery" required>
+          <option value="">Elige una opción…</option>
+          <option>${esc(CONFIG.PICKUP)}</option>
+          <optgroup label="Entrega en estación">
+            ${CONFIG.STATIONS.map(s => `<option value="Estación ${esc(s)}">Estación ${esc(s)}</option>`).join('')}
+          </optgroup>
+        </select>
+      </label>
+      <label>Fotos para personalizar <small>Opcional · hasta 3 imágenes</small>
+        <input type="file" id="photoIn" accept="image/*" multiple>
+      </label>
+      <div class="thumbs" id="thumbs"></div>
+      <label>Comentarios <small>Opcional · fecha que lo necesitas, detalles del diseño…</small>
+        <textarea name="notes" maxlength="600"></textarea>
+      </label>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <ul class="resume">
+        ${cart.map(c => `<li><span>${c.qty} × ${esc(byId(c.id).name)}</span><span>${money(c.qty * byId(c.id).price)}</span></li>`).join('')}
+        <li style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px"><b>Total</b><b>${money(t)}</b></li>
+        <li><span>Abono por transferencia (${CONFIG.DEPOSIT_PCT}%)</span><span>${money(deposit(t))}</span></li>
+        <li><span>Resto al recibir</span><span>${money(t - deposit(t))}</span></li>
+      </ul>
+      <div id="formErr"></div>
+    </form>`;
+  if (saved.delivery) $('#orderForm').delivery.value = saved.delivery;
+  renderThumbs();
+  $('#photoIn').onchange = async e => {
+    for (const f of [...e.target.files].slice(0, 3 - photos.length)) {
+      try { photos.push(await resize(f)); } catch {}
+    }
+    e.target.value = ''; renderThumbs();
+  };
+  $('#pFoot').innerHTML = `<button class="cta" id="send">Confirmar pedido</button>
+    <button class="ghost" id="back">Volver al carrito</button>`;
+  $('#back').onclick = () => { view = 'cart'; render(); };
+  $('#send').onclick = submitOrder;
+}
+
+function renderThumbs(){
+  const box = $('#thumbs'); if (!box) return;
+  box.innerHTML = photos.map((p, i) => `<div><img src="${p}" alt="Foto ${i + 1}"><button type="button" data-ph="${i}" aria-label="Quitar foto">×</button></div>`).join('');
+  box.onclick = e => { const b = e.target.closest('[data-ph]'); if (b){ photos.splice(+b.dataset.ph, 1); renderThumbs(); } };
+}
+
+function resize(file, max = 1600){
+  return new Promise((ok, fail) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); ok(c.toDataURL('image/jpeg', .85));
+    };
+    img.onerror = fail; img.src = url;
+  });
+}
+
+async function submitOrder(){
+  const f = $('#orderForm'), err = $('#formErr'), btn = $('#send');
+  const data = Object.fromEntries(new FormData(f));
+  err.innerHTML = '';
+  const phoneDigits = (data.phone || '').replace(/\D/g, '');
+  if (!data.name.trim() || phoneDigits.length < 8 || !data.delivery){
+    err.innerHTML = '<div class="err">Completa tu nombre, un teléfono válido y dónde recibes el pedido.</div>'; return;
+  }
+  store.set('tazas_client', { name: data.name, phone: data.phone, delivery: data.delivery });
+  const payload = { ...data, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note })), photos };
+  btn.disabled = true; btn.textContent = photos.length ? 'Subiendo fotos…' : 'Enviando…';
+  try {
+    let res;
+    if (!CONFIG.API_URL){
+      await new Promise(r => setTimeout(r, 700));
+      const t = total();
+      res = { ok: true, id: 'T-DEMO', units: units(), total: t, deposit: deposit(t) };
+    } else {
+      const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+      res = await r.json();
+    }
+    if (!res.ok) throw new Error(res.error || 'Error desconocido');
+    cart = []; photos = []; saveCart();
+    renderDone(res, data);
+  } catch (e) {
+    err.innerHTML = `<div class="err">No pudimos registrar el pedido: ${esc(e.message)}. Revisa tu conexión e inténtalo otra vez.</div>`;
+    btn.disabled = false; btn.textContent = 'Confirmar pedido';
+  }
+}
+
+/* ── Confirmación ── */
+function renderDone(res, data){
+  $('#pTitle').textContent = 'Pedido recibido';
+  const bankText = Object.entries(CONFIG.BANK).map(([k, v]) => `${k}: ${v}`).join('\n') + `\nMonto: ${money(res.deposit)}\nAsunto: ${res.id}`;
+  const msg = `Hola, hice el pedido ${res.id} (${res.units} tazones, total ${money(res.total)}). Te envío el comprobante del abono de ${money(res.deposit)}.`;
+  $('#pBody').innerHTML = `
+    <div class="ok-ico">✓</div>
+    <p>Tu número de pedido es</p>
+    <div class="order-id">${esc(res.id)}</div>
+    <p style="color:var(--muted);margin-top:6px">${res.units} tazones · total ${money(res.total)} · ${esc(data.delivery)}</p>
+    <div class="step"><b>1</b><span>Transfiere el abono de <strong>${money(res.deposit)}</strong> indicando <strong>${esc(res.id)}</strong> en el asunto.</span></div>
+    <div class="bank"><dl>
+      ${Object.entries(CONFIG.BANK).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}
+      <dt>Monto</dt><dd>${money(res.deposit)}</dd>
+    </dl></div>
+    <div class="step"><b>2</b><span>Envía el comprobante. Al recibirlo comenzamos tu pedido y coordinamos la entrega.</span></div>
+    <div class="step"><b>3</b><span>Pagas los ${money(res.total - res.deposit)} restantes al recibir tus tazones.</span></div>`;
+  $('#pFoot').innerHTML = `
+    <button class="cta" id="copyBank">Copiar datos de transferencia</button>
+    <a class="wsp" target="_blank" rel="noopener" href="https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent(msg)}">Enviar comprobante por WhatsApp</a>`;
+  $('#copyBank').onclick = () => copy(bankText);
+}
+
+async function copy(text){
+  try { await navigator.clipboard.writeText(text); }
+  catch { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  toast('Datos copiados');
+}
+
+let tt;
+function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 1800); }
+
+saveCart();
+loadCatalog();
+</script>
 </body>
 </html>
