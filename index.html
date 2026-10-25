@@ -186,6 +186,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 footer{display:flex;align-items:center;gap:12px}
 footer img{width:44px;height:44px}
 
+/* Descripciones y detalle */
+.card .desc{font-size:.82rem;color:var(--muted);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .ph{cursor:pointer;border:0;padding:0;width:100%;display:block}
+.cat-desc{color:var(--muted);font-size:.92rem;margin-top:8px;max-width:640px}
+.cat-desc:empty{display:none}
+.detail-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--radius);background:#efe7da}
+.detail h3{font-size:1.4rem;line-height:1.1;margin-top:14px;letter-spacing:-.01em}
+.detail .price{font-size:1.2rem;color:var(--cobalt);display:block;margin-top:6px}
+.md{margin-top:12px;font-size:.95rem;color:#3b3842}
+.md p+p,.md ul{margin-top:8px}
+.md ul{padding-left:18px}
+.md li{margin:2px 0}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -231,6 +244,7 @@ footer img{width:44px;height:44px}
   <div class="sec-title"><h2>Diseños disponibles</h2><small id="count"></small></div>
   <div id="demoNote"></div>
   <div class="chips" id="chips" role="toolbar" aria-label="Categorías"></div>
+  <p class="cat-desc" id="catDesc"></p>
   <div class="grid" id="grid"></div>
 </main>
 
@@ -274,12 +288,25 @@ const CONFIG = {
 const $ = s => document.querySelector(s);
 const money = n => '$' + Math.round(n).toLocaleString('es-CL');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* Markdown mínimo y seguro: párrafos, listas con "- ", **negrita** y *cursiva* */
+function md(text){
+  const inline = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+  return String(text || '').split(/\n\s*\n/).map(block => {
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length && lines.every(l => /^[-*•]\s+/.test(l)))
+      return '<ul>' + lines.map(l => '<li>' + inline(l.replace(/^[-*•]\s+/, '')) + '</li>').join('') + '</ul>';
+    return lines.length ? '<p>' + lines.map(inline).join('<br>') + '</p>' : '';
+  }).join('');
+}
+const plain = t => String(t || '').replace(/[*#>•]/g, '').replace(/^\s*-\s+/gm, '').replace(/\s+/g, ' ').trim();
 const store = {
   get(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
   set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
 
 let products = [];
+let categories = [];        // [{name, desc}]
+let detailId = null;
 let cart = store.get('tazas_cart', []);   // [{id, qty, note}]
 let filter = 'Todos';
 let photos = [];                           // dataURLs redimensionadas
@@ -303,6 +330,8 @@ function demoProducts(){
   ];
   return designs.map(([name, category, color, emoji], i) => ({
     id: 'demo' + i, name, category, price: i > 5 ? 4000 : 3500,
+    desc: i === 0 ? 'Para quienes miran las estrellas antes del primer café.\n\n- Cerámica blanca 11 oz\n- Apto para microondas\n- **Impresión a todo color**' :
+          i === 6 ? 'Envíanos tu foto al hacer el pedido y la ajustamos al tazón.' : '',
     img: 'data:image/svg+xml,' + encodeURIComponent(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#efe7da"/>
        <rect x="95" y="110" width="170" height="200" rx="18" fill="#fff" stroke="#d8ccba" stroke-width="4"/>
@@ -316,6 +345,7 @@ async function loadCatalog(){
   $('#grid').innerHTML = Array(8).fill('<div class="skel"></div>').join('');
   if (!CONFIG.API_URL){
     products = demoProducts();
+    categories = [{ name: 'Personalizada', desc: 'Diseñamos el tazón con tu foto, nombre o frase.' }];
     $('#demoNote').innerHTML = '<div class="demo">Modo demostración: estos productos son de ejemplo. Pega la URL del Apps Script en <b>API_URL</b> para mostrar tu catálogo real.</div>';
   } else {
     try {
@@ -323,6 +353,7 @@ async function loadCatalog(){
       const d = await r.json();
       if (!d.ok) throw new Error(d.error);
       products = d.products;
+      categories = d.categories || [];
       if (d.minUnits) CONFIG.MIN_UNITS = d.minUnits;
       if (d.depositPct != null) CONFIG.DEPOSIT_PCT = d.depositPct;
     } catch (e) {
@@ -343,6 +374,8 @@ function renderChips(){
   $('#chips').style.display = cats.length > 2 ? 'flex' : 'none';
   $('#chips').innerHTML = cats.map(c =>
     `<button class="chip" aria-pressed="${c === filter}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+  const cd = categories.find(c => c.name === filter);
+  $('#catDesc').textContent = cd ? plain(cd.desc) : '';
 }
 
 function renderGrid(){
@@ -350,9 +383,10 @@ function renderGrid(){
   if (!list.length){ $('#grid').innerHTML = '<p class="state" style="grid-column:1/-1">Aún no hay productos aquí.</p>'; return; }
   $('#grid').innerHTML = list.map(p => `
     <article class="card">
-      <div class="ph"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">
-        ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}</div>
+      <button class="ph" data-detail="${esc(p.id)}" aria-label="Ver ${esc(p.name)}"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy" referrerpolicy="no-referrer">
+        ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}</button>
       <div class="body"><h3>${esc(p.name)}</h3>
+        ${p.desc ? `<p class="desc">${esc(plain(p.desc))}</p>` : ''}
         <div class="row"><span class="price">${money(p.price)}</span>
         <button class="add" data-add="${esc(p.id)}">Agregar</button></div></div>
     </article>`).join('');
@@ -363,6 +397,8 @@ $('#chips').addEventListener('click', e => {
   filter = b.dataset.cat; renderChips(); renderGrid();
 });
 $('#grid').addEventListener('click', e => {
+  const d = e.target.closest('[data-detail]');
+  if (d){ detailId = d.dataset.detail; openPanel('detail'); return; }
   const b = e.target.closest('[data-add]'); if (!b) return;
   addToCart(b.dataset.add);
   b.textContent = '✓ Listo'; b.classList.add('done');
@@ -390,7 +426,20 @@ $('#openCart').onclick = () => openPanel('cart');
 $('#closePanel').onclick = $('#scrim').onclick = closePanel;
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
 
-function render(){ ({ cart: renderCart, form: renderForm })[view]?.(); }
+function render(){ ({ cart: renderCart, form: renderForm, detail: renderDetail })[view]?.(); }
+
+function renderDetail(){
+  const p = byId(detailId); if (!p) return closePanel();
+  $('#pTitle').textContent = p.category || 'Diseño';
+  $('#pBody').innerHTML = `<div class="detail">
+    <img class="detail-img" src="${esc(p.img.replace('sz=w800', 'sz=w1200'))}" alt="${esc(p.name)}" referrerpolicy="no-referrer">
+    <h3>${esc(p.name)}</h3><span class="price">${money(p.price)}</span>
+    ${p.desc ? `<div class="md">${md(p.desc)}</div>` : ''}</div>`;
+  $('#pFoot').innerHTML = `<button class="cta" id="detAdd">Agregar al carrito</button>
+    <button class="ghost" id="detCart">Ver carrito (${units()})</button>`;
+  $('#detAdd').onclick = () => { addToCart(p.id); $('#detCart').textContent = `Ver carrito (${units()})`; };
+  $('#detCart').onclick = () => { view = 'cart'; render(); };
+}
 
 function renderCart(){
   $('#pTitle').textContent = 'Tu carrito';

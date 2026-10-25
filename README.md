@@ -29,6 +29,20 @@ Todo con tu **cuenta personal de Gmail**. Toma unos 15 minutos.
 
 Sin `API_URL` el sitio funciona en modo demostración, útil para probarlo antes.
 
+## Organizar el catálogo (tu panel de administración es Drive)
+```
+Catálogo tazas/
+├── Animales/                 ← subcarpeta = categoría
+│   ├── descripcion.txt       ← texto bajo el filtro "Animales" (opcional)
+│   ├── Gato astronauta_3500.jpg
+│   └── Gato astronauta.txt   ← descripción del producto (opcional)
+└── Frases/
+    └── Mejor profe_4000.png
+```
+- La descripción puede ser `.txt`, `.md` o un **Google Docs** con el mismo nombre (lo más cómodo desde el celular). El precio en el nombre del texto es opcional.
+- Admite `**negrita**`, `*cursiva*` y listas con `- ` al inicio de la línea.
+- Renombrar la carpeta cambia el nombre de la categoría; mover una foto la cambia de categoría.
+
 ## Uso diario
 - **Nuevo diseño:** súbelo a la carpeta. Aparece en máximo 10 minutos
   (o al instante abriendo `TU_URL/exec?action=catalog&fresh=1`).

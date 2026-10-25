@@ -10,6 +10,10 @@
  *   → producto "Nombre del diseño" a $3.500
  *   Si no lleva precio, se usa DEFAULT_PRICE.
  *   Subcarpetas dentro de la carpeta de catálogo = categorías.
+ *
+ * Descripciones: un .txt, .md o Google Docs con el mismo nombre que la foto
+ *   ("Gato astronauta.txt"). Uno llamado "descripcion" dentro de una subcarpeta
+ *   describe esa categoría. Admite **negrita**, *cursiva* y listas con "- ".
  */
 
 const CONFIG = {
@@ -21,7 +25,8 @@ const CONFIG = {
   DEPOSIT_PCT: 50,       // % de abono por transferencia
   SHEET_NAME: 'Pedidos',
   CACHE_SECONDS: 600,    // el catálogo se refresca cada 10 min
-  MAX_PHOTOS: 3
+  MAX_PHOTOS: 3,
+  MAX_DESC: 1500         // largo máximo de cada descripción
 };
 
 const HEADERS = ['Fecha', 'Pedido', 'Nombre', 'Teléfono', 'Entrega', 'Detalle',
@@ -34,8 +39,9 @@ function doGet(e) {
   const p = (e && e.parameter) || {};
   try {
     if (!p.action || p.action === 'catalog') {
+      const cat = getCatalog_(p.fresh === '1');
       return json_({ ok: true, minUnits: CONFIG.MIN_UNITS, depositPct: CONFIG.DEPOSIT_PCT,
-                     products: getCatalog_(p.fresh === '1') });
+                     products: cat.products, categories: cat.categories });
     }
     return json_({ ok: false, error: 'Acción desconocida' });
   } catch (err) {
@@ -57,7 +63,7 @@ function doPost(e) {
 
     // Los precios se recalculan aquí: nunca se confía en lo que manda el navegador.
     const byId = {};
-    getCatalog_(false).forEach(function (p) { byId[p.id] = p; });
+    getCatalog_(false).products.forEach(function (p) { byId[p.id] = p; });
 
     let units = 0, total = 0;
     const lines = [];
@@ -117,41 +123,78 @@ function doPost(e) {
 function getCatalog_(fresh) {
   const cache = CacheService.getScriptCache();
   if (!fresh) {
-    const hit = cache.get('catalog');
+    const hit = cache.get('catalog_v2');
     if (hit) return JSON.parse(hit);
   }
-  const products = [];
+  const products = [], categories = [];
   const root = DriveApp.getFolderById(CONFIG.CATALOG_FOLDER_ID);
   readFolder_(root, '', products);
   const subs = root.getFolders();
   while (subs.hasNext()) {
     const f = subs.next();
-    readFolder_(f, f.getName(), products);
+    const desc = readFolder_(f, f.getName(), products);
+    categories.push({ name: f.getName(), desc: desc });
   }
   products.sort(function (a, b) {
     return (a.category || '').localeCompare(b.category || '', 'es') || a.name.localeCompare(b.name, 'es');
   });
-  try { cache.put('catalog', JSON.stringify(products), CONFIG.CACHE_SECONDS); } catch (_) {}
-  return products;
+  categories.sort(function (a, b) { return a.name.localeCompare(b.name, 'es'); });
+  const out = { products: products, categories: categories };
+  try { cache.put('catalog_v2', JSON.stringify(out), CONFIG.CACHE_SECONDS); } catch (_) {}
+  return out;
 }
 
+/**
+ * Lee una carpeta: imágenes = productos; archivos de texto con el mismo nombre = descripciones.
+ * Textos aceptados: .txt, .md o un Google Docs. El precio en el nombre es opcional
+ * ("Gato astronauta.txt" sirve para "Gato astronauta_3500.jpg").
+ * Un texto llamado "descripcion" describe la categoría completa. Devuelve esa descripción.
+ */
 function readFolder_(folder, category, out) {
+  const images = [], texts = {};
   const files = folder.getFiles();
   while (files.hasNext()) {
     const f = files.next();
-    if (f.getMimeType().indexOf('image/') !== 0 || f.isTrashed()) continue;
-    const base = f.getName().replace(/\.[^.]+$/, '');
-    const m = base.match(/^(.*?)[\s_-]+\$?(\d{1,3}(?:[.,]?\d{3})*)$/);
-    const name = (m ? m[1] : base).replace(/_/g, ' ').trim();
-    const price = m ? Number(m[2].replace(/[.,]/g, '')) : CONFIG.DEFAULT_PRICE;
+    if (f.isTrashed()) continue;
+    const mime = f.getMimeType();
+    if (mime.indexOf('image/') === 0) images.push(f);
+    else if (isText_(f, mime)) texts[parseName_(f.getName()).key] = f;
+  }
+  images.forEach(function (f) {
+    const info = parseName_(f.getName());
+    const tf = texts[info.key];
     out.push({
       id: f.getId(),
-      name: name,
-      price: price,
+      name: info.name,
+      price: info.price,
       category: category,
+      desc: tf ? readText_(tf) : (f.getDescription() || '').slice(0, CONFIG.MAX_DESC),
       img: 'https://drive.google.com/thumbnail?id=' + f.getId() + '&sz=w800'
     });
-  }
+  });
+  const cat = texts['descripcion'] || texts['descripción'];
+  return cat ? readText_(cat) : '';
+}
+
+function parseName_(fileName) {
+  const base = fileName.replace(/\.(jpe?g|png|webp|gif|heic|txt|md|markdown)$/i, '');
+  const m = base.match(/^(.*?)[\s_-]+\$?(\d{1,3}(?:[.,]?\d{3})*)$/);
+  const name = (m ? m[1] : base).replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+  return { name: name, key: name.toLowerCase(),
+           price: m ? Number(m[2].replace(/[.,]/g, '')) : CONFIG.DEFAULT_PRICE };
+}
+
+function isText_(f, mime) {
+  return mime === MimeType.GOOGLE_DOCS || mime.indexOf('text/') === 0 || /\.(txt|md|markdown)$/i.test(f.getName());
+}
+
+function readText_(f) {
+  try {
+    const t = f.getMimeType() === MimeType.GOOGLE_DOCS
+      ? DocumentApp.openById(f.getId()).getBody().getText()
+      : f.getBlob().getDataAsString('UTF-8');
+    return t.replace(/^\uFEFF/, '').trim().slice(0, CONFIG.MAX_DESC);
+  } catch (e) { return ''; }
 }
 
 /* ───────────── Configuración inicial ───────────── */
@@ -162,8 +205,8 @@ function setup() {
   const root = DriveApp.getFolderById(CONFIG.CATALOG_FOLDER_ID);
   share_(root);
   DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID); // verifica que el ID sea válido
-  CacheService.getScriptCache().remove('catalog');
-  Logger.log('Listo. Hoja: ' + sh.getName() + ' · Productos: ' + getCatalog_(true).length);
+  CacheService.getScriptCache().remove('catalog_v2');
+  Logger.log('Listo. Hoja: ' + sh.getName() + ' · Productos: ' + getCatalog_(true).products.length);
 }
 
 function share_(folder) {
