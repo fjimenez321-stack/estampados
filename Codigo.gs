@@ -21,11 +21,13 @@ const CONFIG = {
   ORDERS_FOLDER_ID:  '1cuKOlwFcVWMmhl4BWhmPavD8sES35b14',
   NOTIFY_EMAIL: '',      // tu correo para recibir aviso de cada pedido ('' = sin aviso)
   MIN_UNITS: 2,          // pedido mínimo (unidades en total)
-  DEFAULT_PRICE: 3500,   // precio si el archivo no lo indica
+  DEFAULT_PRICE: 4000,   // precio si el archivo no lo indica
+  MIN_PRICE: 4000,       // ningún tazón baja de este precio, aunque el archivo diga menos
   DEPOSIT_PCT: 50,       // % de abono por transferencia
   SHEET_NAME: 'Pedidos',
   CACHE_SECONDS: 600,    // el catálogo se refresca cada 10 min
-  MAX_PHOTOS: 3,
+  MAX_PHOTOS: 6,
+  EXTRA_ELEMENT: 1000,   // recargo por tazón con más de una foto o frase
   MAX_DESC: 1500,
   MAX_IMAGES: 10,        // fotos máximas por producto        // largo máximo de cada descripción
   // Tipos de tazón que el cliente elige en el carrito (extra = recargo por unidad)
@@ -37,7 +39,16 @@ const CONFIG = {
       hint: 'Por defecto los tazones son blancos. Con esta opción el interior y el asa van en color: rojo, amarillo o azul.' },
     { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
   ],
-  COLORS: ['Rojo', 'Amarillo', 'Azul']   // para "Interior de color"
+  COLORS: ['Rojo', 'Amarillo', 'Azul'],  // para "Interior de color"
+  // Packs de precio fijo (aparecen primero en el catálogo). ivaPct: 0 si no cobras IVA.
+  PACKS: [
+    { id: 'pack:curso', name: 'Pack de curso', units: 30, price: 100000, ivaPct: 19,
+      img: 'img/profe.webp',
+      desc: '30 tazones clásicos personalizados, uno para cada estudiante o colega.\n\n' +
+            '- Mismo diseño con el nombre de cada uno, o diseños distintos\n' +
+            '- Ideal para fin de año, graduaciones y regalos de curso\n' +
+            '- Envía la lista de nombres al hacer el pedido' }
+  ]
 };
 
 const HEADERS = ['Fecha', 'Pedido', 'Nombre', 'Teléfono', 'Entrega', 'Detalle',
@@ -72,6 +83,7 @@ function doGet(e) {
       return json_({ ok: true, minUnits: CONFIG.MIN_UNITS, depositPct: CONFIG.DEPOSIT_PCT,
                      products: cat.products, categories: cat.categories,
                      variants: CONFIG.VARIANTS, colors: CONFIG.COLORS,
+                     packs: CONFIG.PACKS, extraElement: CONFIG.EXTRA_ELEMENT,
                      slots: readSlots_().filter(function (s) { return s.status !== 'Desactivado'; }).map(function (s) {
                        return { station: s.station, day: s.day, from: s.from, to: s.to, available: s.available };
                      }) });
@@ -102,18 +114,33 @@ function doPost(e) {
 
     let units = 0, total = 0;
     const lines = [];
+    const packs = {};
+    CONFIG.PACKS.forEach(function (pk) { packs[pk.id] = pk; });
     (data.items || []).forEach(function (it) {
-      const p = byId[it.id];
       const q = Math.floor(Number(it.qty));
+      const pk = packs[it.id];
+      if (pk) {                                      // pack de precio fijo
+        if (!(q > 0) || q > 20) return;
+        const iva = Math.round(pk.price * (pk.ivaPct || 0) / 100);
+        const note = clean_(it.note, 1500);
+        units += q * pk.units;
+        total += q * (pk.price + iva);
+        lines.push(q + ' × ' + pk.name + ' (' + pk.units + ' tazones) ($' + fmt_(pk.price) +
+                   (iva ? ' + IVA $' + fmt_(iva) : '') + ')' + (note ? ' — ' + note : ''));
+        return;
+      }
+      const p = byId[it.id];
       if (!p || !(q > 0) || q > 200) return;
       const v = CONFIG.VARIANTS.filter(function (x) { return x.key === it.variant; })[0] || CONFIG.VARIANTS[0];
       const color = v.key === 'color' && CONFIG.COLORS.indexOf(it.color) >= 0 ? it.color : '';
       if (v.key === 'color' && !color) throw new Error('Elige el color del tazón "' + p.name + '".');
-      const unit = p.price + v.extra;
+      const extra = it.extra ? CONFIG.EXTRA_ELEMENT : 0;
+      const unit = p.price + v.extra + extra;
       units += q;
       total += q * unit;
       const note = clean_(it.note, 150);
-      lines.push(q + ' × ' + p.name + ' [' + v.label + (color ? ' ' + color.toLowerCase() : '') + '] ($' + fmt_(unit) + ')' +
+      lines.push(q + ' × ' + p.name + ' [' + v.label + (color ? ' ' + color.toLowerCase() : '') +
+                 (extra ? ' + más de una foto/frase' : '') + '] ($' + fmt_(unit) + ')' +
                  (note ? ' — ' + note : ''));
     });
     if (!lines.length) throw new Error('El carrito está vacío o esos productos ya no están disponibles.');
@@ -261,7 +288,7 @@ function parseName_(fileName) {
   const m = base.match(/^(.*?)[\s_-]+\$?(\d{1,3}(?:[.,]?\d{3})*)$/);
   const name = (m ? m[1] : base).replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
   return { name: name, key: name.toLowerCase(),
-           price: m ? Number(m[2].replace(/[.,]/g, '')) : CONFIG.DEFAULT_PRICE };
+           price: Math.max(CONFIG.MIN_PRICE, m ? Number(m[2].replace(/[.,]/g, '')) : CONFIG.DEFAULT_PRICE) };
 }
 
 function isText_(f, mime) {

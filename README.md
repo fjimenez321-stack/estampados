@@ -5,7 +5,7 @@ Todo con tu **cuenta personal de Gmail**. Toma unos 15 minutos.
 ## 1. Drive
 1. Crea una carpeta **Catálogo tazas**. Sube ahí las fotos de tus diseños.
    - Nombre del archivo = nombre y precio: `Gato astronauta_3500.jpg`
-   - Sin precio → se usa $3.500.
+   - Sin precio → se usa $4.000. Ningún tazón baja de $4.000 (`MIN_PRICE`), aunque el archivo diga menos.
    - Subcarpetas (`Animales`, `Frases`…) = categorías del sitio.
 2. Crea otra carpeta **Pedidos tazas** (ahí quedan las fotos que suban los clientes). Esta NO se comparte.
 3. Copia el ID de cada carpeta: es lo que va después de `/folders/` en la URL.
@@ -71,6 +71,10 @@ El sitio se puede instalar en el celular (manifest + service worker):
 - **iPhone (Safari):** se muestra una nota con los pasos: Compartir → *Agregar a inicio*.
 
 Si cambias imágenes o archivos del sitio, sube el número de `VERSION` en `sw.js` (`tetazas-v2`, `v3`…) para que las apps instaladas tomen la copia nueva. La página y el catálogo se actualizan solos.
+
+## Precios especiales
+- **Más de una foto o frase en un tazón:** casilla en el carrito, +$1.000 por tazón (`EXTRA_ELEMENT`).
+- **Packs:** en `Codigo.gs` → `PACKS`. El *Pack de curso* son 30 tazones por $100.000 + IVA (19%) y aparece primero en el catálogo. Si no cobras IVA, pon `ivaPct: 0`. Para otro pack, agrega un elemento a la lista.
 
 ## Uso diario
 - **Nuevo diseño:** súbelo a la carpeta. Aparece en máximo 10 minutos

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Té-tazas</title>
-<meta name="description" content="Tazones personalizados desde $3.500. Entrega en estaciones o retiro en Recreo, Viña del Mar.">
+<meta name="description" content="Tazones personalizados desde $4.000. Entrega en estaciones o retiro en Recreo, Viña del Mar.">
 <link rel="icon" href="img/icono.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f6f1e8">
@@ -266,6 +266,13 @@ footer img.foot-logo{width:120px;height:auto}
 .thumbs-row button.on{opacity:1;outline-color:var(--cobalt)}
 .thumbs-row img{width:100%;height:100%;object-fit:cover}
 
+.psub{font-size:.78rem;color:var(--muted)}
+.chk{display:flex;align-items:center;gap:8px;font-size:.84rem;margin-top:8px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--cobalt);flex:none}
+.chk b{font-family:var(--mono);color:var(--cobalt);font-weight:700}
+.item textarea{margin-top:8px;width:100%;font-size:.85rem;padding:8px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bone);resize:vertical}
+.price small{font-size:.72em;color:var(--muted);font-weight:400}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -285,7 +292,7 @@ footer img.foot-logo{width:120px;height:auto}
   <div>
     <img class="hero-logo" src="img/logo-pincel.webp" alt="Té-tazas">
     <div class="eyebrow">Sublimados en Viña del Mar</div>
-    <h1>Tazones personalizados <span>desde $3.500</span></h1>
+    <h1>Tazones personalizados <span>desde $4.000</span></h1>
     <p>Elige tus diseños, agrégalos al carrito y deja tu pedido en un minuto. Si quieres tu propia foto o un nombre, lo indicas al pedir.</p>
     <div class="pills">
       <span class="pill" id="pillMin">Mínimo 2 unidades</span>
@@ -364,6 +371,11 @@ const CONFIG = {
     { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
   ],
   COLORS: ['Rojo', 'Amarillo', 'Azul'],
+  EXTRA_ELEMENT: 1000,       // recargo por tazón con más de una foto o frase
+  PACKS: [
+    { id: 'pack:curso', name: 'Pack de curso', units: 30, price: 100000, ivaPct: 19, img: 'img/profe.webp',
+      desc: '30 tazones clásicos personalizados, uno para cada estudiante o colega.\n\n- Mismo diseño con el nombre de cada uno, o diseños distintos\n- Ideal para fin de año, graduaciones y regalos de curso\n- Envía la lista de nombres al hacer el pedido' }
+  ],
   PICKUP: 'Retiro en Recreo, Viña del Mar',
   PICKUP_HOURS: 'Todos los días, 16:00 a 19:00',
   STATIONS: ['Puerto','Bellavista','Francia','Barón','Portales','Recreo','Miramar','Viña del Mar',
@@ -468,7 +480,7 @@ function demoProducts(){
        <rect x="95" y="150" width="170" height="110" fill="${color}"/></g>
        <text x="${flip ? 220 : 180}" y="225" font-size="64" text-anchor="middle">${emoji}</text></svg>`);
   return designs.map(([name, category, color, emoji], i) => ({
-    id: 'demo' + i, name, category, price: i > 5 ? 4000 : 3500,
+    id: 'demo' + i, name, category, price: i > 5 ? 4500 : 4000,
     imgs: i === 0 ? [pic(color, emoji), pic(color, emoji, true), pic('#1d1b22', '🚀')] : [pic(color, emoji)],
     desc: i === 0 ? 'Para quienes miran las estrellas antes del primer café.\n\n- Cerámica blanca 11 oz\n- Apto para microondas\n- **Impresión a todo color**' :
           i === 6 ? 'Envíanos tu foto al hacer el pedido y la ajustamos al tazón.' : '',
@@ -492,6 +504,8 @@ async function loadCatalog(){
       slots = d.slots || [];
       if (d.variants?.length) CONFIG.VARIANTS = d.variants;
       if (d.colors?.length) CONFIG.COLORS = d.colors;
+      if (Array.isArray(d.packs)) CONFIG.PACKS = d.packs;
+      if (d.extraElement != null) CONFIG.EXTRA_ELEMENT = d.extraElement;
       if (d.minUnits) CONFIG.MIN_UNITS = d.minUnits;
       if (d.depositPct != null) CONFIG.DEPOSIT_PCT = d.depositPct;
     } catch (e) {
@@ -503,6 +517,7 @@ async function loadCatalog(){
   $('#pillMin').textContent = 'Mínimo ' + CONFIG.MIN_UNITS + ' unidades';
   $('#howPct').textContent = CONFIG.DEPOSIT_PCT;
   $('#count').textContent = products.length + ' diseño' + (products.length === 1 ? '' : 's');
+  products = [...CONFIG.PACKS.map(pk => ({ ...pk, category: 'Packs', pack: true, imgs: [pk.img] })), ...products];
   cart = cart.filter(c => products.some(p => p.id === c.id));
   saveCart();
   renderChips(); renderGrid();
@@ -527,7 +542,7 @@ function renderGrid(){
         ${p.imgs?.length > 1 ? `<span class="nfotos">▣ ${p.imgs.length}</span>` : ''}</button>
       <div class="body"><h3>${esc(p.name)}</h3>
         ${p.desc ? `<p class="desc">${esc(plain(p.desc))}</p>` : ''}
-        <div class="row"><span class="price">${money(p.price)}</span>
+        <div class="row"><span class="price">${money(p.price)}${p.pack && p.ivaPct ? '<small> + IVA</small>' : ''}</span>
         <button class="add" data-add="${esc(p.id)}">Agregar</button></div></div>
     </article>`).join('');
 }
@@ -547,10 +562,19 @@ $('#grid').addEventListener('click', e => {
 
 /* ── Carrito ── */
 const byId = id => products.find(p => p.id === id);
-const units = () => cart.reduce((s, c) => s + c.qty, 0);
+const packTotal = p => p.price + Math.round(p.price * (p.ivaPct || 0) / 100);
+const units = () => cart.reduce((s, c) => s + c.qty * (byId(c.id)?.pack ? byId(c.id).units : 1), 0);
 const variant = c => CONFIG.VARIANTS.find(v => v.key === c.variant) || CONFIG.VARIANTS[0];
-const unitPrice = c => (byId(c.id)?.price || 0) + variant(c).extra;
-const variantText = c => variant(c).label + (variant(c).key === 'color' && c.color ? ' · ' + c.color.toLowerCase() : '');
+const unitPrice = c => {
+  const p = byId(c.id); if (!p) return 0;
+  return p.pack ? packTotal(p) : p.price + variant(c).extra + (c.extra ? CONFIG.EXTRA_ELEMENT : 0);
+};
+const variantText = c => {
+  const p = byId(c.id);
+  if (p?.pack) return p.units + ' tazones' + (p.ivaPct ? ' · IVA incluido' : '');
+  return variant(c).label + (variant(c).key === 'color' && c.color ? ' · ' + c.color.toLowerCase() : '') +
+         (c.extra ? ' · más de una foto o frase' : '');
+};
 const total = () => cart.reduce((s, c) => s + c.qty * unitPrice(c), 0);
 const deposit = t => Math.ceil(t * CONFIG.DEPOSIT_PCT / 100 / 100) * 100;
 function saveCart(){ store.set('tazas_cart', cart); $('#badge').textContent = units(); }
@@ -602,7 +626,8 @@ function renderDetail(){
   $('#pTitle').textContent = p.category || 'Diseño';
   $('#pBody').innerHTML = `<div class="detail">
     ${gallery(p)}
-    <h3>${esc(p.name)}</h3><span class="price">${money(p.price)}</span>
+    <h3>${esc(p.name)}</h3><span class="price">${money(p.price)}${p.pack && p.ivaPct ? ` + IVA <small>(${money(packTotal(p))} total)</small>` : ''}</span>
+    ${p.pack ? `<p class="vhint">${p.units} tazones · ${money(Math.round(p.price / p.units))} por tazón</p>` : ''}
     ${p.desc ? `<div class="md">${md(p.desc)}</div>` : ''}</div>`;
   $('#pFoot').innerHTML = `<button class="cta" id="detAdd">Agregar al carrito</button>
     <button class="ghost" id="detCart">Ver carrito (${units()})</button>`;
@@ -622,10 +647,16 @@ function renderCart(){
     <div class="item">
       <img src="${esc(p.img)}" alt="" referrerpolicy="no-referrer">
       <div><h4>${esc(p.name)}</h4>
+        ${p.pack ? `<small class="psub">${esc(variantText(c))}</small>` : ''}
         <div class="sub">
           <div class="qty"><button data-q="${i}" data-d="-1" aria-label="Menos">−</button><span>${c.qty}</span><button data-q="${i}" data-d="1" aria-label="Más">+</button></div>
           <span class="price">${money(unitPrice(c) * c.qty)}</span>
         </div>
+        ${p.pack ? `
+        <textarea data-note="${i}" maxlength="1500" rows="3" placeholder="Lista de nombres o detalle del diseño (también puedes enviarla después por WhatsApp)">${esc(c.note)}</textarea>
+        <button class="rm" data-rm="${i}">Quitar</button>
+      </div>
+    </div>` : `
         <div class="opts">
           <select data-var="${i}" aria-label="Tipo de tazón">${CONFIG.VARIANTS.map(v =>
             `<option value="${esc(v.key)}" ${v.key === variant(c).key ? 'selected' : ''}>${esc(v.label)}${v.extra ? ' +' + money(v.extra) : ''}</option>`).join('')}</select>
@@ -634,11 +665,12 @@ function renderCart(){
         </div>
         ${variant(c).hint ? `<p class="vhint">${esc(variant(c).hint)}</p>` : ''}
         <input data-note="${i}" maxlength="150" placeholder="Nombre o frase (opcional)" value="${esc(c.note)}">
+        <label class="chk"><input type="checkbox" data-extra="${i}" ${c.extra ? 'checked' : ''}> Más de una foto o frase en el tazón <b>+${money(CONFIG.EXTRA_ELEMENT)}</b></label>
         <button class="rm" data-rm="${i}">Quitar</button>
       </div>
-    </div>`; }).join('');
+    </div>`}`; }).join('');
   const left = CONFIG.MIN_UNITS - units();
-  const noColor = cart.some(c => variant(c).key === 'color' && !c.color);
+  const noColor = cart.some(c => !byId(c.id)?.pack && variant(c).key === 'color' && !c.color);
   $('#pFoot').innerHTML = `
     ${noColor ? '<div class="warn">Elige el color de los tazones con interior de color.</div>' : ''}
     <div class="sum"><span>${units()} unidad${units() === 1 ? '' : 'es'}</span><b>${money(total())}</b></div>
@@ -655,6 +687,7 @@ $('#pBody').addEventListener('click', e => {
 $('#pBody').addEventListener('change', e => {
   const t = e.target;
   if (t.dataset.var != null){ const c = cart[+t.dataset.var]; c.variant = t.value; if (t.value !== 'color') c.color = ''; saveCart(); renderCart(); }
+  if (t.dataset.extra != null){ cart[+t.dataset.extra].extra = t.checked; saveCart(); renderCart(); }
   if (t.dataset.color != null){ cart[+t.dataset.color].color = t.value; saveCart(); renderCart(); }
 });
 $('#pBody').addEventListener('input', e => {
@@ -683,7 +716,7 @@ function renderForm(){
       <label id="slotWrap" hidden>Horario de entrega
         <select name="slot"></select>
       </label>
-      <label>Fotos para personalizar <small>Opcional · hasta 3 imágenes</small>
+      <label>Fotos para personalizar <small>Opcional · hasta 6 imágenes</small>
         <input type="file" id="photoIn" accept="image/*" multiple>
       </label>
       <div class="thumbs" id="thumbs"></div>
@@ -715,7 +748,7 @@ function renderForm(){
   syncSlot();
   renderThumbs();
   $('#photoIn').onchange = async e => {
-    for (const f of [...e.target.files].slice(0, 3 - photos.length)) {
+    for (const f of [...e.target.files].slice(0, 6 - photos.length)) {
       try { photos.push(await resize(f)); } catch {}
     }
     e.target.value = ''; renderThumbs();
@@ -761,7 +794,7 @@ async function submitOrder(){
   }
   store.set('tazas_client', { name: data.name, phone: data.phone, delivery: data.delivery });
   if (!station) data.delivery += ' · ' + CONFIG.PICKUP_HOURS;
-  const payload = { ...data, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note, variant: variant(c).key, color: c.color || '' })), photos };
+  const payload = { ...data, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note, variant: variant(c).key, color: c.color || '', extra: !!c.extra })), photos };
   btn.disabled = true; btn.textContent = photos.length ? 'Subiendo fotos…' : 'Enviando…';
   try {
     let res;
