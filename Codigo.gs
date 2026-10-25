@@ -206,7 +206,8 @@ function setup() {
   share_(root);
   DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID); // verifica que el ID sea válido
   CacheService.getScriptCache().remove('catalog_v2');
-  Logger.log('Listo. Hoja: ' + sh.getName() + ' · Productos: ' + getCatalog_(true).products.length);
+  Logger.log('Listo. Planilla: ' + getSpreadsheet_().getUrl());
+  Logger.log('Hoja: ' + sh.getName() + ' · Productos: ' + getCatalog_(true).products.length);
 }
 
 function share_(folder) {
@@ -219,8 +220,22 @@ function share_(folder) {
   while (subs.hasNext()) share_(subs.next());
 }
 
+/**
+ * Abre la Sheet de pedidos por su ID (guardado por setup). Cuando el sitio llama al
+ * script no existe una hoja "activa", por eso no se puede usar getActiveSpreadsheet ahí.
+ */
+function getSpreadsheet_() {
+  const props = PropertiesService.getScriptProperties();
+  const id = props.getProperty('SHEET_ID');
+  if (id) return SpreadsheetApp.openById(id);
+  let ss = SpreadsheetApp.getActiveSpreadsheet();          // existe al ejecutar desde el editor
+  if (!ss) ss = SpreadsheetApp.create('Pedidos tazas');     // script independiente: crea una
+  props.setProperty('SHEET_ID', ss.getId());
+  return ss;
+}
+
 function getSheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   let sh = ss.getSheetByName(CONFIG.SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(CONFIG.SHEET_NAME);
