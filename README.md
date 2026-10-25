@@ -43,6 +43,19 @@ Catálogo tazas/
 - Admite `**negrita**`, `*cursiva*` y listas con `- ` al inicio de la línea.
 - Renombrar la carpeta cambia el nombre de la categoría; mover una foto la cambia de categoría.
 
+## Horarios de entrega (hoja "Horarios" de tu Sheet)
+`setup` crea la hoja con los horarios iniciales. Cada fila es un horario:
+
+| Estación | Día | Desde | Hasta | Estado |
+|---|---|---|---|---|
+| Villa Alemana | Lunes | 16:00 | 16:30 | Disponible |
+| Todas | Sábado | 08:00 | 09:00 | Disponible |
+
+- **Todas** = vale para cualquier estación sin horarios propios. Si una estación tiene filas propias (como Villa Alemana), solo se ofrecen esas.
+- Cuando un cliente reserva, la fila pasa a **Reservado** con el número de pedido y desaparece del sitio.
+- Para liberarlo, cámbialo a **Disponible**. **Desactivado** lo oculta sin reservarlo (vacaciones, un día que no puedes).
+- Para agregar horarios o estaciones, añade filas. Escribe el nombre de la estación igual que en el sitio.
+
 ## Uso diario
 - **Nuevo diseño:** súbelo a la carpeta. Aparece en máximo 10 minutos
   (o al instante abriendo `TU_URL/exec?action=catalog&fresh=1`).

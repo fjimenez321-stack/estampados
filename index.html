@@ -200,6 +200,13 @@ footer img{width:44px;height:44px}
 .md li{margin:2px 0}
 
 /* Horarios */
+.hgroup+.hgroup{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.hgroup b{font-size:.85rem;display:block;margin-bottom:4px}
+.hrow{display:flex;gap:8px;align-items:baseline;padding:3px 0;font-size:.88rem}
+.hrow>span{width:76px;flex:none;color:var(--muted)}
+.hrow div{display:flex;flex-wrap:wrap;gap:4px}
+.slot{font-family:var(--mono);font-size:.74rem;padding:2px 7px;border-radius:6px;background:var(--cobalt-soft);color:var(--cobalt)}
+.slot.off{background:#efe9df;color:#aaa29a;text-decoration:line-through}
 .hours{max-width:1100px;margin:0 auto;padding:12px 16px 0;display:grid;gap:10px;position:relative;z-index:1}
 @media(min-width:720px){.hours{grid-template-columns:1.3fr 1fr}}
 .hours-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
@@ -256,7 +263,7 @@ footer img{width:44px;height:44px}
 </section>
 
 <section class="hours" aria-label="Horarios">
-  <div class="hours-card"><h3><i>🚉</i>Entregas en estaciones</h3><ul id="hoursList"></ul></div>
+  <div class="hours-card"><h3><i>🚉</i>Entregas en estaciones</h3><div id="hoursList"><small>Cargando horarios…</small></div></div>
   <div class="hours-card"><h3><i>🏠</i>Retiro en Recreo</h3><span class="big" id="pickHours"></span><small>Coordinamos la dirección al confirmar tu pedido.</small></div>
 </section>
 
@@ -292,12 +299,6 @@ const CONFIG = {
   DEPOSIT_PCT: 50,           // ídem
   PICKUP: 'Retiro en Recreo, Viña del Mar',
   PICKUP_HOURS: 'Todos los días, 16:00 a 19:00',
-  DELIVERY_HOURS: [            // días y horarios de entrega en estaciones
-    ['Martes',  '16:00 a 17:00'],
-    ['Viernes', '16:00 a 17:00'],
-    ['Sábado',  '8:00 a 13:00'],
-    ['Domingo', '8:00 a 13:00']
-  ],
   STATIONS: ['Puerto','Bellavista','Francia','Barón','Portales','Recreo','Miramar','Viña del Mar',
              'Hospital','Chorrillos','El Salto','Valencia','Quilpué','El Sol','El Belloto',
              'Las Américas','La Concepción','Villa Alemana','Sargento Aldea','Peñablanca','Limache'],
@@ -333,6 +334,7 @@ const store = {
 
 let products = [];
 let categories = [];        // [{name, desc}]
+let slots = [];             // [{station, day, from, to, available}] desde la hoja Horarios
 let detailId = null;
 let cart = store.get('tazas_cart', []);   // [{id, qty, note}]
 let filter = 'Todos';
@@ -343,8 +345,40 @@ document.title = CONFIG.STORE_NAME;
 $('#storeName').textContent = $('#footName').textContent = CONFIG.STORE_NAME;
 
 /* Horarios */
-$('#hoursList').innerHTML = CONFIG.DELIVERY_HOURS.map(([d, h]) => `<li><span>${esc(d)}</span><span>${esc(h)}</span></li>`).join('');
 $('#pickHours').textContent = CONFIG.PICKUP_HOURS;
+
+/* ── Horarios ── */
+const DAYS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const dayIdx = d => { const i = DAYS.indexOf(d); return i < 0 ? 9 : i; };
+const slotKey = s => [s.station, s.day, s.from].join('|');
+const sortSlots = arr => arr.slice().sort((a, b) => dayIdx(a.day) - dayIdx(b.day) || a.from.localeCompare(b.from));
+
+function demoSlots(){
+  const rows = [['Todas','Martes','16:00','17:00'],['Todas','Viernes','16:00','17:00'],
+    ...['Sábado','Domingo'].flatMap(d => [8,9,10,11,12].map(h => ['Todas', d, String(h).padStart(2,'0') + ':00', String(h + 1).padStart(2,'0') + ':00'])),
+    ['Villa Alemana','Lunes','16:00','16:30'],['Villa Alemana','Martes','15:00','16:00'],['Villa Alemana','Miércoles','17:00','17:30'],
+    ['Villa Alemana','Jueves','16:00','16:30'],['Villa Alemana','Viernes','15:00','15:30']];
+  return rows.map(([station, day, from, to], i) => ({ station, day, from, to, available: i !== 3 }));
+}
+
+/** Horarios que valen para una estación: los propios si tiene, si no los de "Todas". */
+function slotsFor(station){
+  const own = slots.some(s => s.station === station);
+  return sortSlots(slots.filter(s => own ? s.station === station : s.station === 'Todas'));
+}
+
+function renderHours(){
+  const groups = [...new Set(slots.map(s => s.station))].sort((a, b) => (a === 'Todas') - (b === 'Todas') || a.localeCompare(b, 'es'));
+  if (!groups.length){ $('#hoursList').innerHTML = '<small>Sin horarios publicados por ahora.</small>'; return; }
+  $('#hoursList').innerHTML = groups.map(g => {
+    const list = sortSlots(slots.filter(s => s.station === g));
+    const days = [...new Set(list.map(s => s.day))];
+    const label = g === 'Todas' ? (groups.length > 1 ? 'Demás estaciones' : 'Todas las estaciones') : 'Estación ' + g;
+    return `<div class="hgroup"><b>${esc(label)}</b>${days.map(d => `<div class="hrow"><span>${esc(d)}</span><div>${
+      list.filter(s => s.day === d).map(s => `<span class="slot${s.available ? '' : ' off'}" title="${s.available ? 'Disponible' : 'Reservado'}">${esc(s.from)}–${esc(s.to)}</span>`).join('')
+    }</div></div>`).join('')}</div>`;
+  }).join('');
+}
 
 /* Cinta decorativa de tazones (se duplica para el desplazamiento infinito) */
 const STRIP = ['montanas','flores','gamer','cafe','astronauta','ciudad','calavera','nieve','cumple',
@@ -377,6 +411,7 @@ async function loadCatalog(){
   if (!CONFIG.API_URL){
     products = demoProducts();
     categories = [{ name: 'Personalizada', desc: 'Diseñamos el tazón con tu foto, nombre o frase.' }];
+    slots = demoSlots();
     $('#demoNote').innerHTML = '<div class="demo">Modo demostración: estos productos son de ejemplo. Pega la URL del Apps Script en <b>API_URL</b> para mostrar tu catálogo real.</div>';
   } else {
     try {
@@ -385,6 +420,7 @@ async function loadCatalog(){
       if (!d.ok) throw new Error(d.error);
       products = d.products;
       categories = d.categories || [];
+      slots = d.slots || [];
       if (d.minUnits) CONFIG.MIN_UNITS = d.minUnits;
       if (d.depositPct != null) CONFIG.DEPOSIT_PCT = d.depositPct;
     } catch (e) {
@@ -392,6 +428,7 @@ async function loadCatalog(){
       return;
     }
   }
+  renderHours();
   $('#pillMin').textContent = 'Mínimo ' + CONFIG.MIN_UNITS + ' unidades';
   $('#howPct').textContent = CONFIG.DEPOSIT_PCT;
   $('#count').textContent = products.length + ' diseño' + (products.length === 1 ? '' : 's');
@@ -527,11 +564,8 @@ function renderForm(){
         </select>
       </label>
       <p class="hint" id="slotHint"></p>
-      <label id="slotWrap" hidden>Día de entrega
-        <select name="slot">
-          <option value="">Elige un día…</option>
-          ${CONFIG.DELIVERY_HOURS.map(([d, h]) => `<option value="${esc(d + ' ' + h)}">${esc(d)} · ${esc(h)}</option>`).join('')}
-        </select>
+      <label id="slotWrap" hidden>Horario de entrega
+        <select name="slot"></select>
       </label>
       <label>Fotos para personalizar <small>Opcional · hasta 3 imágenes</small>
         <input type="file" id="photoIn" accept="image/*" multiple>
@@ -552,10 +586,15 @@ function renderForm(){
   const form = $('#orderForm');
   const syncSlot = () => {
     const v = form.delivery.value, station = v.startsWith('Estación');
-    $('#slotWrap').hidden = !station;
-    $('#slotHint').textContent = v === CONFIG.PICKUP ? 'Horario de retiro: ' + CONFIG.PICKUP_HOURS + '.' : '';
+    const free = station ? slotsFor(v.replace(/^Estación /, '')).filter(s => s.available) : [];
+    $('#slotWrap').hidden = !station || !free.length;
+    form.slot.innerHTML = '<option value="">Elige un horario…</option>' +
+      free.map(s => `<option value="${esc(slotKey(s))}">${esc(s.day)} · ${esc(s.from)} a ${esc(s.to)}</option>`).join('');
+    $('#slotHint').textContent = v === CONFIG.PICKUP ? 'Horario de retiro: ' + CONFIG.PICKUP_HOURS + '.'
+      : station && !free.length ? 'Por ahora no quedan horarios libres en esta estación. Elige otra o retiro en Recreo.' : '';
   };
   form.delivery.onchange = syncSlot;
+  syncSlotOpts = syncSlot;
   if (saved.delivery) form.delivery.value = saved.delivery;
   syncSlot();
   renderThumbs();
@@ -602,12 +641,10 @@ async function submitOrder(){
   }
   const station = data.delivery.startsWith('Estación');
   if (station && !data.slot){
-    err.innerHTML = '<div class="err">Elige el día de entrega en la estación.</div>'; return;
+    err.innerHTML = '<div class="err">Elige un horario de entrega disponible.</div>'; return;
   }
   store.set('tazas_client', { name: data.name, phone: data.phone, delivery: data.delivery });
-  const delivery = station ? data.delivery + ' · ' + data.slot : data.delivery + ' · ' + CONFIG.PICKUP_HOURS;
-  delete data.slot;
-  data.delivery = delivery;
+  if (!station) data.delivery += ' · ' + CONFIG.PICKUP_HOURS;
   const payload = { ...data, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note })), photos };
   btn.disabled = true; btn.textContent = photos.length ? 'Subiendo fotos…' : 'Enviando…';
   try {
@@ -615,18 +652,36 @@ async function submitOrder(){
     if (!CONFIG.API_URL){
       await new Promise(r => setTimeout(r, 700));
       const t = total();
-      res = { ok: true, id: 'T-DEMO', units: units(), total: t, deposit: deposit(t) };
+      const sl = station && slots.find(s => slotKey(s) === data.slot);
+      if (sl) sl.available = false;
+      res = { ok: true, id: 'T-DEMO', units: units(), total: t, deposit: deposit(t),
+              delivery: sl ? `${data.delivery} · ${sl.day} ${sl.from}–${sl.to}` : data.delivery };
     } else {
       const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
       res = await r.json();
     }
     if (!res.ok) throw new Error(res.error || 'Error desconocido');
     cart = []; photos = []; saveCart();
+    if (res.delivery) data.delivery = res.delivery;
     renderDone(res, data);
+    refreshSlots();
   } catch (e) {
+    if (/horario/i.test(e.message)){            // alguien lo tomó antes: recarga los libres
+      await refreshSlots(); syncSlotOpts();
+      err.innerHTML = `<div class="err">${esc(e.message)}</div>`;
+      btn.disabled = false; btn.textContent = 'Confirmar pedido'; return;
+    }
     err.innerHTML = `<div class="err">No pudimos registrar el pedido: ${esc(e.message)}. Revisa tu conexión e inténtalo otra vez.</div>`;
     btn.disabled = false; btn.textContent = 'Confirmar pedido';
   }
+}
+
+let syncSlotOpts = () => {};
+async function refreshSlots(){
+  if (CONFIG.API_URL){
+    try { const d = await (await fetch(CONFIG.API_URL + '?action=catalog')).json(); if (d.ok) slots = d.slots || []; } catch {}
+  }
+  renderHours();
 }
 
 /* ── Confirmación ── */

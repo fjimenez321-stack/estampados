@@ -33,6 +33,24 @@ const HEADERS = ['Fecha', 'Pedido', 'Nombre', 'Teléfono', 'Entrega', 'Detalle',
                  'Unidades', 'Total', 'Abono', 'Notas', 'Fotos', 'Estado'];
 const ESTADOS = ['Pendiente de abono', 'Abonado', 'En producción', 'Listo', 'Entregado', 'Cancelado'];
 
+/* Horarios de entrega en estaciones: se administran en la hoja "Horarios".
+   Estación "Todas" = vale para cualquier estación que no tenga horarios propios.
+   Al reservarse, el horario pasa a "Reservado" y desaparece del sitio hasta que
+   lo vuelvas a poner en "Disponible". "Desactivado" lo oculta sin reservarlo. */
+const SLOTS_SHEET = 'Horarios';
+const SLOT_HEADERS = ['Estación', 'Día', 'Desde', 'Hasta', 'Estado', 'Pedido', 'Cliente'];
+const SLOT_ESTADOS = ['Disponible', 'Reservado', 'Desactivado'];
+const SLOT_SEED = [
+  ['Todas', 'Martes', '16:00', '17:00'], ['Todas', 'Viernes', '16:00', '17:00'],
+  ['Todas', 'Sábado', '08:00', '09:00'], ['Todas', 'Sábado', '09:00', '10:00'], ['Todas', 'Sábado', '10:00', '11:00'],
+  ['Todas', 'Sábado', '11:00', '12:00'], ['Todas', 'Sábado', '12:00', '13:00'],
+  ['Todas', 'Domingo', '08:00', '09:00'], ['Todas', 'Domingo', '09:00', '10:00'], ['Todas', 'Domingo', '10:00', '11:00'],
+  ['Todas', 'Domingo', '11:00', '12:00'], ['Todas', 'Domingo', '12:00', '13:00'],
+  ['Villa Alemana', 'Lunes', '16:00', '16:30'], ['Villa Alemana', 'Martes', '15:00', '16:00'],
+  ['Villa Alemana', 'Miércoles', '17:00', '17:30'], ['Villa Alemana', 'Jueves', '16:00', '16:30'],
+  ['Villa Alemana', 'Viernes', '15:00', '15:30']
+];
+
 /* ───────────── Rutas ───────────── */
 
 function doGet(e) {
@@ -41,7 +59,10 @@ function doGet(e) {
     if (!p.action || p.action === 'catalog') {
       const cat = getCatalog_(p.fresh === '1');
       return json_({ ok: true, minUnits: CONFIG.MIN_UNITS, depositPct: CONFIG.DEPOSIT_PCT,
-                     products: cat.products, categories: cat.categories });
+                     products: cat.products, categories: cat.categories,
+                     slots: readSlots_().filter(function (s) { return s.status !== 'Desactivado'; }).map(function (s) {
+                       return { station: s.station, day: s.day, from: s.from, to: s.to, available: s.available };
+                     }) });
     }
     return json_({ ok: false, error: 'Acción desconocida' });
   } catch (err) {
@@ -57,7 +78,9 @@ function doPost(e) {
 
     const name = clean_(data.name, 80);
     const phone = clean_(data.phone, 30);
-    const delivery = clean_(data.delivery, 80);
+    let delivery = clean_(data.delivery, 80);
+    const isStation = /^Estación /.test(delivery);
+    if (isStation && !data.slot) throw new Error('Elige un horario de entrega.');
     const notes = clean_(data.notes, 600);
     if (!name || !phone || !delivery) throw new Error('Faltan nombre, teléfono o punto de entrega.');
 
@@ -81,10 +104,17 @@ function doPost(e) {
     const deposit = Math.ceil(total * CONFIG.DEPOSIT_PCT / 100 / 100) * 100;
 
     lock.waitLock(20000);
+    let slot = null;
+    if (isStation) {
+      slot = findSlot_(delivery.replace(/^Estación /, ''), String(data.slot));
+      if (!slot) throw new Error('Ese horario ya no está disponible. Elige otro, por favor.');
+      delivery = 'Estación ' + delivery.replace(/^Estación /, '') + ' · ' + slot.day + ' ' + slot.from + '–' + slot.to;
+    }
     const props = PropertiesService.getScriptProperties();
     const n = Number(props.getProperty('ORDER_SEQ') || 0) + 1;
     props.setProperty('ORDER_SEQ', String(n));
     const id = 'T-' + String(n).padStart(4, '0');
+    if (slot) getSlotsSheet_().getRange(slot.row, 5, 1, 3).setValues([['Reservado', id, name]]);
 
     let photosUrl = '';
     const photos = (data.photos || []).slice(0, CONFIG.MAX_PHOTOS);
@@ -111,7 +141,7 @@ function doPost(e) {
       } catch (mailErr) { /* el pedido ya quedó guardado */ }
     }
 
-    return json_({ ok: true, id: id, units: units, total: total, deposit: deposit });
+    return json_({ ok: true, id: id, units: units, total: total, deposit: deposit, delivery: delivery });
   } catch (err) {
     try { lock.releaseLock(); } catch (_) {}
     return json_({ ok: false, error: String(err.message || err) });
@@ -197,11 +227,56 @@ function readText_(f) {
   } catch (e) { return ''; }
 }
 
+/* ───────────── Horarios ───────────── */
+
+function readSlots_() {
+  const sh = getSlotsSheet_();
+  const last = sh.getLastRow();
+  if (last < 2) return [];
+  return sh.getRange(2, 1, last - 1, 5).getDisplayValues().map(function (r, i) {
+    return { row: i + 2, station: r[0].trim(), day: r[1].trim(), from: r[2].trim(), to: r[3].trim(),
+             status: r[4].trim(), available: r[4].trim() === 'Disponible' };
+  }).filter(function (s) { return s.station && s.day && s.from; });
+}
+
+/** Busca un horario libre para la estación. Si la estación tiene horarios propios, solo valen esos. */
+function findSlot_(station, key) {
+  const all = readSlots_();
+  const own = all.some(function (s) { return s.station === station; });
+  return all.filter(function (s) {
+    return s.available && (own ? s.station === station : s.station === 'Todas') &&
+           [s.station, s.day, s.from].join('|') === key;
+  })[0] || null;
+}
+
+function getSlotsSheet_() {
+  const ss = getSpreadsheet_();
+  let sh = ss.getSheetByName(SLOTS_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(SLOTS_SHEET);
+    sh.getRange('C:D').setNumberFormat('@');              // horas como texto: "16:00"
+    sh.getRange(1, 1, 1, SLOT_HEADERS.length).setValues([SLOT_HEADERS])
+      .setFontWeight('bold').setBackground('#e5eafc');
+    sh.setFrozenRows(1);
+    sh.getRange(2, 1, SLOT_SEED.length, 5).setValues(SLOT_SEED.map(function (r) { return r.concat('Disponible'); }));
+    sh.getRange(2, 5, 999, 1).setDataValidation(
+      SpreadsheetApp.newDataValidation().requireValueInList(SLOT_ESTADOS, true).build());
+    const rules = [['Disponible', '#d9f2e4'], ['Reservado', '#fde2d6'], ['Desactivado', '#eeeeee']].map(function (c) {
+      return SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo(c[0]).setBackground(c[1])
+        .setRanges([sh.getRange('E2:E1000')]).build();
+    });
+    sh.setConditionalFormatRules(rules);
+    sh.setColumnWidth(1, 130);
+  }
+  return sh;
+}
+
 /* ───────────── Configuración inicial ───────────── */
 
 /** Ejecuta esta función UNA vez desde el editor (y de nuevo si una foto no se ve). */
 function setup() {
   const sh = getSheet_();
+  getSlotsSheet_();
   const root = DriveApp.getFolderById(CONFIG.CATALOG_FOLDER_ID);
   share_(root);
   DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID); // verifica que el ID sea válido
