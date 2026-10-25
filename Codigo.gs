@@ -42,6 +42,16 @@ const CONFIG = {
     { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
   ],
   COLORS: ['Rojo', 'Amarillo', 'Azul'],  // para "Interior de color"
+  // Despacho a domicilio: solo para pedidos con productos desde HOME_MIN.
+  // fee = costo del despacho a esa comuna. Agrega, quita o cambia comunas aquí.
+  HOME_MIN: 10000,
+  HOME_ZONES: [
+    { name: 'Villa Alemana', fee: 2000 },
+    { name: 'Quilpué',       fee: 2500 },
+    { name: 'Viña del Mar',  fee: 3000 },
+    { name: 'Valparaíso',    fee: 3500 },
+    { name: 'Limache',       fee: 3500 }
+  ],
   // Packs de precio fijo (aparecen primero en el catálogo). ivaPct: 0 si no cobras IVA.
   PACKS: [
     { id: 'pack:curso', name: 'Pack de curso', units: 30, price: 100000, ivaPct: 19,
@@ -85,7 +95,8 @@ function doGet(e) {
       return json_({ ok: true, minUnits: CONFIG.MIN_UNITS, depositPct: CONFIG.DEPOSIT_PCT,
                      products: cat.products, categories: cat.categories,
                      variants: CONFIG.VARIANTS, colors: CONFIG.COLORS,
-                     packs: CONFIG.PACKS, extraElement: CONFIG.EXTRA_ELEMENT, customPrice: CONFIG.CUSTOM_PRICE,
+                     packs: CONFIG.PACKS, homeMin: CONFIG.HOME_MIN, homeZones: CONFIG.HOME_ZONES,
+                     extraElement: CONFIG.EXTRA_ELEMENT, customPrice: CONFIG.CUSTOM_PRICE,
                      slots: readSlots_().filter(function (s) { return s.status !== 'Desactivado'; }).map(function (s) {
                        return { station: s.station, day: s.day, from: s.from, to: s.to, available: s.available };
                      }) });
@@ -148,6 +159,20 @@ function doPost(e) {
     });
     if (!lines.length) throw new Error('El carrito está vacío o esos productos ya no están disponibles.');
     if (units < CONFIG.MIN_UNITS) throw new Error('El pedido mínimo es de ' + CONFIG.MIN_UNITS + ' unidades.');
+
+    // Despacho a domicilio: comuna válida, dirección y monto mínimo en productos
+    if (/^Domicilio /.test(delivery)) {
+      const comuna = delivery.replace(/^Domicilio /, '');
+      const zone = (CONFIG.HOME_ZONES || []).filter(function (z) { return z.name === comuna; })[0];
+      if (!zone) throw new Error('No hacemos despacho a esa comuna. Elige otra opción de entrega.');
+      if (total < CONFIG.HOME_MIN)
+        throw new Error('El despacho a domicilio es para pedidos desde $' + fmt_(CONFIG.HOME_MIN) + '.');
+      const address = clean_(data.address, 150);
+      if (address.length < 5) throw new Error('Escribe la dirección de despacho.');
+      total += zone.fee;
+      lines.push('Despacho a domicilio — ' + zone.name + ' ($' + fmt_(zone.fee) + ')');
+      delivery = 'Domicilio ' + zone.name + ' · ' + address;
+    }
     const deposit = Math.ceil(total * CONFIG.DEPOSIT_PCT / 100 / 100) * 100;
 
     lock.waitLock(20000);

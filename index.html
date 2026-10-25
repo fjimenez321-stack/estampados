@@ -326,6 +326,7 @@ footer img.foot-logo{width:120px;height:auto}
       <span class="pill" id="pillMin">Mínimo 2 unidades</span>
       <span class="pill">Entrega en estaciones</span>
       <span class="pill">Retiro en Recreo, Viña</span>
+      <span class="pill" id="pillHome">Despacho a domicilio desde $10.000</span>
     </div>
     <div class="hero-ctas">
       <a class="hero-cta" href="#catalogo">Ver diseños ↓</a>
@@ -347,7 +348,7 @@ footer img.foot-logo{width:120px;height:auto}
 <section class="how">
   <div class="how-card"><img class="mug" src="img/montanas.webp" alt=""><div><span class="n">01</span><b>Elige</b><span>Diseños del catálogo, o tu foto, nombre o frase.</span></div></div>
   <div class="how-card"><img class="mug" src="img/gracias.webp" alt=""><div><span class="n">02</span><b>Abona</b><span>Transfiere el <span id="howPct">50</span>% y comenzamos tu pedido.</span></div></div>
-  <div class="how-card"><img class="mug" src="img/playa.webp" alt=""><div><span class="n">03</span><b>Recibe</b><span>En una estación o en Recreo. Pagas el resto al recibir.</span></div></div>
+  <div class="how-card"><img class="mug" src="img/playa.webp" alt=""><div><span class="n">03</span><b>Recibe</b><span>En una estación, en Recreo o en tu casa. Pagas el resto al recibir.</span></div></div>
 </section>
 
 <div class="titled"><h2 class="ttl"><img src="img/ic-sonrisa.webp" alt="">Horarios</h2></div>
@@ -471,6 +472,12 @@ const CONFIG = {
   PACKS: [
     { id: 'pack:curso', name: 'Pack de curso', units: 30, price: 100000, ivaPct: 19, img: 'img/profe.webp',
       desc: '30 tazones clásicos personalizados, uno para cada estudiante o colega.\n\n- Mismo diseño con el nombre de cada uno, o diseños distintos\n- Ideal para fin de año, graduaciones y regalos de curso\n- Envía la lista de nombres al hacer el pedido' }
+  ],
+  // Despacho a domicilio (se reemplaza por los valores del script al cargar)
+  HOME_MIN: 10000,
+  HOME_ZONES: [
+    { name: 'Villa Alemana', fee: 2000 }, { name: 'Quilpué', fee: 2500 },
+    { name: 'Viña del Mar', fee: 3000 }, { name: 'Valparaíso', fee: 3500 }, { name: 'Limache', fee: 3500 }
   ],
   PICKUP: 'Retiro en Recreo, Viña del Mar',
   PICKUP_HOURS: 'Todos los días, 16:00 a 19:00',
@@ -604,6 +611,8 @@ async function loadCatalog(){
       if (d.extraElement != null) CONFIG.EXTRA_ELEMENT = d.extraElement;
       if (d.customPrice) CONFIG.CUSTOM_PRICE = d.customPrice;
       if (d.minUnits) CONFIG.MIN_UNITS = d.minUnits;
+      if (d.homeMin != null) CONFIG.HOME_MIN = d.homeMin;
+      if (Array.isArray(d.homeZones)) CONFIG.HOME_ZONES = d.homeZones;
       if (d.depositPct != null) CONFIG.DEPOSIT_PCT = d.depositPct;
     } catch (e) {
       $('#grid').innerHTML = '<p class="state" style="grid-column:1/-1">No pudimos cargar el catálogo. Intenta de nuevo en unos minutos.</p>';
@@ -612,6 +621,8 @@ async function loadCatalog(){
   }
   renderHours();
   $('#pillMin').textContent = 'Mínimo ' + CONFIG.MIN_UNITS + ' unidades';
+  $('#pillHome').hidden = !CONFIG.HOME_ZONES.length;
+  $('#pillHome').textContent = 'Despacho a domicilio desde ' + money(CONFIG.HOME_MIN);
   $('#howPct').textContent = CONFIG.DEPOSIT_PCT;
   $('#count').textContent = products.length + ' diseño' + (products.length === 1 ? '' : 's');
   window.tallerRefresh?.();
@@ -675,6 +686,8 @@ const variantText = c => {
 };
 const total = () => cart.reduce((s, c) => s + c.qty * unitPrice(c), 0);
 const deposit = t => Math.ceil(t * CONFIG.DEPOSIT_PCT / 100 / 100) * 100;
+const homeZone = v => String(v || '').startsWith('Domicilio ')
+  ? CONFIG.HOME_ZONES.find(z => z.name === v.slice(10)) : null;
 function saveCart(){ store.set('tazas_cart', cart); $('#badge').textContent = units(); }
 
 function addToCart(id){
@@ -797,6 +810,8 @@ function renderForm(){
   $('#pTitle').textContent = 'Datos del pedido';
   const saved = store.get('tazas_client', {});
   const t = total();
+  const canHome = t >= CONFIG.HOME_MIN;
+  if (saved.delivery && homeZone(saved.delivery) && !canHome) delete saved.delivery;
   $('#pBody').innerHTML = `
     <form class="f" id="orderForm" novalidate>
       <label>Nombre<input name="name" required maxlength="80" autocomplete="name" value="${esc(saved.name || '')}"></label>
@@ -808,11 +823,18 @@ function renderForm(){
           <optgroup label="Entrega en estación">
             ${CONFIG.STATIONS.map(s => `<option value="Estación ${esc(s)}">Estación ${esc(s)}</option>`).join('')}
           </optgroup>
+          ${CONFIG.HOME_ZONES.length ? `<optgroup label="Despacho a domicilio${canHome ? '' : ' (pedidos desde ' + money(CONFIG.HOME_MIN) + ')'}">
+            ${CONFIG.HOME_ZONES.map(z => `<option value="Domicilio ${esc(z.name)}"${canHome ? '' : ' disabled'}>Domicilio · ${esc(z.name)} (+${money(z.fee)})</option>`).join('')}
+          </optgroup>` : ''}
         </select>
       </label>
+      ${CONFIG.HOME_ZONES.length && !canHome ? `<p class="hint">Te faltan ${money(CONFIG.HOME_MIN - t)} para el despacho a domicilio.</p>` : ''}
       <p class="hint" id="slotHint"></p>
       <label id="slotWrap" hidden>Horario de entrega
         <select name="slot"></select>
+      </label>
+      <label id="addrWrap" hidden>Dirección de despacho <small>Calle, número, depto o referencia</small>
+        <input name="address" maxlength="150" autocomplete="street-address" value="${esc(saved.address || '')}">
       </label>
       <label>Fotos para personalizar <small>Opcional · hasta 6 imágenes</small>
         <input type="file" id="photoIn" accept="image/*" multiple>
@@ -822,17 +844,23 @@ function renderForm(){
         <textarea name="notes" maxlength="600"></textarea>
       </label>
       <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <ul class="resume">
-        ${cart.map(c => `<li><span>${c.qty} × ${esc(byId(c.id).name)}<br><small>${esc(variantText(c))}</small></span><span>${money(c.qty * unitPrice(c))}</span></li>`).join('')}
-        <li style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px"><b>Total</b><b>${money(t)}</b></li>
-        <li><span>Abono por transferencia (${CONFIG.DEPOSIT_PCT}%)</span><span>${money(deposit(t))}</span></li>
-        <li><span>Resto al recibir</span><span>${money(t - deposit(t))}</span></li>
-      </ul>
+      <ul class="resume" id="resume"></ul>
       <div id="formErr"></div>
     </form>`;
   const form = $('#orderForm');
+  const renderResume = () => {
+    const z = homeZone(form.delivery.value), fee = z ? z.fee : 0, g = t + fee;
+    $('#resume').innerHTML =
+      cart.map(c => `<li><span>${c.qty} × ${esc(byId(c.id).name)}<br><small>${esc(variantText(c))}</small></span><span>${money(c.qty * unitPrice(c))}</span></li>`).join('') +
+      (z ? `<li><span>Despacho a domicilio · ${esc(z.name)}</span><span>${money(fee)}</span></li>` : '') +
+      `<li style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px"><b>Total</b><b>${money(g)}</b></li>
+       <li><span>Abono por transferencia (${CONFIG.DEPOSIT_PCT}%)</span><span>${money(deposit(g))}</span></li>
+       <li><span>Resto al recibir</span><span>${money(g - deposit(g))}</span></li>`;
+  };
   const syncSlot = () => {
     const v = form.delivery.value, station = v.startsWith('Estación');
+    $('#addrWrap').hidden = !homeZone(v);
+    renderResume();
     const free = station ? slotsFor(v.replace(/^Estación /, '')).filter(s => s.available) : [];
     $('#slotWrap').hidden = !station || !free.length;
     form.slot.innerHTML = '<option value="">Elige un horario…</option>' +
@@ -890,19 +918,27 @@ async function submitOrder(){
   if (station && !data.slot){
     err.innerHTML = '<div class="err">Elige un horario de entrega disponible.</div>'; return;
   }
-  store.set('tazas_client', { name: data.name, phone: data.phone, delivery: data.delivery });
-  if (!station) data.delivery += ' · ' + CONFIG.PICKUP_HOURS;
+  const zone = homeZone(data.delivery);
+  if (zone && total() < CONFIG.HOME_MIN){
+    err.innerHTML = `<div class="err">El despacho a domicilio es para pedidos desde ${money(CONFIG.HOME_MIN)}.</div>`; return;
+  }
+  if (zone && (data.address || '').trim().length < 5){
+    err.innerHTML = '<div class="err">Escribe la dirección de despacho.</div>'; return;
+  }
+  store.set('tazas_client', { name: data.name, phone: data.phone, delivery: data.delivery, address: data.address || '' });
+  if (!station && !zone) data.delivery += ' · ' + CONFIG.PICKUP_HOURS;
   const payload = { ...data, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note, variant: variant(c).key, color: c.color || '', extra: !!c.extra })), photos };
   btn.disabled = true; btn.textContent = photos.length ? 'Subiendo fotos…' : 'Enviando…';
   try {
     let res;
     if (!CONFIG.API_URL){
       await new Promise(r => setTimeout(r, 700));
-      const t = total();
+      const t = total() + (zone ? zone.fee : 0);
       const sl = station && slots.find(s => slotKey(s) === data.slot);
       if (sl) sl.available = false;
       res = { ok: true, id: 'T-DEMO', units: units(), total: t, deposit: deposit(t),
-              delivery: sl ? `${data.delivery} · ${sl.day} ${sl.from}–${sl.to}` : data.delivery };
+              delivery: sl ? `${data.delivery} · ${sl.day} ${sl.from}–${sl.to}`
+                      : zone ? `${data.delivery} · ${data.address.trim()}` : data.delivery };
     } else {
       const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
       res = await r.json();

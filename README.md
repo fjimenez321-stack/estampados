@@ -62,6 +62,9 @@ Hasta 10 fotos por producto (`MAX_IMAGES` en `Codigo.gs`).
 - Para liberarlo, cámbialo a **Disponible**. **Desactivado** lo oculta sin reservarlo (vacaciones, un día que no puedes).
 - Para agregar horarios o estaciones, añade filas. Escribe el nombre de la estación igual que en el sitio.
 
+## Despacho a domicilio
+En `Codigo.gs` → `HOME_MIN` es el monto mínimo en productos para ofrecer despacho ($10.000), y `HOME_ZONES` la lista de comunas con su costo (`fee`). El costo se suma al total y al abono, y la dirección queda en la columna "Entrega" de la hoja. Para cambiar comunas o tarifas, edítalas ahí y publica una nueva versión del script; si dejas `HOME_ZONES` vacío, la opción desaparece del sitio.
+
 ## Tipos de tazón (carrito)
 En `Codigo.gs` → `VARIANTS` defines los tipos y su recargo por unidad; en `COLORS`, los colores del tazón con interior de color. El sitio los toma del script, así que basta con cambiarlos ahí (y publicar una nueva versión).
 
