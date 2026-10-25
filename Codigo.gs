@@ -13,8 +13,8 @@
  */
 
 const CONFIG = {
-  CATALOG_FOLDER_ID: 'PEGA_AQUI_EL_ID_DE_LA_CARPETA_CATALOGO',
-  ORDERS_FOLDER_ID:  'PEGA_AQUI_EL_ID_DE_LA_CARPETA_PEDIDOS',
+  CATALOG_FOLDER_ID: '1pSr1GfUFDNqJjatdlYCVNpmUZXuAbvsP',
+  ORDERS_FOLDER_ID:  '1cuKOlwFcVWMmhl4BWhmPavD8sES35b14',
   NOTIFY_EMAIL: '',      // tu correo para recibir aviso de cada pedido ('' = sin aviso)
   MIN_UNITS: 2,          // pedido mínimo (unidades en total)
   DEFAULT_PRICE: 3500,   // precio si el archivo no lo indica
