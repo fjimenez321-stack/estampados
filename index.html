@@ -234,6 +234,8 @@ footer img{width:44px;height:44px}
 .titled + .how,.titled + .hours{padding-top:10px}
 footer img.foot-logo{width:120px;height:auto}
 
+.vhint{font-size:.8rem;color:var(--muted);background:var(--cobalt-soft);border-radius:8px;padding:6px 9px;margin-top:6px;line-height:1.35}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -316,11 +318,13 @@ const CONFIG = {
   // Se reemplazan por los del script al cargar (Codigo.gs > VARIANTS / COLORS)
   VARIANTS: [
     { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0 },
-    { key: 'magico',  label: 'Mágico (aparece con calor)', extra: 2000 },
-    { key: 'color',   label: 'Interior de color', extra: 2000 },
+    { key: 'magico',  label: 'Mágico', extra: 2000,
+      hint: 'Tazón mágico: revela su diseño con el calor al servir una bebida caliente.' },
+    { key: 'color',   label: 'Interior de color', extra: 2000,
+      hint: 'Por defecto los tazones son blancos. Con esta opción el interior y el asa van en color: rojo, amarillo o azul.' },
     { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
   ],
-  COLORS: ['Rojo', 'Azul', 'Negro', 'Verde', 'Amarillo', 'Rosado'],
+  COLORS: ['Rojo', 'Amarillo', 'Azul'],
   PICKUP: 'Retiro en Recreo, Viña del Mar',
   PICKUP_HOURS: 'Todos los días, 16:00 a 19:00',
   STATIONS: ['Puerto','Bellavista','Francia','Barón','Portales','Recreo','Miramar','Viña del Mar',
@@ -560,6 +564,7 @@ function renderCart(){
           ${variant(c).key === 'color' ? `<select data-color="${i}" aria-label="Color" class="${c.color ? '' : 'need'}"><option value="">Color…</option>${CONFIG.COLORS.map(k =>
             `<option ${k === c.color ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select>` : ''}
         </div>
+        ${variant(c).hint ? `<p class="vhint">${esc(variant(c).hint)}</p>` : ''}
         <input data-note="${i}" maxlength="150" placeholder="Nombre o frase (opcional)" value="${esc(c.note)}">
         <button class="rm" data-rm="${i}">Quitar</button>
       </div>

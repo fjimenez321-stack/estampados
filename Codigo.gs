@@ -30,11 +30,13 @@ const CONFIG = {
   // Tipos de tazón que el cliente elige en el carrito (extra = recargo por unidad)
   VARIANTS: [
     { key: 'clasico', label: 'Clásico blanco 11 oz', extra: 0 },
-    { key: 'magico',  label: 'Mágico (aparece con calor)', extra: 2000 },
-    { key: 'color',   label: 'Interior de color', extra: 2000 },
+    { key: 'magico',  label: 'Mágico', extra: 2000,
+      hint: 'Tazón mágico: revela su diseño con el calor al servir una bebida caliente.' },
+    { key: 'color',   label: 'Interior de color', extra: 2000,
+      hint: 'Por defecto los tazones son blancos. Con esta opción el interior y el asa van en color: rojo, amarillo o azul.' },
     { key: 'oz16',    label: 'Grande 16 oz', extra: 2000 }
   ],
-  COLORS: ['Rojo', 'Azul', 'Negro', 'Verde', 'Amarillo', 'Rosado']   // para "Interior de color"
+  COLORS: ['Rojo', 'Amarillo', 'Azul']   // para "Interior de color"
 };
 
 const HEADERS = ['Fecha', 'Pedido', 'Nombre', 'Teléfono', 'Entrega', 'Detalle',
