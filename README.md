@@ -86,6 +86,15 @@ El editor ajusta el área al tipo de tazón (`area` en `VARIANTS`: 11 oz = 22 ×
 
 Estados: *Nueva → Propuesta enviada → Aprobada / Descartada*. Cuando el cliente aprueba, coordinas el abono por WhatsApp. El precio base es $5.000 por tazón (`CUSTOM_PRICE`) más el recargo del tipo de tazón; es referencial.
 
+## Seguridad y privacidad
+- **Precios y reglas** se recalculan en el script; el navegador no puede alterar totales, recargos, packs, despacho ni horarios.
+- **Límites de envío:** máximo 3 pedidos/solicitudes por teléfono por hora y 40 en total por hora (`MAX_PER_PHONE_HOUR`, `MAX_PER_HOUR`). Evita pedidos falsos masivos y que un bot reserve todos los horarios.
+- **Sin duplicados:** cada envío lleva un identificador; si la red falla y el cliente reintenta, se devuelve el mismo pedido.
+- **Imágenes:** se aceptan solo JPG, PNG o WEBP verificados por contenido, hasta ≈4 MB cada una, y la solicitud completa hasta ≈20 MB.
+- **Fotos de clientes:** ejecuta `instalarLimpieza` una vez y las carpetas de *Pedidos tazas* con más de 90 días (`RETENTION_DAYS`) se envían solas a la papelera cada día. Si cambias los días, cámbialos también en `index.html` (aviso de privacidad).
+- **Aviso de privacidad** en el pie del sitio, con botón para borrar los datos guardados en el navegador. La dirección de despacho no se guarda en el navegador.
+- **Revisa tú:** que la carpeta *Pedidos tazas* y la Sheet no estén compartidas con nadie.
+
 ## Uso diario
 - **Nuevo diseño:** súbelo a la carpeta. Aparece en máximo 10 minutos
   (o al instante abriendo `TU_URL/exec?action=catalog&fresh=1`).

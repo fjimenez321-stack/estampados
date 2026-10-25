@@ -322,6 +322,10 @@ footer img.foot-logo{width:120px;height:auto}
 .t-done{text-align:center;padding:20px 8px}
 .t-done .order-id{margin:6px 0}
 
+.link{color:var(--cobalt);text-decoration:underline;font:inherit;padding:0}
+.consent{font-size:.8rem;color:var(--muted);text-align:center}
+.priv p{font-size:.9rem}
+
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -498,13 +502,15 @@ footer img.foot-logo{width:120px;height:auto}
     <div class="t-est"><span>Valor referencial</span><b id="tEst">$10.000</b></div>
     <p class="hint" style="margin-top:0">El precio final depende de la complejidad y lo confirmamos en la propuesta. No pagas nada hasta aprobarla.</p>
     <div id="tErr"></div>
+    <p class="consent">Al enviar aceptas el <button class="link" data-privacy type="button">aviso de privacidad</button>.</p>
     <button class="cta" id="tSend" type="submit">Enviar mi idea</button>
   </form>
 </section>
 
 <footer>
   <img src="img/logo.webp" alt="Té-tazas" class="foot-logo">
-  <span><span id="footName">Té-tazas</span> · Viña del Mar · Tazones sublimados 11 y 16 oz</span>
+  <span><span id="footName">Té-tazas</span> · Viña del Mar · Tazones sublimados 11 y 16 oz ·
+    <button class="link" id="openPrivacy">Privacidad</button></span>
 </footer>
 
 <div class="scrim" id="scrim"></div>
@@ -553,6 +559,7 @@ const CONFIG = {
     { name: 'Villa Alemana', fee: 2000 }, { name: 'Quilpué', fee: 2500 },
     { name: 'Viña del Mar', fee: 3000 }, { name: 'Valparaíso', fee: 3500 }, { name: 'Limache', fee: 3500 }
   ],
+  RETENTION_DAYS: 90,        // igual que en Codigo.gs: días hasta borrar fotos de clientes
   PICKUP: 'Retiro en Recreo, Viña del Mar',
   PICKUP_HOURS: 'Todos los días, 16:00 a 19:00',
   STATIONS: ['Puerto','Bellavista','Francia','Barón','Portales','Recreo','Miramar','Viña del Mar',
@@ -599,6 +606,7 @@ let view = 'cart';
 
 document.title = CONFIG.STORE_NAME;
 $('#footName').textContent = CONFIG.STORE_NAME;
+document.addEventListener('click', e => { if (e.target.closest('[data-privacy], #openPrivacy')) openPanel('privacy'); });
 
 /* Horarios */
 $('#pickHours').textContent = CONFIG.PICKUP_HOURS;
@@ -779,7 +787,31 @@ $('#openCart').onclick = () => openPanel('cart');
 $('#closePanel').onclick = $('#scrim').onclick = closePanel;
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
 
-function render(){ ({ cart: renderCart, form: renderForm, detail: renderDetail })[view]?.(); }
+function render(){ ({ cart: renderCart, form: renderForm, detail: renderDetail, privacy: renderPrivacy })[view]?.(); }
+
+/* Identificador de envío: si la red falla y el cliente reintenta, el script no duplica el pedido */
+let orderToken = null, reqToken = null;
+const newToken = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 12));
+
+/* ── Aviso de privacidad ── */
+function renderPrivacy(){
+  $('#pTitle').textContent = 'Privacidad';
+  const mail = CONFIG.BANK['Correo'] || '';
+  $('#pBody').innerHTML = `<div class="md priv">
+    <p><b>Responsable:</b> ${esc(CONFIG.BANK['Nombre'] || CONFIG.STORE_NAME)} (${esc(CONFIG.STORE_NAME)}), Viña del Mar.</p>
+    <p><b>Qué datos pedimos:</b> nombre, teléfono, punto de entrega o dirección de despacho, correo (opcional), comentarios y las fotos que subas para personalizar.</p>
+    <p><b>Para qué:</b> solo para elaborar tu pedido o propuesta, coordinar el pago y la entrega, y contactarte por ese motivo. No los vendemos ni los usamos para publicidad.</p>
+    <p><b>Dónde se guardan:</b> en Google Drive y Google Sheets, en una cuenta privada del responsable. Nadie más tiene acceso.</p>
+    <p><b>Cuánto tiempo:</b> las fotos se eliminan ${CONFIG.RETENTION_DAYS} días después de recibirlas. Los datos del pedido se conservan como registro de la venta.</p>
+    <p><b>Tus derechos:</b> puedes pedir ver, corregir o eliminar tus datos escribiendo por WhatsApp${mail ? ` o a ${esc(mail)}` : ''}.</p>
+    <p><b>En este navegador:</b> guardamos tu carrito y, para la próxima compra, tu nombre, teléfono y punto de entrega. La dirección no se guarda. Puedes borrarlos ahora.</p>
+  </div>`;
+  $('#pFoot').innerHTML = `<button class="ghost" id="wipe">Borrar mis datos de este navegador</button>`;
+  $('#wipe').onclick = () => {
+    ['tazas_cart', 'tazas_client', 'tazas_iostip'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    cart = []; saveCart(); toast('Datos borrados de este navegador');
+  };
+}
 
 /* Galería deslizable del producto (una o varias fotos) */
 function gallery(p){
@@ -908,7 +940,7 @@ function renderForm(){
         <select name="slot"></select>
       </label>
       <label id="addrWrap" hidden>Dirección de despacho <small>Calle, número, depto o referencia</small>
-        <input name="address" maxlength="150" autocomplete="street-address" value="${esc(saved.address || '')}">
+        <input name="address" maxlength="150" autocomplete="street-address" value="">
       </label>
       <label>Fotos para personalizar <small>Opcional · hasta 6 imágenes</small>
         <input type="file" id="photoIn" accept="image/*" multiple>
@@ -953,7 +985,8 @@ function renderForm(){
     }
     e.target.value = ''; renderThumbs();
   };
-  $('#pFoot').innerHTML = `<button class="cta" id="send">Confirmar pedido</button>
+  $('#pFoot').innerHTML = `<p class="consent">Al confirmar aceptas el <button class="link" data-privacy type="button">aviso de privacidad</button>.</p>
+    <button class="cta" id="send">Confirmar pedido</button>
     <button class="ghost" id="back">Volver al carrito</button>`;
   $('#back').onclick = () => { view = 'cart'; render(); };
   $('#send').onclick = submitOrder;
@@ -999,9 +1032,10 @@ async function submitOrder(){
   if (zone && (data.address || '').trim().length < 5){
     err.innerHTML = '<div class="err">Escribe la dirección de despacho.</div>'; return;
   }
-  store.set('tazas_client', { name: data.name, phone: data.phone, delivery: data.delivery, address: data.address || '' });
+  store.set('tazas_client', { name: data.name, phone: data.phone, delivery: data.delivery });   // la dirección no se guarda
+  orderToken = orderToken || newToken();
   if (!station && !zone) data.delivery += ' · ' + CONFIG.PICKUP_HOURS;
-  const payload = { ...data, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note, variant: variant(c).key, color: c.color || '', extra: !!c.extra })), photos };
+  const payload = { ...data, clientId: orderToken, items: cart.map(c => ({ id: c.id, qty: c.qty, note: c.note, variant: variant(c).key, color: c.color || '', extra: !!c.extra })), photos };
   btn.disabled = true; btn.textContent = photos.length ? 'Subiendo fotos…' : 'Enviando…';
   try {
     let res;
@@ -1018,7 +1052,7 @@ async function submitOrder(){
       res = await r.json();
     }
     if (!res.ok) throw new Error(res.error || 'Error desconocido');
-    cart = []; photos = []; saveCart();
+    cart = []; photos = []; orderToken = null; saveCart();
     if (res.delivery) data.delivery = res.delivery;
     renderDone(res, data);
     refreshSlots();
@@ -1242,7 +1276,8 @@ function initTaller(){
     if (!d.idea.trim() && !T.dirty)
       return err.innerHTML = '<div class="err">Cuéntanos tu idea o arma un boceto arriba.</div>';
     if (d.variant === 'color' && !d.color) return err.innerHTML = '<div class="err">Elige el color del tazón.</div>';
-    const payload = { ...d, type: 'request', photos: refPhotos, sketch: T.dirty ? cv.toDataURL('image/jpeg', .9) : '' };
+    reqToken = reqToken || newToken();
+    const payload = { ...d, clientId: reqToken, type: 'request', photos: refPhotos, sketch: T.dirty ? cv.toDataURL('image/jpeg', .9) : '' };
     btn.disabled = true; btn.textContent = 'Enviando…';
     try {
       let res;
@@ -1256,6 +1291,7 @@ function initTaller(){
       }
       if (!res.ok) throw new Error(res.error || 'Error desconocido');
       const msg = `Hola, envié la solicitud de diseño ${res.id} desde el Taller de Té-tazas.`;
+      reqToken = null;
       form.innerHTML = `<div class="t-done">
         <img class="mug done-art" style="margin:0 auto 6px" src="img/gracias.webp" alt="">
         <p>Tu solicitud es la</p><div class="order-id">${esc(res.id)}</div>

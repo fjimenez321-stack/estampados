@@ -27,6 +27,12 @@ const CONFIG = {
   SHEET_NAME: 'Pedidos',
   CACHE_SECONDS: 600,    // el catálogo se refresca cada 10 min
   MAX_PHOTOS: 6,
+  // Seguridad y abuso
+  MAX_BODY: 20000000,        // tamaño máximo de una solicitud (≈20 MB)
+  MAX_IMG_BYTES: 4000000,    // tamaño máximo de cada imagen (≈4 MB)
+  MAX_PER_PHONE_HOUR: 3,     // pedidos/solicitudes por teléfono en una hora
+  MAX_PER_HOUR: 40,          // pedidos/solicitudes en total en una hora
+  RETENTION_DAYS: 90,        // las fotos de clientes se borran después de estos días
   EXTRA_ELEMENT: 1000,   // recargo por tazón con más de una foto o frase
   CUSTOM_PRICE: 5000,    // Taller: diseño desde cero, precio base por tazón (referencial)
   MAX_REF_PHOTOS: 4,     // Taller: fotos de referencia por solicitud
@@ -111,8 +117,11 @@ function doGet(e) {
 function doPost(e) {
   const lock = LockService.getScriptLock();
   try {
+    if (e.postData.length > CONFIG.MAX_BODY) throw new Error('El pedido es demasiado grande. Prueba con menos fotos.');
     const data = JSON.parse(e.postData.contents);
     if (data.website) return json_({ ok: true, id: 'T-0000' }); // trampa anti-bots
+    const prev = idemGet_(data.clientId);                       // reintento del mismo envío
+    if (prev) return json_(prev);
     if (data.type === 'request') return json_(saveRequest_(data, lock));
 
     const name = clean_(data.name, 80);
@@ -122,6 +131,7 @@ function doPost(e) {
     if (isStation && !data.slot) throw new Error('Elige un horario de entrega.');
     const notes = clean_(data.notes, 600);
     if (!name || !phone || !delivery) throw new Error('Faltan nombre, teléfono o punto de entrega.');
+    throttle_(phone);
 
     // Los precios se recalculan aquí: nunca se confía en lo que manda el navegador.
     const byId = {};
@@ -177,6 +187,8 @@ function doPost(e) {
     const deposit = Math.ceil(total * CONFIG.DEPOSIT_PCT / 100 / 100) * 100;
 
     lock.waitLock(20000);
+    const dup = idemGet_(data.clientId);
+    if (dup) { lock.releaseLock(); return json_(dup); }
     let slot = null;
     if (isStation) {
       slot = findSlot_(delivery.replace(/^Estación /, ''), String(data.slot));
@@ -194,9 +206,8 @@ function doPost(e) {
     if (photos.length) {
       const folder = DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID).createFolder(id + ' · ' + name);
       photos.forEach(function (ph, i) {
-        const m = String(ph || '').match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/);
-        if (!m) return;
-        folder.createFile(Utilities.newBlob(Utilities.base64Decode(m[2]), m[1], id + '_foto' + (i + 1) + '.jpg'));
+        const blob = imageBlob_(ph, id + '_foto' + (i + 1));
+        if (blob) folder.createFile(blob);
       });
       photosUrl = folder.getUrl();
     }
@@ -214,7 +225,10 @@ function doPost(e) {
       } catch (mailErr) { /* el pedido ya quedó guardado */ }
     }
 
-    return json_({ ok: true, id: id, units: units, total: total, deposit: deposit, delivery: delivery });
+    const res = { ok: true, id: id, units: units, total: total, deposit: deposit, delivery: delivery };
+    idemPut_(data.clientId, res);
+    countUse_(phone);
+    return json_(res);
   } catch (err) {
     try { lock.releaseLock(); } catch (_) {}
     return json_({ ok: false, error: String(err.message || err) });
@@ -388,6 +402,7 @@ function saveRequest_(data, lock) {
   const name = clean_(data.name, 80), phone = clean_(data.phone, 30), email = clean_(data.email, 100);
   const idea = clean_(data.idea, 2000);
   if (!name || !phone) throw new Error('Faltan tu nombre o teléfono.');
+  throttle_(phone);
   if (!idea && !data.sketch) throw new Error('Cuéntanos tu idea o arma un boceto.');
   const qty = Math.max(CONFIG.MIN_UNITS, Math.min(500, Math.floor(Number(data.qty)) || CONFIG.MIN_UNITS));
   const v = CONFIG.VARIANTS.filter(function (x) { return x.key === data.variant; })[0] || CONFIG.VARIANTS[0];
@@ -395,6 +410,8 @@ function saveRequest_(data, lock) {
   const estimate = qty * (CONFIG.CUSTOM_PRICE + v.extra);
 
   lock.waitLock(20000);
+  const dup = idemGet_(data.clientId);
+  if (dup) { lock.releaseLock(); return dup; }
   const props = PropertiesService.getScriptProperties();
   const n = Number(props.getProperty('REQ_SEQ') || 0) + 1;
   props.setProperty('REQ_SEQ', String(n));
@@ -404,13 +421,10 @@ function saveRequest_(data, lock) {
   const imgs = [];
   if (data.sketch) imgs.push(['boceto', data.sketch]);
   (data.photos || []).slice(0, CONFIG.MAX_REF_PHOTOS).forEach(function (p, i) { imgs.push(['referencia' + (i + 1), p]); });
-  const valid = imgs.filter(function (x) { return /^data:image\/(jpeg|png|webp);base64,/.test(String(x[1] || '')); });
-  if (valid.length) {
+  const blobs = imgs.map(function (x) { return imageBlob_(x[1], id + '_' + x[0]); }).filter(Boolean);
+  if (blobs.length) {
     const folder = DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID).createFolder(id + ' · Taller · ' + name);
-    valid.forEach(function (x) {
-      const m = String(x[1]).match(/^data:(image\/\w+);base64,(.+)$/);
-      folder.createFile(Utilities.newBlob(Utilities.base64Decode(m[2]), m[1], id + '_' + x[0] + '.jpg'));
-    });
+    blobs.forEach(function (b) { folder.createFile(b); });
     filesUrl = folder.getUrl();
   }
   getReqSheet_().appendRow([new Date(), id, name, "'" + phone, email, clean_(data.contact, 20) || 'WhatsApp',
@@ -426,7 +440,10 @@ function saveRequest_(data, lock) {
          data.texts ? 'Textos: ' + data.texts : '', filesUrl ? 'Archivos: ' + filesUrl : ''].join('\n'));
     } catch (_) {}
   }
-  return { ok: true, id: id, qty: qty, estimate: estimate };
+  const res = { ok: true, id: id, qty: qty, estimate: estimate };
+  idemPut_(data.clientId, res);
+  countUse_(phone);
+  return res;
 }
 
 function getReqSheet_() {
@@ -501,6 +518,74 @@ function getSheet_() {
       SpreadsheetApp.newDataValidation().requireValueInList(ESTADOS, true).build());
   }
   return sh;
+}
+
+/* ───────────── Seguridad ───────────── */
+
+/** Idempotencia: el sitio manda un clientId por envío; si llega dos veces, se devuelve la misma respuesta. */
+function idemKey_(id) { return /^[\w-]{8,64}$/.test(String(id || '')) ? 'idem:' + id : null; }
+function idemGet_(id) {
+  const k = idemKey_(id); if (!k) return null;
+  const hit = CacheService.getScriptCache().get(k);
+  return hit ? JSON.parse(hit) : null;
+}
+function idemPut_(id, res) {
+  const k = idemKey_(id);
+  if (k) CacheService.getScriptCache().put(k, JSON.stringify(res), 21600);   // 6 horas
+}
+
+/** Límite de envíos: por teléfono y en total, por hora. Evita pedidos falsos masivos y que un bot reserve todos los horarios. */
+function phoneKey_(phone) {
+  const d = String(phone).replace(/\D/g, '');
+  if (d.length < 8 || d.length > 15) throw new Error('Escribe un teléfono válido.');
+  return d.slice(-9);
+}
+function throttle_(phone) {
+  const c = CacheService.getScriptCache(), p = phoneKey_(phone);
+  if (Number(c.get('rl:p:' + p) || 0) >= CONFIG.MAX_PER_PHONE_HOUR)
+    throw new Error('Ya recibimos varios pedidos desde este teléfono. Si necesitas otro, escríbenos por WhatsApp.');
+  if (Number(c.get('rl:all') || 0) >= CONFIG.MAX_PER_HOUR)
+    throw new Error('Estamos recibiendo muchos pedidos en este momento. Intenta en un rato más.');
+}
+function countUse_(phone) {
+  const c = CacheService.getScriptCache(), p = 'rl:p:' + phoneKey_(phone);
+  c.put(p, String(Number(c.get(p) || 0) + 1), 3600);
+  c.put('rl:all', String(Number(c.get('rl:all') || 0) + 1), 3600);
+}
+
+/** Convierte una imagen enviada por el sitio en archivo, revisando tamaño y que realmente sea JPG, PNG o WEBP. */
+function imageBlob_(dataUrl, baseName) {
+  const m = String(dataUrl || '').match(/^data:image\/(?:jpeg|png|webp);base64,([A-Za-z0-9+\/=]+)$/);
+  if (!m || m[1].length > CONFIG.MAX_IMG_BYTES * 4 / 3) return null;
+  const bytes = Utilities.base64Decode(m[1]);
+  const b = function (i) { return (bytes[i] + 256) % 256; };
+  let type = null, ext = '';
+  if (b(0) === 0xFF && b(1) === 0xD8 && b(2) === 0xFF) { type = 'image/jpeg'; ext = '.jpg'; }
+  else if (b(0) === 0x89 && b(1) === 0x50 && b(2) === 0x4E && b(3) === 0x47) { type = 'image/png'; ext = '.png'; }
+  else if (b(0) === 0x52 && b(1) === 0x49 && b(2) === 0x46 && b(3) === 0x46 &&
+           b(8) === 0x57 && b(9) === 0x45 && b(10) === 0x42 && b(11) === 0x50) { type = 'image/webp'; ext = '.webp'; }
+  return type ? Utilities.newBlob(bytes, type, baseName + ext) : null;
+}
+
+/** Envía a la papelera las carpetas de fotos de clientes con más de RETENTION_DAYS días. */
+function limpiarFotosAntiguas() {
+  const limit = Date.now() - CONFIG.RETENTION_DAYS * 86400000;
+  const it = DriveApp.getFolderById(CONFIG.ORDERS_FOLDER_ID).getFolders();
+  let n = 0;
+  while (it.hasNext()) {
+    const f = it.next();
+    if (f.getDateCreated().getTime() < limit) { f.setTrashed(true); n++; }
+  }
+  Logger.log('Carpetas enviadas a la papelera: ' + n);
+}
+
+/** Ejecuta esta función UNA vez para que la limpieza corra sola cada día. */
+function instalarLimpieza() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'limpiarFotosAntiguas') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('limpiarFotosAntiguas').timeBased().everyDays(1).atHour(4).create();
+  Logger.log('Limpieza diaria instalada (' + CONFIG.RETENTION_DAYS + ' días).');
 }
 
 /* ───────────── Utilidades ───────────── */
